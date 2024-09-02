@@ -6,6 +6,7 @@ import Navbar from "./components/global/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Login from "./pages/user/Login";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route exact path="/" element={<Home />} />
             <Route exact path="/about" element={<About />} />
             <Route exact path="/contact" element={<Contact />} />
+              <Route exact path="/login" element={<Login />} />
           </Routes>
         </main>
       </div>
