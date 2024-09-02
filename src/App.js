@@ -13,21 +13,22 @@ import Profile from "./pages/user/Profile";
 function App() {
   return (
     <AuthProvider>
-    <Router>
-      <div className="min-h-screen bg-gray-100">
-        <Navbar />
-        <main>
-          <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route exact path="/about" element={<About />} />
-            <Route exact path="/contact" element={<Contact />} />
+      <Router>
+        <div className="min-h-screen bg-gray-100">
+          <Navbar />
+          <main>
+            <Routes>
+              <Route exact path="/" element={<Home />} />
+              <Route exact path="/about" element={<About />} />
+              <Route exact path="/contact" element={<Contact />} />
               <Route exact path="/login" element={<Login />} />
               <Route exact path="/register" element={<Register />} />
               <Route exact path="/profile" element={<Profile />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+              <Route path="*" element={<div>404 Not Found</div>} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
     </AuthProvider>
   );
 }
