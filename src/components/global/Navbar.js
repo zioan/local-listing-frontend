@@ -1,7 +1,8 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, HeartIcon, UserIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../../context/AuthContext";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -14,6 +15,17 @@ function classNames(...classes) {
 }
 
 function Navbar() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleUserIconClick = () => {
+    if (user) {
+      navigate("/profile");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open, close }) => (
@@ -51,7 +63,10 @@ function Navbar() {
                   <span className="sr-only">View favorites</span>
                   <HeartIcon className="w-6 h-6" aria-hidden="true" />
                 </button>
-                <button className="p-1 ml-3 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                <button
+                  onClick={handleUserIconClick}
+                  className="p-1 ml-3 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                >
                   <span className="sr-only">View profile</span>
                   <UserIcon className="w-6 h-6" aria-hidden="true" />
                 </button>
