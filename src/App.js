@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/global/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -8,6 +9,7 @@ import Contact from "./pages/Contact";
 
 function App() {
   return (
+    <AuthProvider>
     <Router>
       <div className="min-h-screen bg-gray-100">
         <Navbar />
@@ -20,6 +22,7 @@ function App() {
         </main>
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 
