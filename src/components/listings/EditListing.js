@@ -104,7 +104,17 @@ const EditListing = () => {
       navigate(`/listings/${id}`);
     } catch (err) {
       console.error("Error updating listing:", err.response?.data);
-      setError("Error updating listing: " + JSON.stringify(err.response?.data));
+      let errorMessage = "Error updating listing: ";
+      if (err.response?.data) {
+        if (typeof err.response.data === "string") {
+          errorMessage += err.response.data;
+        } else {
+          errorMessage += JSON.stringify(err.response.data);
+        }
+      } else {
+        errorMessage += "An unexpected error occurred";
+      }
+      setError(errorMessage);
     }
   };
 
