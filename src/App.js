@@ -10,6 +10,7 @@ import Login from "./pages/user/Login";
 import Register from "./pages/user/Register";
 import Profile from "./pages/user/Profile";
 import ListingDetail from "./components/listings/ListingDetail";
+import EditListing from "./components/listings/EditListing";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route exact path="/register" element={<Register />} />
               <Route path="/profile/*" element={<Profile />} />
               <Route path="/listings/:id" element={<ListingDetail />} />
+              <Route path="/listings/:id/edit" element={<EditListing />} />
               <Route path="*" element={<div>404 Not Found</div>} />
             </Routes>
           </main>
