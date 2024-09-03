@@ -12,7 +12,10 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await authService.getCurrentUser();
       setUser(currentUser);
     } catch (error) {
-      console.error("Error fetching current user:", error);
+      // Only log errors that are not 401 Unauthorized
+      if (error.response && error.response.status !== 401) {
+        console.error("Error fetching current user:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -24,8 +27,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const userData = await authService.login(email, password);
-      setUser(userData);
+      const data = await authService.login(email, password);
+      setUser(data.user);
+      return data;
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -65,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Or any loading component
+    return <div>Loading...</div>;
   }
 
   return <AuthContext.Provider value={{ user, login, logout, register, updateProfile, fetchUser }}>{children}</AuthContext.Provider>;

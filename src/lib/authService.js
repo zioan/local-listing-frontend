@@ -4,19 +4,17 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// Update the interceptor to use the token directly
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     if (token) {
-      config.headers["Authorization"] = `Token ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -29,24 +27,9 @@ const authService = {
   register: async (userData) => {
     try {
       const response = await axiosInstance.post("register/", userData);
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-      }
-      return response.data.user;
-    } catch (error) {
-      if (error.response && error.response.data) {
-        throw error.response.data;
-      } else {
-        throw new Error("An unexpected error occurred during registration.");
-      }
-    }
-  },
-
-  login: async (email, password) => {
-    try {
-      const response = await axiosInstance.post("login/", { email, password });
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+      if (response.data.access) {
+        localStorage.setItem("access_token", response.data.access);
+        localStorage.setItem("refresh_token", response.data.refresh);
       }
       return response.data.user;
     } catch (error) {
@@ -54,29 +37,70 @@ const authService = {
     }
   },
 
+  login: async (email, password) => {
+    try {
+      const response = await axiosInstance.post("login/", { email, password });
+      if (response.data.access) {
+        localStorage.setItem("access_token", response.data.access);
+        localStorage.setItem("refresh_token", response.data.refresh);
+      }
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error.message;
+    }
+  },
+
   logout: async () => {
     try {
-      await axiosInstance.post("logout/");
-      localStorage.removeItem("token");
+      const refreshToken = localStorage.getItem("refresh_token");
+      if (!refreshToken) {
+        throw new Error("No refresh token found");
+      }
+      await axiosInstance.post("logout/", { refresh_token: refreshToken });
     } catch (error) {
       console.error("Logout error:", error);
-      localStorage.removeItem("token");
+    } finally {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
     }
   },
 
   getCurrentUser: async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      return null; // Return null if there's no token
+    }
     try {
       const response = await axiosInstance.get("profile/");
       return response.data;
     } catch (error) {
+      if (error.response && error.response.status === 401) {
+        // Token is invalid or expired
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        return null;
+      }
       console.error("Error fetching current user:", error);
-      return null;
+      throw error;
     }
   },
 
   updateProfile: async (userData) => {
     try {
       const response = await axiosInstance.put("profile/", userData);
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error.message;
+    }
+  },
+
+  refreshToken: async () => {
+    try {
+      const refreshToken = localStorage.getItem("refresh_token");
+      const response = await axiosInstance.post("token/refresh/", { refresh: refreshToken });
+      if (response.data.access) {
+        localStorage.setItem("access_token", response.data.access);
+      }
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error.message;
