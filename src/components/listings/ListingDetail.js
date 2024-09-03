@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
+import ConfirmationModal from "../global/ConfirmationModal";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -11,6 +12,7 @@ const ListingDetail = () => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -29,16 +31,17 @@ const ListingDetail = () => {
   }, [id]);
 
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this listing?")) {
-      try {
-        await api.delete(`listings/${id}/`);
-        navigate("/listings");
-      } catch (err) {
-        console.error("Error deleting listing:", err);
-        setError("Failed to delete listing. Please try again.");
-      }
+    try {
+      await api.delete(`listings/listings/${id}/`);
+      navigate("/profile/listings");
+    } catch (err) {
+      console.error("Error deleting listing:", err);
+      setError("Failed to delete listing. Please try again.");
     }
   };
+
+  const openDeleteModal = () => setIsDeleteModalOpen(true);
+  const closeDeleteModal = () => setIsDeleteModalOpen(false);
 
   if (loading) return <div className="py-4 text-center">Loading...</div>;
   if (error) return <div className="py-4 text-center text-red-500">{error}</div>;
@@ -89,11 +92,19 @@ const ListingDetail = () => {
           <button onClick={() => navigate(`/listings/${id}/edit`)} className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
             Edit Listing
           </button>
-          <button onClick={handleDelete} className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+          <button onClick={openDeleteModal} className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
             Delete Listing
           </button>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDelete}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this listing? This action cannot be undone."
+      />
     </div>
   );
 };
