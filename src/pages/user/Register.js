@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import SubmitBtn from "../../components/shared/SubmitBtn";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -27,8 +28,8 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({});
     setIsLoading(true);
+    setErrors({});
 
     try {
       await register(formData);
@@ -77,13 +78,7 @@ function Register() {
           </div>
 
           <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {isLoading ? "Registering..." : "Register"}
-            </button>
+            <SubmitBtn isLoading={isLoading}>Register</SubmitBtn>
           </div>
         </form>
         <div className="text-sm text-center">

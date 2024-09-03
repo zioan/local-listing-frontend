@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import authService from "../../lib/authService";
+import SubmitBtn from "../shared/SubmitBtn";
 
 const UpdateProfile = () => {
   const { user, fetchUser } = useAuth();
@@ -13,6 +14,7 @@ const UpdateProfile = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -36,6 +38,7 @@ const UpdateProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     setError("");
     setSuccess("");
     try {
@@ -44,6 +47,8 @@ const UpdateProfile = () => {
       setSuccess("Profile updated successfully!");
     } catch (err) {
       setError("Failed to update profile. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -116,12 +121,7 @@ const UpdateProfile = () => {
           />
         </div>
         <div>
-          <button
-            type="submit"
-            className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Update Profile
-          </button>
+          <SubmitBtn isSubmitting={isSubmitting}>Update Profile x</SubmitBtn>
         </div>
       </form>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}

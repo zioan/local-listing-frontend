@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import SubmitBtn from "../../components/shared/SubmitBtn";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     setError("");
-    setIsLoading(true);
 
     try {
       await login(email, password);
@@ -29,7 +30,7 @@ function Login() {
         setError("An unexpected error occurred. Please try again.");
       }
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -76,13 +77,7 @@ function Login() {
             </div>
           </div>
           <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {isLoading ? "Signing in..." : "Sign in"}
-            </button>
+            <SubmitBtn isSubmitting={isSubmitting}>Sign in</SubmitBtn>
           </div>
         </form>
         {error && <p className="mt-2 text-sm text-center text-red-600">{error}</p>}

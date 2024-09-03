@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
+import SubmitBtn from "../shared/SubmitBtn";
 
 const CreateListing = () => {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ const CreateListing = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -63,6 +65,7 @@ const CreateListing = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const listingData = new FormData();
     Object.keys(formData).forEach((key) => listingData.append(key, formData[key]));
     images.forEach((image) => listingData.append("images", image));
@@ -77,6 +80,8 @@ const CreateListing = () => {
       navigate(`/listings/${response.data.id}`);
     } catch (err) {
       setError("Error creating listing");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -243,12 +248,7 @@ const CreateListing = () => {
           />
         </div>
         <div>
-          <button
-            type="submit"
-            className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Create Listing
-          </button>
+          <SubmitBtn isSubmitting={isSubmitting}>Create Listing</SubmitBtn>
         </div>
       </form>
     </div>
