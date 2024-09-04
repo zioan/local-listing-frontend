@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { HeartIcon, MapPinIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
+import FavoriteButton from "./FavoriteButton";
 
 const ListingCard = ({ listing }) => {
   return (
@@ -35,9 +36,7 @@ const ListingCard = ({ listing }) => {
           <button className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             View details
           </button>
-          <button className="text-gray-400 hover:text-red-500">
-            <HeartIcon className="w-5 h-5" />
-          </button>
+          <FavoriteButton listing={listing} />
         </div>
       </div>
     </div>
