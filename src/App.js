@@ -3,6 +3,7 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/global/Navbar";
+import Footer from "./components/global/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -16,9 +17,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-100">
+        <div className="flex flex-col min-h-screen bg-gray-100">
           <Navbar />
-          <main>
+          <main className="flex-grow">
             <Routes>
               <Route exact path="/" element={<Home />} />
               <Route exact path="/about" element={<About />} />
@@ -31,6 +32,7 @@ function App() {
               <Route path="*" element={<div>404 Not Found</div>} />
             </Routes>
           </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>
