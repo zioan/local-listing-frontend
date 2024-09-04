@@ -45,19 +45,6 @@ const ListingDetail = () => {
     }
   };
 
-  const handleFavoriteToggle = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    try {
-      const response = await api.post(`listings/listings/${id}/favorite/`);
-      setListing(response.data); // Update the entire listing with the new data
-    } catch (err) {
-      setError("Error updating favorite status. Please try again.");
-    }
-  };
-
   if (loading)
     return (
       <div className="flex items-center justify-center h-64">
@@ -75,7 +62,7 @@ const ListingDetail = () => {
           <p className="max-w-2xl mt-1 text-sm text-gray-500">
             {listing.category_name} {listing.subcategory_name && `> ${listing.subcategory_name}`}
           </p>
-          <FavoriteButton isFavorited={listing.is_favorited} onClick={handleFavoriteToggle} />
+          <FavoriteButton listing={listing} />
         </div>
         <div className="px-4 py-5 border-t border-gray-200 sm:p-0">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
