@@ -4,6 +4,8 @@ import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import Modal from "../shared/Modal";
+import ImageGallery from "../shared/ImageGallery";
+import { HeartIcon, MapPinIcon, ClockIcon, PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -13,6 +15,8 @@ const ListingDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -32,6 +36,7 @@ const ListingDetail = () => {
   const handleDelete = async () => {
     try {
       await api.delete(`listings/listings/${id}/`);
+      setIsDeleteModalOpen(false);
       navigate("/profile/listings");
     } catch (err) {
       console.error("Error deleting listing:", err);
@@ -60,13 +65,48 @@ const ListingDetail = () => {
         <div className="px-4 py-5 border-t border-gray-200 sm:p-0">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="sm:px-6 sm:py-5">
-              {listing.images && listing.images.length > 0 ? (
-                <img src={getCloudinaryImageUrl(listing.images[0].image)} alt={listing.title} className="object-cover w-full rounded-lg h-96" />
-              ) : (
-                <div className="flex items-center justify-center w-full bg-gray-200 rounded-lg h-96">
-                  <span className="text-gray-400">No image available</span>
-                </div>
-              )}
+              <div className="relative w-full" style={{ paddingBottom: "75%" }}>
+                {" "}
+                {listing.images && listing.images.length > 0 ? (
+                  <>
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+                      <img
+                        src={getCloudinaryImageUrl(listing.images[currentImageIndex].image)}
+                        alt={`Listing ${currentImageIndex + 1}`}
+                        className="object-contain max-w-full max-h-full rounded-lg cursor-pointer"
+                        onClick={() => {
+                          setIsGalleryOpen(true);
+                          setCurrentImageIndex(currentImageIndex);
+                        }}
+                      />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black to-transparent"></div>
+                    <div className="absolute left-0 right-0 text-center text-white bottom-2">
+                      {currentImageIndex + 1} / {listing.images.length}
+                    </div>
+                    {listing.images.length > 1 && (
+                      <>
+                        <button
+                          className="absolute p-2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full left-2 top-1/2"
+                          onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))}
+                        >
+                          <ChevronLeftIcon className="w-6 h-6 text-white" />
+                        </button>
+                        <button
+                          className="absolute p-2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full right-2 top-1/2"
+                          onClick={() => setCurrentImageIndex((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))}
+                        >
+                          <ChevronRightIcon className="w-6 h-6 text-white" />
+                        </button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
+                    <span className="text-gray-400">No image available</span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="sm:px-6 sm:py-5">
               <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
@@ -130,34 +170,45 @@ const ListingDetail = () => {
                     <PencilIcon className="w-5 h-5 mr-2" />
                     Edit Listing
                   </button>
-                  <button onClick={() => setIsDeleteModalOpen(true)} className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                  <button
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
                     <TrashIcon className="w-5 h-5 mr-2" />
                     Delete Listing
                   </button>
                 </div>
               )}
-
-              <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Deletion" size="sm">
-                <p className="mb-4">Are you sure you want to delete this listing? This action cannot be undone.</p>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={() => setIsDeleteModalOpen(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </Modal>
             </div>
           </div>
         </div>
       </div>
+
+      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Deletion" size="sm">
+        <p className="mb-4">Are you sure you want to delete this listing? This action cannot be undone.</p>
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Delete
+          </button>
+        </div>
+      </Modal>
+
+      {isGalleryOpen && (
+        <ImageGallery
+          images={listing.images.map((img) => getCloudinaryImageUrl(img.image))}
+          onClose={() => setIsGalleryOpen(false)}
+          startIndex={currentImageIndex}
+        />
+      )}
     </div>
   );
 };
