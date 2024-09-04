@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { HeartIcon, MapPinIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import FavoriteButton from "./FavoriteButton";
 
