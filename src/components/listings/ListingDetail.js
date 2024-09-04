@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
-import ConfirmationModal from "../global/ConfirmationModal";
+import Modal from "../global/Modal";
 import { HeartIcon, MapPinIcon, ClockIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 const ListingDetail = () => {
@@ -39,9 +39,6 @@ const ListingDetail = () => {
       setError("Failed to delete listing. Please try again.");
     }
   };
-
-  const openDeleteModal = () => setIsDeleteModalOpen(true);
-  const closeDeleteModal = () => setIsDeleteModalOpen(false);
 
   if (loading)
     return (
@@ -134,20 +131,30 @@ const ListingDetail = () => {
                     <PencilIcon className="w-5 h-5 mr-2" />
                     Edit Listing
                   </button>
-                  <button onClick={openDeleteModal} className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                  <button onClick={() => setIsDeleteModalOpen(true)} className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
                     <TrashIcon className="w-5 h-5 mr-2" />
                     Delete Listing
                   </button>
                 </div>
               )}
 
-              <ConfirmationModal
-                isOpen={isDeleteModalOpen}
-                onClose={closeDeleteModal}
-                onConfirm={handleDelete}
-                title="Confirm Deletion"
-                message="Are you sure you want to delete this listing? This action cannot be undone."
-              />
+              <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Deletion" size="sm">
+                <p className="mb-4">Are you sure you want to delete this listing? This action cannot be undone.</p>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => setIsDeleteModalOpen(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </Modal>
             </div>
           </div>
         </div>
