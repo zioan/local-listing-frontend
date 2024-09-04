@@ -26,6 +26,14 @@ function Navbar() {
     }
   };
 
+  const handleFavoriteIconClick = () => {
+    if (user) {
+      navigate("/favorite");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open, close }) => (
@@ -59,7 +67,10 @@ function Navbar() {
 
               {/* Right side icons and menu button */}
               <div className="flex items-center">
-                <button className="p-1 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                <button
+                  onClick={handleFavoriteIconClick}
+                  className="p-1 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                >
                   <span className="sr-only">View favorites</span>
                   <HeartIcon className="w-6 h-6" aria-hidden="true" />
                 </button>

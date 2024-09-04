@@ -12,6 +12,7 @@ import Register from "./pages/user/Register";
 import Profile from "./pages/user/Profile";
 import ListingDetail from "./components/listings/ListingDetail";
 import EditListing from "./components/listings/EditListing";
+import Favorites from "./components/user/Favorites";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/profile/*" element={<Profile />} />
               <Route path="/listings/:id" element={<ListingDetail />} />
               <Route path="/listings/:id/edit" element={<EditListing />} />
+              <Route path="/favorite" element={<Favorites />} />
               <Route path="*" element={<div>404 Not Found</div>} />
             </Routes>
           </main>
