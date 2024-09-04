@@ -135,6 +135,7 @@ const ListingDetail = () => {
                     Edit Listing
                   </button>
                   <button onClick={openDeleteModal} className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                    <TrashIcon className="w-5 h-5 mr-2" />
                     Delete Listing
                   </button>
                 </div>
