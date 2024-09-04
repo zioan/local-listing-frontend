@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import SubmitBtn from "../../components/shared/SubmitBtn";
+import SubmitBtn from "../../components/shared/form/SubmitBtn";
 
 function Register() {
   const [formData, setFormData] = useState({

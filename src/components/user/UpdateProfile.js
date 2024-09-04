@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import authService from "../../lib/authService";
-import SubmitBtn from "../shared/SubmitBtn";
+import SubmitBtn from "../shared/form/SubmitBtn";
 
 const UpdateProfile = () => {
   const { user, fetchUser } = useAuth();
