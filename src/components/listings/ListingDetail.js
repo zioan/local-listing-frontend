@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
-import Modal from "../global/Modal";
-import { HeartIcon, MapPinIcon, ClockIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Modal from "../shared/Modal";
 
 const ListingDetail = () => {
   const { id } = useParams();
