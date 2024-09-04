@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import authService from "../lib/authService";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 const AuthContext = createContext(null);
 
@@ -68,9 +69,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <LoadingSpinner isLoading={loading} />;
 
   return <AuthContext.Provider value={{ user, login, logout, register, updateProfile, fetchUser }}>{children}</AuthContext.Provider>;
 };

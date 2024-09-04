@@ -6,6 +6,7 @@ import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import Modal from "../shared/Modal";
 import ImageGallery from "../shared/ImageGallery";
 import FavoriteButton from "./FavoriteButton";
+import LoadingSpinner from "../shared/LoadingSpinner";
 import { HeartIcon, MapPinIcon, ClockIcon, PencilIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const ListingDetail = () => {
@@ -45,17 +46,13 @@ const ListingDetail = () => {
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-32 h-32 border-t-2 border-b-2 border-gray-900 rounded-full animate-spin"></div>
-      </div>
-    );
+  if (loading) return <LoadingSpinner isLoading={loading} />;
   if (error) return <div className="py-10 text-center text-red-500">{error}</div>;
   if (!listing) return <div className="py-10 text-center">Listing not found</div>;
 
   return (
     <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      {/* <LoadingSpinner isLoading={loading} /> */}
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <h1 className="text-3xl font-bold leading-tight text-gray-900">{listing.title}</h1>

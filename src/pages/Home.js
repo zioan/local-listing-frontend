@@ -3,6 +3,7 @@ import api from "../config/api";
 import HeroSection from "../components/home/HeroSection";
 import ListingCard from "../components/listings/ListingCard";
 import CategoryFilter from "../components/home/CategoryFilter";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 function Home() {
   const [listings, setListings] = useState([]);
@@ -31,7 +32,7 @@ function Home() {
     setSelectedCategory(category);
   };
 
-  if (loading) return <div className="py-10 text-center">Loading...</div>;
+  if (loading) return <LoadingSpinner isLoading={loading} />;
   if (error) return <div className="py-10 text-center text-red-500">{error}</div>;
 
   return (

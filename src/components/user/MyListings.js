@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 const MyListings = () => {
   const [listings, setListings] = useState([]);
@@ -31,7 +32,7 @@ const MyListings = () => {
     }
   }, [user]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingSpinner isLoading={loading} />;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (

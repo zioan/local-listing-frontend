@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import ListingCard from "../listings/ListingCard";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]);
@@ -26,7 +27,7 @@ const Favorites = () => {
     }
   };
 
-  if (loading) return <div className="py-8 text-center">Loading...</div>;
+  if (loading) return <LoadingSpinner isLoading={loading} />;
   if (error) return <div className="py-8 text-center text-red-500">{error}</div>;
 
   return (
