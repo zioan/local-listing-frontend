@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../config/api";
+import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
+import api from "../../config/api";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import Modal from "../shared/Modal";
 import ImageGallery from "../shared/ImageGallery";
@@ -13,46 +14,35 @@ const ListingDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [listing, setListing] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { state, loading, error, fetchListing, invalidateCache } = useData();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   useEffect(() => {
-    const fetchListing = async () => {
-      try {
-        const response = await api.get(`listings/listings/${id}/`);
-        setListing(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error details:", err.response || err);
-        setError(`Error fetching listing details: ${err.response?.data?.detail || err.message}`);
-        setLoading(false);
-      }
-    };
-    fetchListing();
-  }, [id]);
+    fetchListing(id);
+  }, [id, fetchListing]);
+
+  const listing = state.listingDetails[id];
 
   const handleDelete = async () => {
     try {
       await api.delete(`listings/listings/${id}/`);
       setIsDeleteModalOpen(false);
+      invalidateCache("listings");
       navigate("/profile/listings");
     } catch (err) {
       console.error("Error deleting listing:", err);
-      setError("Failed to delete listing. Please try again.");
+      // Handle error
     }
   };
 
-  if (loading) return <LoadingSpinner isLoading={loading} />;
-  if (error) return <div className="py-10 text-center text-red-500">{error}</div>;
+  if (loading.listingDetails) return <LoadingSpinner isLoading={loading.listingDetails} />;
+  if (error.listingDetails) return <div className="py-10 text-center text-red-500">{error.listingDetails}</div>;
   if (!listing) return <div className="py-10 text-center">Listing not found</div>;
 
   return (
     <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-      {/* <LoadingSpinner isLoading={loading} /> */}
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <h1 className="text-3xl font-bold leading-tight text-gray-900">{listing.title}</h1>
@@ -65,7 +55,6 @@ const ListingDetail = () => {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="sm:px-6 sm:py-5">
               <div className="relative w-full" style={{ paddingBottom: "75%" }}>
-                {" "}
                 {listing.images && listing.images.length > 0 ? (
                   <>
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
@@ -182,7 +171,6 @@ const ListingDetail = () => {
           </div>
         </div>
       </div>
-
       <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Deletion" size="sm">
         <p className="mb-4">Are you sure you want to delete this listing? This action cannot be undone.</p>
         <div className="flex justify-end space-x-3">
@@ -200,7 +188,6 @@ const ListingDetail = () => {
           </button>
         </div>
       </Modal>
-
       {isGalleryOpen && (
         <ImageGallery
           images={listing.images.map((img) => getCloudinaryImageUrl(img.image))}
