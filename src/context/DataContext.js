@@ -32,32 +32,35 @@ export const DataProvider = ({ children }) => {
   };
 
   const fetchListings = useCallback(
-    async (reset = false) => {
+    async (reset = false, filters = {}) => {
       if (reset) {
         setListingsPage(1);
         setHasMore(true);
       }
-
-      if (!hasMore) return;
+      if (!hasMore && !reset) return;
 
       updateLoading("listings", true);
       updateError("listings", null);
 
       try {
-        const response = await api.get("listings/listings/", {
-          params: { page: reset ? 1 : listingsPage, page_size: 20 },
-        });
+        const params = {
+          page: reset ? 1 : listingsPage,
+          page_size: 20,
+          ...filters,
+        };
 
-        const newListings = response.data.results;
+        Object.keys(params).forEach((key) => (params[key] === "" || params[key] === null) && delete params[key]);
+
+        const response = await api.get("listings/listings/", { params });
+        const newListings = response.data.results || [];
         setState((prev) => ({
           ...prev,
           listings: reset ? newListings : [...prev.listings, ...newListings],
         }));
-
         setHasMore(!!response.data.next);
         setListingsPage((prev) => (reset ? 2 : prev + 1));
       } catch (err) {
-        updateError("listings", err.message);
+        updateError("listings", err.message || "Failed to fetch listings");
       } finally {
         updateLoading("listings", false);
       }
@@ -89,6 +92,40 @@ export const DataProvider = ({ children }) => {
       updateError("favorites", err.message);
     } finally {
       updateLoading("favorites", false);
+    }
+  }, []);
+
+  const fetchSubcategories = useCallback(async (categoryId) => {
+    if (!categoryId) return;
+
+    if (state.subcategories[categoryId]) return;
+
+    updateLoading("subcategories", true);
+    updateError("subcategories", null);
+
+    try {
+      const response = await api.get(`listings/subcategories/by-category/${categoryId}/`);
+      const subcategoriesData = response.data || [];
+
+      setState((prev) => ({
+        ...prev,
+        subcategories: {
+          ...prev.subcategories,
+          [categoryId]: subcategoriesData,
+        },
+      }));
+    } catch (err) {
+      console.error("Error fetching subcategories:", err);
+      updateError("subcategories", err.message || "Failed to fetch subcategories");
+      setState((prev) => ({
+        ...prev,
+        subcategories: {
+          ...prev.subcategories,
+          [categoryId]: [],
+        },
+      }));
+    } finally {
+      updateLoading("subcategories", false);
     }
   }, []);
 
@@ -146,6 +183,7 @@ export const DataProvider = ({ children }) => {
         error,
         fetchListings,
         fetchCategories,
+        fetchSubcategories,
         fetchListing,
         fetchFavorites,
         fetchMyListings,
