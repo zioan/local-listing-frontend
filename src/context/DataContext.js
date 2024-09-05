@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import api from "../config/api";
 
 const DataContext = createContext();
@@ -15,8 +15,9 @@ export const DataProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState({});
   const [error, setError] = useState({});
-  const [cache, setCache] = useState({});
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [listingsPage, setListingsPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const isInitialized = useRef(false);
 
   const updateState = (key, data) => {
     setState((prev) => ({ ...prev, [key]: data }));
@@ -30,68 +31,72 @@ export const DataProvider = ({ children }) => {
     setError((prev) => ({ ...prev, [key]: errorMessage }));
   };
 
-  const fetchWithCache = useCallback(
-    async (key, fetchFunction) => {
-      if (cache[key] && Date.now() - cache[key].timestamp < 5 * 60 * 1000) {
-        return cache[key].data;
+  const fetchListings = useCallback(
+    async (reset = false) => {
+      if (reset) {
+        setListingsPage(1);
+        setHasMore(true);
       }
 
-      updateLoading(key, true);
-      updateError(key, null);
+      if (!hasMore) return;
+
+      updateLoading("listings", true);
+      updateError("listings", null);
 
       try {
-        const data = await fetchFunction();
-        setCache((prevCache) => ({
-          ...prevCache,
-          [key]: { data, timestamp: Date.now() },
+        const response = await api.get("listings/listings/", {
+          params: { page: reset ? 1 : listingsPage, page_size: 20 },
+        });
+
+        const newListings = response.data.results;
+        setState((prev) => ({
+          ...prev,
+          listings: reset ? newListings : [...prev.listings, ...newListings],
         }));
-        updateState(key, data);
-        updateLoading(key, false);
-        return data;
+
+        setHasMore(!!response.data.next);
+        setListingsPage((prev) => (reset ? 2 : prev + 1));
       } catch (err) {
-        updateError(key, err.message);
-        updateLoading(key, false);
-        throw err;
+        updateError("listings", err.message);
+      } finally {
+        updateLoading("listings", false);
       }
     },
-    [cache]
+    [listingsPage, hasMore]
   );
 
-  const fetchListings = useCallback(
-    (category = "") => {
-      return fetchWithCache("listings", async () => {
-        const response = await api.get("listings/listings", { params: { category } });
-        return response.data;
-      });
-    },
-    [fetchWithCache]
-  );
+  const fetchCategories = useCallback(async () => {
+    if (state.categories.length > 0) return;
+    updateLoading("categories", true);
+    updateError("categories", null);
+    try {
+      const response = await api.get("listings/categories/");
+      updateState("categories", response.data);
+    } catch (err) {
+      updateError("categories", err.message);
+    } finally {
+      updateLoading("categories", false);
+    }
+  }, [state.categories.length]);
 
-  const fetchCategories = useCallback(() => {
-    return fetchWithCache("categories", async () => {
-      const categoriesResponse = await api.get("listings/categories/");
-      const subcategoriesResponse = await api.get("listings/subcategories/");
+  const fetchFavorites = useCallback(async () => {
+    updateLoading("favorites", true);
+    updateError("favorites", null);
+    try {
+      const response = await api.get("listings/favorites/");
+      updateState("favorites", response.data);
+    } catch (err) {
+      updateError("favorites", err.message);
+    } finally {
+      updateLoading("favorites", false);
+    }
+  }, []);
 
-      const subcategoriesByCategory = subcategoriesResponse.data.reduce((acc, subcategory) => {
-        if (!acc[subcategory.category]) {
-          acc[subcategory.category] = [];
-        }
-        acc[subcategory.category].push(subcategory);
-        return acc;
-      }, {});
-
-      const categoriesWithSubcategories = categoriesResponse.data.map((category) => ({
-        ...category,
-        subcategories: subcategoriesByCategory[category.id] || [],
-      }));
-
-      return categoriesWithSubcategories;
-    });
-  }, [fetchWithCache]);
-
-  const fetchListing = useCallback(
-    (id) => {
-      return fetchWithCache(`listing-${id}`, async () => {
+  const fetchListing = useCallback((id) => {
+    return new Promise(async (resolve, reject) => {
+      updateLoading(`listing-${id}`, true);
+      updateError(`listing-${id}`, null);
+      try {
         const response = await api.get(`listings/listings/${id}/`);
         setState((prev) => ({
           ...prev,
@@ -100,48 +105,34 @@ export const DataProvider = ({ children }) => {
             [id]: response.data,
           },
         }));
-        return response.data;
-      });
-    },
-    [fetchWithCache]
-  );
-
-  const fetchFavorites = useCallback(() => {
-    return fetchWithCache("favorites", async () => {
-      const response = await api.get("listings/favorites/");
-      return response.data;
-    });
-  }, [fetchWithCache]);
-
-  const fetchMyListings = useCallback(() => {
-    return fetchWithCache("my-listings", async () => {
-      const response = await api.get("listings/my-listings/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
-      return response.data;
-    });
-  }, [fetchWithCache]);
-
-  const invalidateCache = useCallback((key) => {
-    setCache((prevCache) => {
-      const newCache = { ...prevCache };
-      delete newCache[key];
-      return newCache;
+        resolve(response.data);
+      } catch (err) {
+        updateError(`listing-${id}`, err.message);
+        reject(err);
+      } finally {
+        updateLoading(`listing-${id}`, false);
+      }
     });
   }, []);
 
-  const initializeData = useCallback(async () => {
-    if (isInitialized) return;
-
+  const fetchMyListings = useCallback(async () => {
+    updateLoading("myListings", true);
+    updateError("myListings", null);
     try {
-      await Promise.all([fetchListings(), fetchCategories()]);
-      setIsInitialized(true);
-    } catch (error) {
-      console.error("Error initializing data:", error);
+      const response = await api.get("listings/my-listings/");
+      updateState("myListings", response.data);
+    } catch (err) {
+      updateError("myListings", err.message);
+    } finally {
+      updateLoading("myListings", false);
     }
-  }, [fetchListings, fetchCategories, isInitialized]);
+  }, []);
+
+  const initializeData = useCallback(async () => {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+    await Promise.all([fetchCategories(), fetchFavorites(), fetchListings(true), fetchMyListings()]);
+  }, [fetchCategories, fetchFavorites, fetchListings, fetchMyListings]);
 
   useEffect(() => {
     initializeData();
@@ -158,7 +149,7 @@ export const DataProvider = ({ children }) => {
         fetchListing,
         fetchFavorites,
         fetchMyListings,
-        invalidateCache,
+        hasMore,
         initializeData,
       }}
     >
