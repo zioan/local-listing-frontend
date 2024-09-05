@@ -6,17 +6,17 @@ import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
 const MyListings = () => {
-  const { state, loading, error, fetchMyListings } = useData();
+  const { state, loading, error } = useData();
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      fetchMyListings();
+    if (!user) {
+      return null;
     }
-  }, [user, fetchMyListings]);
+  }, [user]);
 
-  if (loading.myListings) return <LoadingSpinner />;
-  if (error.myListings) return <div className="text-red-500">{error.myListings}</div>;
+  if (loading.myListings) return <LoadingSpinner isLoading={loading.myListings} />;
+  if (error.myListings) return <div>Error: {error.myListings}</div>;
 
   return (
     <div className="container px-4 mx-auto">
