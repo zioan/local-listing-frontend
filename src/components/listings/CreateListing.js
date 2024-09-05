@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../config/api";
+import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
+import api from "../../config/api";
 import SubmitBtn from "../shared/form/SubmitBtn";
 import FormInput from "../shared/form/FormInput";
 import FormSelect from "../shared/form/FormSelect";
 import FormTextArea from "../shared/form/FormTextArea";
 import ImageUpload from "../shared/form/ImageUpload";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 const CreateListing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { state, loading, error, fetchCategories, invalidateCache } = useData();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -21,11 +24,9 @@ const CreateListing = () => {
     subcategory: "",
     delivery_option: "",
   });
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [images, setImages] = useState([]);
-  const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -33,31 +34,7 @@ const CreateListing = () => {
     } else {
       fetchCategories();
     }
-  }, [user, navigate]);
-
-  useEffect(() => {
-    if (formData.category) {
-      fetchSubcategories();
-    }
-  }, [formData.category]);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await api.get("listings/categories/");
-      setCategories(response.data);
-    } catch (err) {
-      setError("Error fetching categories");
-    }
-  };
-
-  const fetchSubcategories = async () => {
-    try {
-      const response = await api.get(`listings/subcategories/by-category/${formData.category}/`);
-      setSubcategories(response.data);
-    } catch (err) {
-      setError("Error fetching subcategories");
-    }
-  };
+  }, [user, navigate, fetchCategories]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -67,9 +44,14 @@ const CreateListing = () => {
     setImages([...images, ...e.target.files]);
   };
 
+  const handleImageRemove = (index) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     const listingData = new FormData();
     Object.keys(formData).forEach((key) => listingData.append(key, formData[key]));
@@ -79,25 +61,25 @@ const CreateListing = () => {
       const response = await api.post("listings/listings/", listingData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
+      invalidateCache("listings");
       navigate(`/listings/${response.data.id}`);
     } catch (err) {
-      setError("Error creating listing");
+      console.error("Error creating listing:", err.response?.data);
+      setSubmitError("Failed to create listing. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!user) {
-    return null;
-  }
+  if (loading.categories) return <LoadingSpinner />;
+  if (error.categories) return <div className="text-red-500">{error.categories}</div>;
 
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="mb-6 text-3xl font-bold">Create a New Listing</h1>
-      {error && <div className="mb-4 text-red-500">{error}</div>}
+      {submitError && <div className="mb-4 text-red-500">{submitError}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormInput id="title" name="title" value={formData.title} onChange={handleChange} label="Title" required />
         <FormTextArea id="description" name="description" value={formData.description} onChange={handleChange} label="Description" required />
@@ -136,7 +118,7 @@ const CreateListing = () => {
           value={formData.category}
           onChange={handleChange}
           label="Category"
-          options={categories.map((category) => ({ value: category.id, label: category.name }))}
+          options={state.categories.map((category) => ({ value: category.id, label: category.name }))}
           required
         />
         {formData.category && (
@@ -146,7 +128,11 @@ const CreateListing = () => {
             value={formData.subcategory}
             onChange={handleChange}
             label="Subcategory"
-            options={subcategories.map((subcategory) => ({ value: subcategory.id, label: subcategory.name }))}
+            options={
+              state.categories
+                .find((cat) => cat.id === parseInt(formData.category))
+                ?.subcategories.map((subcategory) => ({ value: subcategory.id, label: subcategory.name })) || []
+            }
             required
           />
         )}
@@ -163,11 +149,7 @@ const CreateListing = () => {
           ]}
           required
         />
-        <ImageUpload
-          newImages={images}
-          onNewImageAdd={handleImageChange}
-          onNewImageRemove={(index) => setImages(images.filter((_, i) => i !== index))}
-        />
+        <ImageUpload newImages={images} onNewImageAdd={handleImageChange} onNewImageRemove={handleImageRemove} />
         <div>
           <SubmitBtn isSubmitting={isSubmitting}>Create Listing</SubmitBtn>
         </div>
