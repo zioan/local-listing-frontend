@@ -14,22 +14,24 @@ const ListingDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { state, loading, error, fetchListing, invalidateCache } = useData();
+  const { state, fetchListing, loading, error } = useData();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   useEffect(() => {
-    fetchListing(id);
-  }, [id, fetchListing]);
+    if (!state.listingDetails[id]) {
+      fetchListing(id);
+    }
+  }, [id, fetchListing, state.listingDetails]);
 
   const listing = state.listingDetails[id];
+  if (!listing) return null;
 
   const handleDelete = async () => {
     try {
       await api.delete(`listings/listings/${id}/`);
       setIsDeleteModalOpen(false);
-      invalidateCache("listings");
       navigate("/profile/listings");
     } catch (err) {
       console.error("Error deleting listing:", err);
@@ -37,9 +39,8 @@ const ListingDetail = () => {
     }
   };
 
-  if (loading.listingDetails) return <LoadingSpinner isLoading={loading.listingDetails} />;
-  if (error.listingDetails) return <div className="py-10 text-center text-red-500">{error.listingDetails}</div>;
-  if (!listing) return <div className="py-10 text-center">Listing not found</div>;
+  if (loading[`listing-${id}`]) return <LoadingSpinner isLoading={loading[`listing-${id}`]} />;
+  if (error[`listing-${id}`]) return <div>Error: {error[`listing-${id}`]}</div>;
 
   return (
     <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
