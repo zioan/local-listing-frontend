@@ -69,11 +69,22 @@ export const DataProvider = ({ children }) => {
 
   const fetchCategories = useCallback(() => {
     return fetchWithCache("categories", async () => {
-      const response = await api.get("listings/categories/");
-      const categoriesWithSubcategories = response.data.map((category) => ({
+      const categoriesResponse = await api.get("listings/categories/");
+      const subcategoriesResponse = await api.get("listings/subcategories/");
+
+      const subcategoriesByCategory = subcategoriesResponse.data.reduce((acc, subcategory) => {
+        if (!acc[subcategory.category]) {
+          acc[subcategory.category] = [];
+        }
+        acc[subcategory.category].push(subcategory);
+        return acc;
+      }, {});
+
+      const categoriesWithSubcategories = categoriesResponse.data.map((category) => ({
         ...category,
-        subcategories: category.subcategories || [],
+        subcategories: subcategoriesByCategory[category.id] || [],
       }));
+
       return categoriesWithSubcategories;
     });
   }, [fetchWithCache]);
