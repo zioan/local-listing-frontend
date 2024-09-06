@@ -4,7 +4,7 @@ import FormSelect from "../shared/form/FormSelect";
 import FormInput from "../shared/form/FormInput";
 import SubmitBtn from "../shared/form/SubmitBtn";
 
-const Filter = ({ onFilterChange }) => {
+const Filter = ({ onFilterChange, onToggleFilter }) => {
   const { state, loading, error, fetchSubcategories } = useData();
   const [filters, setFilters] = useState({
     category: "",
@@ -39,6 +39,20 @@ const Filter = ({ onFilterChange }) => {
     const formattedFilters = Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== ""));
     onFilterChange(formattedFilters);
     setIsSubmitting(false);
+  };
+
+  const handleReset = () => {
+    const resetFilters = {
+      category: "",
+      subcategory: "",
+      min_price: "",
+      max_price: "",
+      condition: "",
+      delivery_option: "",
+    };
+    setFilters(resetFilters);
+    onFilterChange({});
+    onToggleFilter();
   };
 
   if (loading.categories) return <p>Loading filters...</p>;
@@ -134,7 +148,18 @@ const Filter = ({ onFilterChange }) => {
         />
       </div>
 
-      <SubmitBtn isSubmitting={isSubmitting}>Apply Filters</SubmitBtn>
+      <div className="flex justify-end mt-6 space-x-4">
+        <button
+          type="button"
+          onClick={handleReset}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Reset
+        </button>
+        <div className="w-24">
+          <SubmitBtn isSubmitting={isSubmitting}>Apply</SubmitBtn>
+        </div>
+      </div>
     </form>
   );
 };

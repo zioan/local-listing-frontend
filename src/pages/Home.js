@@ -44,7 +44,7 @@ function Home() {
 
         {showFilter && (
           <div className="mb-6">
-            <Filter onFilterChange={handleFilterChange} />
+            <Filter onFilterChange={handleFilterChange} onToggleFilter={toggleFilter} />
           </div>
         )}
 
