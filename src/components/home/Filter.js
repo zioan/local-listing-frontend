@@ -84,12 +84,11 @@ const AdvancedFilter = ({ onFilterChange }) => {
               disabled={!filters.category}
             >
               <option value="">All Subcategories</option>
-              {subcategories &&
-                subcategories.map((subcategory) => (
-                  <option key={subcategory.id} value={subcategory.id}>
-                    {subcategory.name}
-                  </option>
-                ))}
+              {subcategories.map((subcategory) => (
+                <option key={subcategory.id} value={subcategory.id}>
+                  {subcategory.name}
+                </option>
+              ))}
             </select>
             <ChevronDownIcon className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
           </div>

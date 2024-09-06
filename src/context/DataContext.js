@@ -9,6 +9,7 @@ export const DataProvider = ({ children }) => {
   const [state, setState] = useState({
     listings: [],
     categories: [],
+    subcategories: {},
     favorites: [],
     myListings: [],
     listingDetails: {},
@@ -95,9 +96,9 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
-  const fetchSubcategories = useCallback(async (categoryId) => {
+  const fetchSubcategories = useCallback(
+    async (categoryId) => {
     if (!categoryId) return;
-
     if (state.subcategories[categoryId]) return;
 
     updateLoading("subcategories", true);
@@ -105,7 +106,7 @@ export const DataProvider = ({ children }) => {
 
     try {
       const response = await api.get(`listings/subcategories/by-category/${categoryId}/`);
-      const subcategoriesData = response.data || [];
+        const subcategoriesData = Array.isArray(response.data) ? response.data : [];
 
       setState((prev) => ({
         ...prev,
@@ -127,7 +128,9 @@ export const DataProvider = ({ children }) => {
     } finally {
       updateLoading("subcategories", false);
     }
-  }, []);
+    },
+    [state.subcategories]
+  );
 
   const fetchListing = useCallback((id) => {
     return new Promise(async (resolve, reject) => {
@@ -165,6 +168,54 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
+  const invalidateCache = useCallback(
+    (key) => {
+      switch (key) {
+        case "listings":
+          setState((prev) => ({ ...prev, listings: [] }));
+          setListingsPage(1);
+          setHasMore(true);
+          fetchListings(true);
+          break;
+        case "categories":
+          setState((prev) => ({ ...prev, categories: [] }));
+          fetchCategories();
+          break;
+        case "favorites":
+          setState((prev) => ({ ...prev, favorites: [] }));
+          fetchFavorites();
+          break;
+        case "myListings":
+          setState((prev) => ({ ...prev, myListings: [] }));
+          fetchMyListings();
+          break;
+        default:
+          if (key.startsWith("listing-")) {
+            const listingId = key.split("-")[1];
+            setState((prev) => ({
+              ...prev,
+              listingDetails: {
+                ...prev.listingDetails,
+                [listingId]: undefined,
+              },
+            }));
+            fetchListing(listingId);
+          } else if (key.startsWith("subcategories-")) {
+            const categoryId = key.split("-")[1];
+            setState((prev) => ({
+              ...prev,
+              subcategories: {
+                ...prev.subcategories,
+                [categoryId]: undefined,
+              },
+            }));
+            fetchSubcategories(categoryId);
+          }
+      }
+    },
+    [fetchListings, fetchCategories, fetchFavorites, fetchMyListings, fetchListing, fetchSubcategories]
+  );
+
   const initializeData = useCallback(async () => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -187,6 +238,7 @@ export const DataProvider = ({ children }) => {
         fetchListing,
         fetchFavorites,
         fetchMyListings,
+        invalidateCache,
         hasMore,
         initializeData,
       }}
