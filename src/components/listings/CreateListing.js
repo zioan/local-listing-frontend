@@ -13,7 +13,7 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 const CreateListing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { state, loading, error, fetchCategories, invalidateCache } = useData();
+  const { state, loading, error, fetchCategories, fetchSubcategories, invalidateCache } = useData();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -36,8 +36,19 @@ const CreateListing = () => {
     }
   }, [user, navigate, fetchCategories]);
 
+  useEffect(() => {
+    if (formData.category) {
+      fetchSubcategories(formData.category);
+    }
+  }, [formData.category, fetchSubcategories]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "category" ? { subcategory: "" } : {}),
+    }));
   };
 
   const handleImageChange = (e) => {
@@ -73,8 +84,23 @@ const CreateListing = () => {
     }
   };
 
-  if (loading.categories) return <LoadingSpinner />;
+  if (loading.categories) return <LoadingSpinner isLoading={loading.categories} />;
   if (error.categories) return <div className="text-red-500">{error.categories}</div>;
+
+  const categoryOptions = state.categories
+    ? state.categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      }))
+    : [];
+
+  const subcategoryOptions =
+    formData.category && state.subcategories && state.subcategories[formData.category]
+      ? state.subcategories[formData.category].map((subcategory) => ({
+          value: subcategory.id,
+          label: subcategory.name,
+        }))
+      : [];
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -118,7 +144,7 @@ const CreateListing = () => {
           value={formData.category}
           onChange={handleChange}
           label="Category"
-          options={state.categories.map((category) => ({ value: category.id, label: category.name }))}
+          options={categoryOptions}
           required
         />
         {formData.category && (
@@ -128,11 +154,7 @@ const CreateListing = () => {
             value={formData.subcategory}
             onChange={handleChange}
             label="Subcategory"
-            options={
-              state.categories
-                .find((cat) => cat.id === parseInt(formData.category))
-                ?.subcategories.map((subcategory) => ({ value: subcategory.id, label: subcategory.name })) || []
-            }
+            options={subcategoryOptions}
             required
           />
         )}
