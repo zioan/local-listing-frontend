@@ -5,16 +5,17 @@ import ListingCard from "../listings/ListingCard";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
 const Favorites = () => {
-  const { state, loading } = useData();
+  const { state, loading, error, fetchFavorites } = useData();
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) {
-      return null;
+    if (user && state.favorites.length === 0) {
+      fetchFavorites();
     }
-  }, [user]);
+  }, [user, fetchFavorites, state.favorites.length]);
 
   if (loading.favorites) return <LoadingSpinner isLoading={loading.favorites} />;
+  if (error.favorites) return <div className="text-red-500">Error: {error.favorites}</div>;
 
   return (
     <div className="container px-4 py-8 mx-auto">
