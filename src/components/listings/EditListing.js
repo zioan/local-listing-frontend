@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
-import api from "../../config/api";
 import SubmitBtn from "../shared/form/SubmitBtn";
 import FormInput from "../shared/form/FormInput";
 import FormSelect from "../shared/form/FormSelect";
@@ -14,7 +13,8 @@ const EditListing = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { state, loading, error, fetchListing, fetchCategories, invalidateCache } = useData();
+  const { state, loading, error, fetchListing, fetchCategories, fetchSubcategories, updateListing, invalidateCache } = useData();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -25,6 +25,7 @@ const EditListing = () => {
     subcategory: "",
     delivery_option: "",
   });
+
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +46,12 @@ const EditListing = () => {
       setExistingImages(state.listingDetails[id].images || []);
     }
   }, [id, state.listingDetails]);
+
+  useEffect(() => {
+    if (formData.category) {
+      fetchSubcategories(formData.category);
+    }
+  }, [formData.category, fetchSubcategories]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -69,21 +76,16 @@ const EditListing = () => {
 
     const listingData = new FormData();
     Object.keys(formData).forEach((key) => listingData.append(key, formData[key]));
-
     existingImages.forEach((img) => listingData.append("existing_images", img.id));
     newImages.forEach((image) => listingData.append("new_images", image));
 
     try {
-      await api.put(`listings/listings/${id}/`, listingData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await updateListing(id, listingData);
       invalidateCache(`listing-${id}`);
       invalidateCache("listings");
       navigate(`/listings/${id}`);
     } catch (err) {
-      console.error("Error updating listing:", err.response?.data);
+      console.error("Error updating listing:", err);
       setSubmitError("Failed to update listing. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -140,18 +142,14 @@ const EditListing = () => {
             required
           />
         )}
-        {formData.category && state.categories && state.categories.length > 0 && (
+        {formData.category && state.subcategories && state.subcategories[formData.category] && (
           <FormSelect
             id="subcategory"
             name="subcategory"
             value={formData.subcategory}
             onChange={handleChange}
             label="Subcategory"
-            options={
-              state.categories
-                .find((cat) => cat.id === parseInt(formData.category))
-                ?.subcategories.map((subcategory) => ({ value: subcategory.id, label: subcategory.name })) || []
-            }
+            options={state.subcategories[formData.category].map((subcategory) => ({ value: subcategory.id, label: subcategory.name }))}
             required
           />
         )}

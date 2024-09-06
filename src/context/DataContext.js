@@ -216,6 +216,36 @@ export const DataProvider = ({ children }) => {
     [fetchListings, fetchCategories, fetchFavorites, fetchMyListings, fetchListing, fetchSubcategories]
   );
 
+  const updateListing = useCallback(
+    async (id, listingData) => {
+      updateLoading(`listing-${id}`, true);
+      updateError(`listing-${id}`, null);
+      try {
+        const response = await api.put(`listings/listings/${id}/`, listingData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        setState((prev) => ({
+          ...prev,
+          listingDetails: {
+            ...prev.listingDetails,
+            [id]: response.data,
+          },
+        }));
+        invalidateCache("listings");
+        invalidateCache("myListings");
+        return response.data;
+      } catch (err) {
+        updateError(`listing-${id}`, err.message || "Failed to update listing");
+        throw err;
+      } finally {
+        updateLoading(`listing-${id}`, false);
+      }
+    },
+    [invalidateCache]
+  );
+
   const initializeData = useCallback(async () => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -238,6 +268,7 @@ export const DataProvider = ({ children }) => {
         fetchListing,
         fetchFavorites,
         fetchMyListings,
+        updateListing,
         invalidateCache,
         hasMore,
         initializeData,
