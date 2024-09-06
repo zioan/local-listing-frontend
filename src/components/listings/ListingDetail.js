@@ -14,7 +14,7 @@ const ListingDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { state, fetchListing, loading, error } = useData();
+  const { state, fetchListing, loading, error, deleteListing, invalidateCache } = useData();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -26,12 +26,13 @@ const ListingDetail = () => {
   }, [id, fetchListing, state.listingDetails]);
 
   const listing = state.listingDetails[id];
-  if (!listing) return null;
 
   const handleDelete = async () => {
     try {
-      await api.delete(`listings/listings/${id}/`);
-      setIsDeleteModalOpen(false);
+      await deleteListing(id);
+      invalidateCache("listings");
+      invalidateCache("myListings");
+      invalidateCache("favorites");
       navigate("/profile/listings");
     } catch (err) {
       console.error("Error deleting listing:", err);
@@ -41,6 +42,7 @@ const ListingDetail = () => {
 
   if (loading[`listing-${id}`]) return <LoadingSpinner isLoading={loading[`listing-${id}`]} />;
   if (error[`listing-${id}`]) return <div>Error: {error[`listing-${id}`]}</div>;
+  if (!listing) return null;
 
   return (
     <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">

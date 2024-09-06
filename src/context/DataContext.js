@@ -98,36 +98,36 @@ export const DataProvider = ({ children }) => {
 
   const fetchSubcategories = useCallback(
     async (categoryId) => {
-    if (!categoryId) return;
-    if (state.subcategories[categoryId]) return;
+      if (!categoryId) return;
+      if (state.subcategories[categoryId]) return;
 
-    updateLoading("subcategories", true);
-    updateError("subcategories", null);
+      updateLoading("subcategories", true);
+      updateError("subcategories", null);
 
-    try {
-      const response = await api.get(`listings/subcategories/by-category/${categoryId}/`);
+      try {
+        const response = await api.get(`listings/subcategories/by-category/${categoryId}/`);
         const subcategoriesData = Array.isArray(response.data) ? response.data : [];
 
-      setState((prev) => ({
-        ...prev,
-        subcategories: {
-          ...prev.subcategories,
-          [categoryId]: subcategoriesData,
-        },
-      }));
-    } catch (err) {
-      console.error("Error fetching subcategories:", err);
-      updateError("subcategories", err.message || "Failed to fetch subcategories");
-      setState((prev) => ({
-        ...prev,
-        subcategories: {
-          ...prev.subcategories,
-          [categoryId]: [],
-        },
-      }));
-    } finally {
-      updateLoading("subcategories", false);
-    }
+        setState((prev) => ({
+          ...prev,
+          subcategories: {
+            ...prev.subcategories,
+            [categoryId]: subcategoriesData,
+          },
+        }));
+      } catch (err) {
+        console.error("Error fetching subcategories:", err);
+        updateError("subcategories", err.message || "Failed to fetch subcategories");
+        setState((prev) => ({
+          ...prev,
+          subcategories: {
+            ...prev.subcategories,
+            [categoryId]: [],
+          },
+        }));
+      } finally {
+        updateLoading("subcategories", false);
+      }
     },
     [state.subcategories]
   );
@@ -246,6 +246,28 @@ export const DataProvider = ({ children }) => {
     [invalidateCache]
   );
 
+  const deleteListing = useCallback(async (id) => {
+    try {
+      await api.delete(`listings/listings/${id}/`);
+
+      setState((prevState) => ({
+        ...prevState,
+        listings: prevState.listings.filter((listing) => listing.id !== id),
+        favorites: prevState.favorites.filter((listing) => listing.id !== id),
+        myListings: prevState.myListings.filter((listing) => listing.id !== id),
+        listingDetails: {
+          ...prevState.listingDetails,
+          [id]: undefined,
+        },
+      }));
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+      return { success: false, error };
+    }
+  }, []);
+
   const initializeData = useCallback(async () => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -269,6 +291,7 @@ export const DataProvider = ({ children }) => {
         fetchFavorites,
         fetchMyListings,
         updateListing,
+        deleteListing,
         invalidateCache,
         hasMore,
         initializeData,
