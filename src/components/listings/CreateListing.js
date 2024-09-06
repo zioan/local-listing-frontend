@@ -66,7 +66,9 @@ const CreateListing = () => {
 
     const listingData = new FormData();
     Object.keys(formData).forEach((key) => listingData.append(key, formData[key]));
-    images.forEach((image) => listingData.append("images", image));
+    images.forEach((image, index) => {
+      listingData.append(`images[${index}]`, image);
+    });
 
     try {
       const response = await api.post("listings/listings/", listingData, {
