@@ -58,15 +58,15 @@ const EditListing = () => {
   };
 
   const handleNewImageAdd = (e) => {
-    setNewImages([...newImages, ...e.target.files]);
+    setNewImages((prev) => [...prev, ...e.target.files]);
   };
 
   const handleExistingImageRemove = (imageId) => {
-    setExistingImages(existingImages.filter((img) => img.id !== imageId));
+    setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
   };
 
   const handleNewImageRemove = (index) => {
-    setNewImages(newImages.filter((_, i) => i !== index));
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
