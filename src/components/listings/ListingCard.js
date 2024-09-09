@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import FavoriteButton from "./FavoriteButton";
@@ -103,6 +103,9 @@ function ListingCard({ listing }) {
           <span className="truncate">€ {renderPrice()}</span>
           {listing.price_type === "negotiable" && <span className="ml-1 text-xs text-gray-500">(Negotiable)</span>}
         </div>
+        <Link to={`/profile/${listing.user}`} className="text-sm text-blue-600 hover:underline">
+          {listing.user}
+        </Link>
         {shouldShowCondition && listing.condition && listing.condition !== "na" && (
           <p className="mt-1 text-sm text-gray-600 truncate">Condition: {conditionLabel}</p>
         )}

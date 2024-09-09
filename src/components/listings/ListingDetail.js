@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
@@ -205,7 +205,9 @@ function ListingDetail() {
                 <div className="space-y-2">
                   <div className="flex items-center">
                     <UserIcon className="w-5 h-5 mr-2 text-gray-400" />
-                    <span>{listing.user}</span>
+                    <Link to={`/profile/${listing.user}`} className="text-blue-600 hover:underline">
+                      {listing.user}
+                    </Link>
                   </div>
                   <div className="flex items-center">
                     <MapPinIcon className="w-5 h-5 mr-2 text-gray-400" />

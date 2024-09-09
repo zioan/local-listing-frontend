@@ -15,6 +15,7 @@ import ListingDetail from "./components/listings/ListingDetail";
 import EditListing from "./components/listings/EditListing";
 import Favorites from "./components/user/Favorites";
 import AppInitializer from "./components/AppInitializer";
+import PublicProfile from "./components/user/PublicProfile";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                   <Route path="/listings/:id" element={<ListingDetail />} />
                   <Route path="/listings/:id/edit" element={<EditListing />} />
                   <Route path="/favorite" element={<Favorites />} />
+                  <Route path="/profile/:username" element={<PublicProfile />} />
                   <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>
               </main>
