@@ -7,7 +7,6 @@ import {
   MapPinIcon,
   ClockIcon,
   TagIcon,
-  CurrencyDollarIcon,
   ShoppingBagIcon,
   GiftIcon,
   HandRaisedIcon,
@@ -33,9 +32,9 @@ function ListingCard({ listing }) {
 
   const renderPrice = () => {
     if (listing.price_type === "free") return "Free";
-    if (listing.price_type === "contact") return "Contact for price";
-    if (listing.price_type === "na") return "Not Applicable";
-    return listing.price ? `$${listing.price}` : "";
+    if (listing.price_type === "contact") return "- Contact for price";
+    if (listing.price_type === "na") return "- N/A";
+    return listing.price ? `${listing.price}` : "";
   };
 
   const getListingTypeIcon = (type) => {
@@ -101,8 +100,7 @@ function ListingCard({ listing }) {
           </div>
         </div>
         <div className="flex items-center mt-2 text-lg font-semibold text-green-600">
-          <CurrencyDollarIcon className="flex-shrink-0 w-5 h-5 mr-1 text-green-500" />
-          <span className="truncate">{renderPrice()}</span>
+          <span className="truncate">€ {renderPrice()}</span>
           {listing.price_type === "negotiable" && <span className="ml-1 text-xs text-gray-500">(Negotiable)</span>}
         </div>
         {shouldShowCondition && listing.condition && listing.condition !== "na" && (
