@@ -17,7 +17,6 @@ import {
   ChevronRightIcon,
   TagIcon,
   UserIcon,
-  CurrencyDollarIcon,
   ShoppingBagIcon,
   GiftIcon,
   HandRaisedIcon,
@@ -25,9 +24,11 @@ import {
   HomeIcon,
   CalendarIcon,
   SparklesIcon,
-  BuildingStorefrontIcon,
+  EyeIcon,
+  PhoneIcon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
-import { formatDate } from "../../util/listingHelpers";
+import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 
 function ListingDetail() {
   const { id } = useParams();
@@ -46,11 +47,8 @@ function ListingDetail() {
 
   const listing = state.listingDetails[id];
 
-  const formatListingType = (type) => {
-    return type
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+  const getListingTypeLabel = (type) => {
+    return listingTypeOptions.find((option) => option.value === type)?.label || type;
   };
 
   const getListingTypeIcon = (type) => {
@@ -76,7 +74,8 @@ function ListingDetail() {
 
   const renderPrice = () => {
     if (listing.price_type === "free") return "Free";
-    if (listing.price_type === "contact") return "Contact for price";
+    if (listing.price_type === "contact") return "- Contact for price";
+    if (listing.price_type === "na") return "- N/A";
     return (
       <span>
         ${listing.price}
@@ -102,15 +101,21 @@ function ListingDetail() {
   if (error[`listing-${id}`]) return <div>Error: {error[`listing-${id}`]}</div>;
   if (!listing) return null;
 
+  const shouldShowCondition = ["item_sale", "item_free", "item_wanted"].includes(listing.listing_type);
+  const conditionLabel = conditionOptions.find((option) => option.value === listing.condition)?.label || listing.condition;
+
   return (
     <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold leading-tight text-gray-900">{listing.title}</h1>
-            <div className="flex items-center space-x-2">
-              {getListingTypeIcon(listing.listing_type)}
-              <span className="text-lg font-semibold text-gray-600">{formatListingType(listing.listing_type)}</span>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                {getListingTypeIcon(listing.listing_type)}
+                <span className="text-lg font-semibold text-gray-600">{getListingTypeLabel(listing.listing_type)}</span>
+              </div>
+              <FavoriteButton listing={listing} />
             </div>
           </div>
           <p className="flex items-center max-w-2xl mt-1 text-sm text-gray-500">
@@ -168,29 +173,24 @@ function ListingDetail() {
             {/* Right column: Listing details */}
             <div className="sm:px-6 sm:py-5">
               <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-green-600">
-                      <CurrencyDollarIcon className="inline w-8 h-8 mr-1" />
-                      {renderPrice()}
-                    </span>
-                    <FavoriteButton listing={listing} />
-                  </div>
-                </div>
-
                 <div className="p-4 bg-gray-100 rounded-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xl font-bold text-green-600">€ {renderPrice()}</span>
+                  </div>
                   <h3 className="mb-2 text-lg font-semibold">Listing Details</h3>
                   <dl className="grid grid-cols-2 text-sm gap-x-4 gap-y-2">
-                    {["item_sale", "item_free", "item_wanted"].includes(listing.listing_type) && (
+                    {shouldShowCondition && listing.condition && listing.condition !== "na" && (
                       <>
                         <div className="col-span-1 font-medium">Condition:</div>
-                        <div className="col-span-1">{listing.condition}</div>
+                        <div className="col-span-1">{conditionLabel}</div>
                       </>
                     )}
                     {listing.delivery_option && listing.delivery_option !== "na" && (
                       <>
                         <div className="col-span-1 font-medium">Delivery:</div>
-                        <div className="col-span-1">{listing.delivery_option === "both" ? "Pickup or Delivery" : listing.delivery_option}</div>
+                        <div className="col-span-1">
+                          {deliveryOptions.find((option) => option.value === listing.delivery_option)?.label || listing.delivery_option}
+                        </div>
                       </>
                     )}
                     {listing.listing_type === "event" && listing.event_date && (
@@ -215,18 +215,17 @@ function ListingDetail() {
                     <ClockIcon className="w-5 h-5 mr-2 text-gray-400" />
                     <span>Posted on: {formatDate(listing.created_at)}</span>
                   </div>
-                  {listing.listing_type === "event" && listing.event_date && (
-                    <div className="flex items-center">
-                      <CalendarIcon className="w-5 h-5 mr-2 text-gray-400" />
-                      <span>Event Date: {formatDate(listing.event_date, true)}</span>
-                    </div>
-                  )}
-                  {listing.listing_type === "event" && listing.event_date && (
-                    <div className="flex items-center">
-                      <BuildingStorefrontIcon className="w-5 h-5 mr-2 text-gray-400" />
-                      Delivery: {listing.delivery_option === "both" ? "Pickup or Delivery" : listing.delivery_option}
-                    </div>
-                  )}
+                </div>
+
+                <div className="flex flex-col space-y-2">
+                  <button className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <PhoneIcon className="w-5 h-5 mr-2" />
+                    Contact Seller
+                  </button>
+                  <button className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <EnvelopeIcon className="w-5 h-5 mr-2" />
+                    Message Seller
+                  </button>
                 </div>
 
                 {user && user.username === listing.user && (
@@ -264,15 +263,7 @@ function ListingDetail() {
               <span>{listing.favorite_count} favorites</span>
             </div>
             <div className="flex items-center">
-              <svg className="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
+              <EyeIcon className="w-5 h-5 mr-2 text-gray-400" />
               <span>{listing.view_count} views</span>
             </div>
           </div>
