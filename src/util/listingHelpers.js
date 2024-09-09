@@ -15,12 +15,21 @@ export const conditionOptions = [
   { value: "good", label: "Good" },
   { value: "fair", label: "Fair" },
   { value: "poor", label: "Poor" },
+  { value: "na", label: "Not Applicable" },
 ];
 
 export const deliveryOptions = [
   { value: "pickup", label: "Pickup Only" },
   { value: "delivery", label: "Delivery Available" },
   { value: "both", label: "Pickup or Delivery" },
+  { value: "na", label: "Not Applicable" },
+];
+
+export const priceTypeOptions = [
+  { value: "fixed", label: "Fixed Price" },
+  { value: "negotiable", label: "Negotiable" },
+  { value: "free", label: "Free" },
+  { value: "contact", label: "Contact for Price" },
   { value: "na", label: "Not Applicable" },
 ];
 

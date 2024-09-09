@@ -9,7 +9,7 @@ import FormSelect from "../shared/form/FormSelect";
 import FormTextArea from "../shared/form/FormTextArea";
 import ImageUpload from "../shared/form/ImageUpload";
 import LoadingSpinner from "../shared/LoadingSpinner";
-import { listingTypeOptions } from "../../util/listingHelpers";
+import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions } from "../../util/listingHelpers";
 
 function CreateListing() {
   const { user } = useAuth();
@@ -66,6 +66,9 @@ function CreateListing() {
         }
       }
 
+      if (name === "price_type" && ["free", "contact", "na"].includes(value)) {
+        newData.price = "";
+      }
       return newData;
     });
   };
@@ -143,18 +146,16 @@ function CreateListing() {
         <FormTextArea id="description" name="description" value={formData.description} onChange={handleChange} label="Description" required />
         {formData.listing_type !== "item_free" && (
           <>
-            <FormInput id="price" name="price" value={formData.price} onChange={handleChange} label="Price" type="number" />
+            {!["free", "contact", "na"].includes(formData.price_type) && (
+              <FormInput id="price" name="price" value={formData.price} onChange={handleChange} label="Price" type="number" required />
+            )}
             <FormSelect
               id="price_type"
               name="price_type"
               value={formData.price_type}
               onChange={handleChange}
               label="Price Type"
-              options={[
-                { value: "fixed", label: "Fixed Price" },
-                { value: "negotiable", label: "Negotiable" },
-                { value: "contact", label: "Contact for Price" },
-              ]}
+              options={priceTypeOptions}
               required
             />
           </>
@@ -166,13 +167,7 @@ function CreateListing() {
             value={formData.condition}
             onChange={handleChange}
             label="Condition"
-            options={[
-              { value: "new", label: "New" },
-              { value: "like_new", label: "Like New" },
-              { value: "good", label: "Good" },
-              { value: "fair", label: "Fair" },
-              { value: "poor", label: "Poor" },
-            ]}
+            options={conditionOptions}
             required
           />
         )}
@@ -211,12 +206,7 @@ function CreateListing() {
           value={formData.delivery_option}
           onChange={handleChange}
           label="Delivery Option"
-          options={[
-            { value: "pickup", label: "Pickup Only" },
-            { value: "delivery", label: "Delivery Available" },
-            { value: "both", label: "Pickup or Delivery" },
-            { value: "na", label: "Not Applicable" },
-          ]}
+          options={deliveryOptions}
           required
         />
         <FormInput id="location" name="location" value={formData.location} onChange={handleChange} label="Location" />
