@@ -16,20 +16,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import FavoriteButton from "./FavoriteButton";
-
-const formatDate = (dateString, includeTime = false) => {
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    ...(includeTime && {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }),
-  };
-  return new Intl.DateTimeFormat("de-DE", options).format(new Date(dateString));
-};
+import { formatDate } from "../../util/listingHelpers";
 
 function ListingCard({ listing }) {
   const formatListingType = (type) => {

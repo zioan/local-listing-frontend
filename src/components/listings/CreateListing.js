@@ -9,6 +9,7 @@ import FormSelect from "../shared/form/FormSelect";
 import FormTextArea from "../shared/form/FormTextArea";
 import ImageUpload from "../shared/form/ImageUpload";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import { listingTypeOptions } from "../../util/listingHelpers";
 
 function CreateListing() {
   const { user } = useAuth();
@@ -123,17 +124,6 @@ function CreateListing() {
 
   if (loading.categories) return <LoadingSpinner isLoading={loading.categories} />;
   if (error.categories) return <div className="text-red-500">{error.categories}</div>;
-
-  const listingTypeOptions = [
-    { value: "item_sale", label: "Item for Sale" },
-    { value: "item_free", label: "Free Item" },
-    { value: "item_wanted", label: "Item Wanted" },
-    { value: "service", label: "Service" },
-    { value: "job", label: "Job" },
-    { value: "housing", label: "Housing" },
-    { value: "event", label: "Event" },
-    { value: "other", label: "Other" },
-  ];
 
   return (
     <div className="max-w-2xl mx-auto">

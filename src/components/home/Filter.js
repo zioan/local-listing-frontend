@@ -3,6 +3,7 @@ import { useData } from "../../context/DataContext";
 import FormSelect from "../shared/form/FormSelect";
 import FormInput from "../shared/form/FormInput";
 import SubmitBtn from "../shared/form/SubmitBtn";
+import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 
 function Filter({ onFilterChange, onToggleFilter }) {
   const { state, loading, error, fetchSubcategories } = useData();
@@ -67,32 +68,6 @@ function Filter({ onFilterChange, onToggleFilter }) {
   if (error.categories) return <p>Error loading filters: {error.categories}</p>;
 
   const subcategories = state.subcategories && filters.category ? state.subcategories[filters.category] || [] : [];
-
-  const listingTypeOptions = [
-    { value: "item_sale", label: "Item for Sale" },
-    { value: "item_free", label: "Free Item" },
-    { value: "item_wanted", label: "Item Wanted" },
-    { value: "service", label: "Service" },
-    { value: "job", label: "Job" },
-    { value: "housing", label: "Housing" },
-    { value: "event", label: "Event" },
-    { value: "other", label: "Other" },
-  ];
-
-  const conditionOptions = [
-    { value: "new", label: "New" },
-    { value: "like_new", label: "Like New" },
-    { value: "good", label: "Good" },
-    { value: "fair", label: "Fair" },
-    { value: "poor", label: "Poor" },
-  ];
-
-  const deliveryOptions = [
-    { value: "pickup", label: "Pickup Only" },
-    { value: "delivery", label: "Delivery Available" },
-    { value: "both", label: "Pickup or Delivery" },
-    { value: "na", label: "Not Applicable" },
-  ];
 
   return (
     <form onSubmit={handleSubmit} className="p-4 bg-white rounded-lg shadow-md">
