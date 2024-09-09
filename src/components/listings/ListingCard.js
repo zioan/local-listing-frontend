@@ -92,9 +92,14 @@ function ListingCard({ listing }) {
           </div>
         </div>
         <h3 className="text-lg font-medium text-gray-900 line-clamp-2">{listing.title}</h3>
-        <p className="mt-1 text-sm text-gray-500 truncate">
-          {listing.category_name} {listing.subcategory_name && `> ${listing.subcategory_name}`}
-        </p>
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-sm text-gray-500 truncate">
+            {listing.category_name} {listing.subcategory_name && `> ${listing.subcategory_name}`}
+          </p>
+          <div onClick={(e) => e.stopPropagation()}>
+            <FavoriteButton listing={listing} />
+          </div>
+        </div>
         <div className="flex items-center mt-2 text-lg font-semibold text-green-600">
           <CurrencyDollarIcon className="flex-shrink-0 w-5 h-5 mr-1 text-green-500" />
           <span className="truncate">{renderPrice()}</span>
@@ -125,9 +130,6 @@ function ListingCard({ listing }) {
             </span>
           </div>
         )}
-      </div>
-      <div className="absolute bottom-2 right-2" onClick={(e) => e.stopPropagation()}>
-        <FavoriteButton listing={listing} />
       </div>
     </div>
   );
