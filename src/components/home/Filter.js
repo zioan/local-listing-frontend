@@ -4,15 +4,19 @@ import FormSelect from "../shared/form/FormSelect";
 import FormInput from "../shared/form/FormInput";
 import SubmitBtn from "../shared/form/SubmitBtn";
 
-const Filter = ({ onFilterChange, onToggleFilter }) => {
+function Filter({ onFilterChange, onToggleFilter }) {
   const { state, loading, error, fetchSubcategories } = useData();
   const [filters, setFilters] = useState({
+    listing_type: "",
     category: "",
     subcategory: "",
     min_price: "",
     max_price: "",
     condition: "",
     delivery_option: "",
+    location: "",
+    start_date: "",
+    end_date: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,12 +47,16 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
 
   const handleReset = () => {
     const resetFilters = {
+      listing_type: "",
       category: "",
       subcategory: "",
       min_price: "",
       max_price: "",
       condition: "",
       delivery_option: "",
+      location: "",
+      start_date: "",
+      end_date: "",
     };
     setFilters(resetFilters);
     onFilterChange({});
@@ -60,8 +68,18 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
 
   const subcategories = state.subcategories && filters.category ? state.subcategories[filters.category] || [] : [];
 
+  const listingTypeOptions = [
+    { value: "item_sale", label: "Item for Sale" },
+    { value: "item_free", label: "Free Item" },
+    { value: "item_wanted", label: "Item Wanted" },
+    { value: "service", label: "Service" },
+    { value: "job", label: "Job" },
+    { value: "housing", label: "Housing" },
+    { value: "event", label: "Event" },
+    { value: "other", label: "Other" },
+  ];
+
   const conditionOptions = [
-    { value: "", label: "Any Condition" },
     { value: "new", label: "New" },
     { value: "like_new", label: "Like New" },
     { value: "good", label: "Good" },
@@ -70,10 +88,10 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
   ];
 
   const deliveryOptions = [
-    { value: "", label: "Any Delivery Option" },
     { value: "pickup", label: "Pickup Only" },
     { value: "delivery", label: "Delivery Available" },
     { value: "both", label: "Pickup or Delivery" },
+    { value: "na", label: "Not Applicable" },
   ];
 
   return (
@@ -81,6 +99,14 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
       <h2 className="mb-4 text-xl font-semibold">Advanced Filters</h2>
 
       <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+        <FormSelect
+          id="listing_type"
+          name="listing_type"
+          value={filters.listing_type}
+          onChange={handleInputChange}
+          label="Listing Type"
+          options={listingTypeOptions}
+        />
         <FormSelect
           id="category"
           name="category"
@@ -92,7 +118,6 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
             ...(state.categories?.map((category) => ({ value: category.id, label: category.name })) || []),
           ]}
         />
-
         <FormSelect
           id="subcategory"
           name="subcategory"
@@ -105,9 +130,6 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
           ]}
           disabled={!filters.category}
         />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
         <FormInput
           id="min_price"
           name="min_price"
@@ -126,9 +148,6 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
           type="number"
           placeholder="Any"
         />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
         <FormSelect
           id="condition"
           name="condition"
@@ -137,7 +156,6 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
           label="Condition"
           options={conditionOptions}
         />
-
         <FormSelect
           id="delivery_option"
           name="delivery_option"
@@ -146,8 +164,18 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
           label="Delivery Option"
           options={deliveryOptions}
         />
+        <FormInput
+          id="location"
+          name="location"
+          value={filters.location}
+          onChange={handleInputChange}
+          label="Location"
+          type="text"
+          placeholder="Enter location"
+        />
+        <FormInput id="start_date" name="start_date" value={filters.start_date} onChange={handleInputChange} label="Start Date" type="date" />
+        <FormInput id="end_date" name="end_date" value={filters.end_date} onChange={handleInputChange} label="End Date" type="date" />
       </div>
-
       <div className="flex justify-end mt-6 space-x-4">
         <button
           type="button"
@@ -162,6 +190,6 @@ const Filter = ({ onFilterChange, onToggleFilter }) => {
       </div>
     </form>
   );
-};
+}
 
 export default Filter;
