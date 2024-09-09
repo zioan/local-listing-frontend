@@ -1,5 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
+import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
+import FavoriteButton from "./FavoriteButton";
 import {
   MapPinIcon,
   ClockIcon,
@@ -13,23 +16,26 @@ import {
   CalendarIcon,
   SparklesIcon,
   BuildingStorefrontIcon,
+  EyeIcon,
+  HeartIcon,
 } from "@heroicons/react/24/outline";
-import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
-import FavoriteButton from "./FavoriteButton";
-import { formatDate } from "../../util/listingHelpers";
 
 function ListingCard({ listing }) {
-  const formatListingType = (type) => {
-    return type
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/listings/${listing.id}`);
+  };
+
+  const getListingTypeLabel = (type) => {
+    return listingTypeOptions.find((option) => option.value === type)?.label || type;
   };
 
   const renderPrice = () => {
     if (listing.price_type === "free") return "Free";
     if (listing.price_type === "contact") return "Contact for price";
-    return `$${listing.price}`;
+    if (listing.price_type === "na") return "Not Applicable";
+    return listing.price ? `$${listing.price}` : "";
   };
 
   const getListingTypeIcon = (type) => {
@@ -53,100 +59,75 @@ function ListingCard({ listing }) {
     }
   };
 
-  const getBackgroundColor = (type) => {
-    switch (type) {
-      case "item_sale":
-        return "bg-blue-100";
-      case "item_free":
-        return "bg-green-100";
-      case "item_wanted":
-        return "bg-yellow-100";
-      case "service":
-        return "bg-purple-100";
-      case "job":
-        return "bg-red-100";
-      case "housing":
-        return "bg-indigo-100";
-      case "event":
-        return "bg-pink-100";
-      default:
-        return "bg-gray-100";
-    }
-  };
+  const shouldShowCondition = ["item_sale", "item_free", "item_wanted"].includes(listing.listing_type);
+  const conditionLabel = conditionOptions.find((option) => option.value === listing.condition)?.label || listing.condition;
 
   return (
     <div
-      className={`overflow-hidden transition duration-300 bg-white rounded-lg shadow-md hover:shadow-xl ${getBackgroundColor(listing.listing_type)}`}
+      className="relative flex flex-col h-full overflow-hidden transition duration-300 bg-white rounded-lg shadow-md cursor-pointer hover:shadow-xl"
+      onClick={handleCardClick}
     >
-      <div className="relative">
-        <Link to={`/listings/${listing.id}`} className="block">
-          <div className="aspect-w-16 aspect-h-9">
-            {listing.images && listing.images.length > 0 ? (
-              <img src={getCloudinaryImageUrl(listing.images[0].image)} alt={listing.title} className="object-cover w-full h-full" />
-            ) : (
-              <div className="flex items-center justify-center w-full h-full bg-gray-200">
-                <span className="text-gray-400">No image</span>
-              </div>
-            )}
+      <div className="relative flex-shrink-0" style={{ height: "200px" }}>
+        {listing.images && listing.images.length > 0 ? (
+          <img src={getCloudinaryImageUrl(listing.images[0].image)} alt={listing.title} className="object-contain w-full h-full" />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full bg-gray-200">
+            <span className="text-gray-400">No image</span>
           </div>
-        </Link>
+        )}
         <div className="absolute p-2 bg-white bg-opacity-75 rounded-full top-2 left-2">{getListingTypeIcon(listing.listing_type)}</div>
-        <div className="absolute top-2 right-2">
-          <FavoriteButton listing={listing} />
-        </div>
       </div>
-      <div className="p-4">
-        <Link to={`/listings/${listing.id}`} className="text-lg font-medium text-gray-900 hover:text-blue-600">
-          {listing.title}
-        </Link>
-        <div className="flex items-center mt-1 text-sm text-gray-500">
-          <TagIcon className="flex-shrink-0 w-4 h-4 mr-1.5 text-gray-400" />
-          <span>{formatListingType(listing.listing_type)}</span>
+      <div className="flex flex-col flex-grow p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-900">{getListingTypeLabel(listing.listing_type)}</span>
+          <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <span className="flex items-center">
+              <EyeIcon className="w-4 h-4 mr-1" />
+              {listing.view_count}
+            </span>
+            <span className="flex items-center">
+              <HeartIcon className="w-4 h-4 mr-1" />
+              {listing.favorite_count}
+            </span>
+          </div>
         </div>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="text-lg font-medium text-gray-900 line-clamp-2">{listing.title}</h3>
+        <p className="mt-1 text-sm text-gray-500 truncate">
           {listing.category_name} {listing.subcategory_name && `> ${listing.subcategory_name}`}
         </p>
         <div className="flex items-center mt-2 text-lg font-semibold text-green-600">
           <CurrencyDollarIcon className="flex-shrink-0 w-5 h-5 mr-1 text-green-500" />
-          {renderPrice()}
+          <span className="truncate">{renderPrice()}</span>
           {listing.price_type === "negotiable" && <span className="ml-1 text-xs text-gray-500">(Negotiable)</span>}
         </div>
-        {["item_sale", "item_free", "item_wanted"].includes(listing.listing_type) && (
-          <p className="mt-1 text-sm text-gray-600">Condition: {listing.condition}</p>
+        {shouldShowCondition && listing.condition && listing.condition !== "na" && (
+          <p className="mt-1 text-sm text-gray-600 truncate">Condition: {conditionLabel}</p>
         )}
         <div className="flex items-center mt-2 text-sm text-gray-500">
           <MapPinIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-          <span>{listing.location || "Location N/A"}</span>
+          <span className="truncate">{listing.location || "Location N/A"}</span>
         </div>
         <div className="flex items-center mt-2 text-sm text-gray-500">
           <ClockIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-          <span>{formatDate(listing.created_at)}</span>
+          <span className="truncate">{formatDate(listing.created_at)}</span>
         </div>
-
         {listing.listing_type === "event" && listing.event_date && (
           <div className="flex items-center mt-2 text-sm text-blue-500">
             <CalendarIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-            <span>Event Date: {formatDate(listing.event_date, true)}</span>
+            <span className="truncate">Event Date: {formatDate(listing.event_date, true)}</span>
           </div>
         )}
-
         {listing.delivery_option && listing.delivery_option !== "na" && (
           <div className="flex items-center mt-2 text-sm text-gray-500">
             <BuildingStorefrontIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-            {listing.delivery_option === "both" ? "Pickup or Delivery" : listing.delivery_option}
+            <span className="truncate">
+              {deliveryOptions.find((option) => option.value === listing.delivery_option)?.label || listing.delivery_option}
+            </span>
           </div>
         )}
-        <div className="flex items-center justify-between mt-4">
-          <Link
-            to={`/listings/${listing.id}`}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            View details
-          </Link>
-          <div className="text-sm text-gray-500">
-            Views: {listing.view_count} | Favorites: {listing.favorite_count}
-          </div>
-        </div>
+      </div>
+      <div className="absolute bottom-2 right-2" onClick={(e) => e.stopPropagation()}>
+        <FavoriteButton listing={listing} />
       </div>
     </div>
   );
