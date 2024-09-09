@@ -268,6 +268,33 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
+  // User Public Profile
+  const fetchPublicProfile = useCallback(async (username) => {
+    updateLoading("profile", true);
+    updateError("profile", null);
+    try {
+      const response = await api.get(`profiles/${username}/`);
+      return response.data;
+    } catch (err) {
+      updateError("profile", err.message);
+    } finally {
+      updateLoading("profile", false);
+    }
+  }, []);
+
+  const fetchUserListings = useCallback(async (username) => {
+    updateLoading("userListings", true);
+    updateError("userListings", null);
+    try {
+      const response = await api.get(`listings/user/${username}/`);
+      return response.data;
+    } catch (err) {
+      updateError("userListings", err.message);
+    } finally {
+      updateLoading("userListings", false);
+    }
+  }, []);
+
   const initializeData = useCallback(async () => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -294,6 +321,8 @@ export const DataProvider = ({ children }) => {
         deleteListing,
         invalidateCache,
         hasMore,
+        fetchPublicProfile,
+        fetchUserListings,
         initializeData,
       }}
     >
