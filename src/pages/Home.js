@@ -49,7 +49,7 @@ function Home() {
         )}
 
         <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {state.listings && state.listings.length > 0 && state.listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)}
           </div>
         </InfiniteScroll>
