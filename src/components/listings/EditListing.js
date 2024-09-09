@@ -48,7 +48,16 @@ function EditListing() {
     if (state.listingDetails[id]) {
       const listing = state.listingDetails[id];
       setFormData({
-        ...listing,
+        title: listing.title || "",
+        description: listing.description || "",
+        listing_type: listing.listing_type || "",
+        price: listing.price || "",
+        price_type: listing.price_type || "",
+        condition: listing.condition || "",
+        category: listing.category || "",
+        subcategory: listing.subcategory || "",
+        delivery_option: listing.delivery_option || "",
+        location: listing.location || "",
         event_date: listing.event_date ? new Date(listing.event_date).toISOString().slice(0, 16) : "",
       });
       setExistingImages(listing.images || []);
@@ -63,7 +72,7 @@ function EditListing() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value || "" }));
   };
 
   const handleNewImageAdd = (e) => {
