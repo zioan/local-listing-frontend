@@ -17,9 +17,18 @@ import {
   ChevronRightIcon,
   TagIcon,
   UserIcon,
+  CurrencyDollarIcon,
+  ShoppingBagIcon,
+  GiftIcon,
+  HandRaisedIcon,
+  BriefcaseIcon,
+  HomeIcon,
+  CalendarIcon,
+  SparklesIcon,
+  BuildingStorefrontIcon,
 } from "@heroicons/react/24/outline";
 
-const ListingDetail = () => {
+function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -35,6 +44,59 @@ const ListingDetail = () => {
   }, [id, fetchListing, state.listingDetails]);
 
   const listing = state.listingDetails[id];
+
+  const formatDate = (dateString, includeTime = false) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      ...(includeTime && {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    };
+    return new Intl.DateTimeFormat("de-DE", options).format(new Date(dateString));
+  };
+
+  const formatListingType = (type) => {
+    return type
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const getListingTypeIcon = (type) => {
+    switch (type) {
+      case "item_sale":
+        return <ShoppingBagIcon className="w-6 h-6" />;
+      case "item_free":
+        return <GiftIcon className="w-6 h-6" />;
+      case "item_wanted":
+        return <HandRaisedIcon className="w-6 h-6" />;
+      case "service":
+        return <SparklesIcon className="w-6 h-6" />;
+      case "job":
+        return <BriefcaseIcon className="w-6 h-6" />;
+      case "housing":
+        return <HomeIcon className="w-6 h-6" />;
+      case "event":
+        return <CalendarIcon className="w-6 h-6" />;
+      default:
+        return <TagIcon className="w-6 h-6" />;
+    }
+  };
+
+  const renderPrice = () => {
+    if (listing.price_type === "free") return "Free";
+    if (listing.price_type === "contact") return "Contact for price";
+    return (
+      <span>
+        ${listing.price}
+        {listing.price_type === "negotiable" && <span className="ml-1 text-sm text-gray-500">(Negotiable)</span>}
+      </span>
+    );
+  };
 
   const handleDelete = async () => {
     try {
@@ -57,7 +119,13 @@ const ListingDetail = () => {
     <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
-          <h1 className="text-3xl font-bold leading-tight text-gray-900">{listing.title}</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{listing.title}</h1>
+            <div className="flex items-center space-x-2">
+              {getListingTypeIcon(listing.listing_type)}
+              <span className="text-lg font-semibold text-gray-600">{formatListingType(listing.listing_type)}</span>
+            </div>
+          </div>
           <p className="flex items-center max-w-2xl mt-1 text-sm text-gray-500">
             <TagIcon className="w-4 h-4 mr-1" />
             {listing.category_name} {listing.subcategory_name && `> ${listing.subcategory_name}`}
@@ -115,19 +183,35 @@ const ListingDetail = () => {
               <div className="space-y-6">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-green-600">${listing.price}</span>
+                    <span className="text-3xl font-bold text-green-600">
+                      <CurrencyDollarIcon className="inline w-8 h-8 mr-1" />
+                      {renderPrice()}
+                    </span>
                     <FavoriteButton listing={listing} />
                   </div>
-                  <p className="mt-1 text-sm text-gray-500">{listing.price_type}</p>
                 </div>
 
                 <div className="p-4 bg-gray-100 rounded-lg">
-                  <h3 className="mb-2 text-lg font-semibold">Item Details</h3>
+                  <h3 className="mb-2 text-lg font-semibold">Listing Details</h3>
                   <dl className="grid grid-cols-2 text-sm gap-x-4 gap-y-2">
-                    <div className="col-span-1 font-medium">Condition:</div>
-                    <div className="col-span-1">{listing.condition}</div>
-                    <div className="col-span-1 font-medium">Delivery:</div>
-                    <div className="col-span-1">{listing.delivery_option}</div>
+                    {["item_sale", "item_free", "item_wanted"].includes(listing.listing_type) && (
+                      <>
+                        <div className="col-span-1 font-medium">Condition:</div>
+                        <div className="col-span-1">{listing.condition}</div>
+                      </>
+                    )}
+                    {listing.delivery_option && listing.delivery_option !== "na" && (
+                      <>
+                        <div className="col-span-1 font-medium">Delivery:</div>
+                        <div className="col-span-1">{listing.delivery_option === "both" ? "Pickup or Delivery" : listing.delivery_option}</div>
+                      </>
+                    )}
+                    {listing.listing_type === "event" && listing.event_date && (
+                      <>
+                        <div className="col-span-1 font-medium">Event Date:</div>
+                        <div className="col-span-1">{formatDate(listing.event_date, true)}</div>
+                      </>
+                    )}
                   </dl>
                 </div>
 
@@ -138,12 +222,24 @@ const ListingDetail = () => {
                   </div>
                   <div className="flex items-center">
                     <MapPinIcon className="w-5 h-5 mr-2 text-gray-400" />
-                    <span>{listing.city || "Location N/A"}</span>
+                    <span>{listing.location || "Location N/A"}</span>
                   </div>
                   <div className="flex items-center">
                     <ClockIcon className="w-5 h-5 mr-2 text-gray-400" />
-                    <span>{new Date(listing.created_at).toLocaleDateString()}</span>
+                    <span>Posted on: {formatDate(listing.created_at)}</span>
                   </div>
+                  {listing.listing_type === "event" && listing.event_date && (
+                    <div className="flex items-center">
+                      <CalendarIcon className="w-5 h-5 mr-2 text-gray-400" />
+                      <span>Event Date: {formatDate(listing.event_date, true)}</span>
+                    </div>
+                  )}
+                  {listing.listing_type === "event" && listing.event_date && (
+                    <div className="flex items-center">
+                      <BuildingStorefrontIcon className="w-5 h-5 mr-2 text-gray-400" />
+                      Delivery: {listing.delivery_option === "both" ? "Pickup or Delivery" : listing.delivery_option}
+                    </div>
+                  )}
                 </div>
 
                 {user && user.username === listing.user && (
@@ -223,6 +319,6 @@ const ListingDetail = () => {
       )}
     </div>
   );
-};
+}
 
 export default ListingDetail;
