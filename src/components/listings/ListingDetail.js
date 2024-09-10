@@ -29,6 +29,7 @@ import {
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
+import placeholderImage from "../../assets/placeholder-image.jpg";
 
 function ListingDetail() {
   const { id } = useParams();
@@ -164,7 +165,11 @@ function ListingDetail() {
                   </>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
-                    <span className="text-gray-400">No image available</span>
+                    <img
+                      src={placeholderImage}
+                      alt={listing.title}
+                      // className="object-contain w-full h-full"
+                    />
                   </div>
                 )}
               </div>

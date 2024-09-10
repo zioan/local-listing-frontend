@@ -18,6 +18,7 @@ import {
   EyeIcon,
   HeartIcon,
 } from "@heroicons/react/24/outline";
+import placeholderImage from "../../assets/placeholder-image.jpg";
 
 function ListingCard({ listing }) {
   const navigate = useNavigate();
@@ -62,18 +63,13 @@ function ListingCard({ listing }) {
   const conditionLabel = conditionOptions.find((option) => option.value === listing.condition)?.label || listing.condition;
 
   return (
-    <div
-      className="relative flex flex-col h-full overflow-hidden transition duration-300 bg-white rounded-lg shadow-md cursor-pointer hover:shadow-xl"
-      onClick={handleCardClick}
-    >
-      <div className="relative flex-shrink-0" style={{ height: "200px" }}>
-        {listing.images && listing.images.length > 0 ? (
-          <img src={getCloudinaryImageUrl(listing.images[0].image)} alt={listing.title} className="object-contain w-full h-full" />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full bg-gray-200">
-            <span className="text-gray-400">No image</span>
-          </div>
-        )}
+    <div className="relative flex flex-col h-full overflow-hidden transition duration-300 bg-white rounded-lg shadow-md cursor-pointer hover:shadow-xl">
+      <div className="relative flex-shrink-0" style={{ height: "200px" }} onClick={handleCardClick}>
+        <img
+          src={listing.images && listing.images.length > 0 ? getCloudinaryImageUrl(listing.images[0].image) : placeholderImage}
+          alt={listing.title}
+          className="object-contain w-full h-full"
+        />
         <div className="absolute p-2 bg-white bg-opacity-75 rounded-full top-2 left-2">{getListingTypeIcon(listing.listing_type)}</div>
       </div>
       <div className="flex flex-col flex-grow p-4">
