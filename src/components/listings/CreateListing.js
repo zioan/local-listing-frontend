@@ -27,6 +27,7 @@ function CreateListing() {
     delivery_option: "",
     location: "",
     event_date: "",
+    status: "active",
   });
 
   const [images, setImages] = useState([]);
@@ -105,6 +106,7 @@ function CreateListing() {
         listingData.append(key, formData[key]);
       }
     });
+    listingData.append("is_active", "true");
     images.forEach((image, index) => {
       listingData.append(`images[${index}]`, image);
     });

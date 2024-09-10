@@ -33,6 +33,15 @@ export const priceTypeOptions = [
   { value: "na", label: "Not Applicable" },
 ];
 
+export const statusOptions = [
+  { value: "draft", label: "Draft" },
+  { value: "active", label: "Active" },
+  { value: "pending", label: "Pending" },
+  { value: "sold", label: "Sold" },
+  { value: "expired", label: "Expired" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
 export const formatDate = (dateString, includeTime = false) => {
   const options = {
     year: "numeric",

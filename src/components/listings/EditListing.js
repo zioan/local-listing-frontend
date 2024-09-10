@@ -8,7 +8,7 @@ import FormSelect from "../shared/form/FormSelect";
 import FormTextArea from "../shared/form/FormTextArea";
 import ImageUpload from "../shared/form/ImageUpload";
 import LoadingSpinner from "../shared/LoadingSpinner";
-import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions } from "../../util/listingHelpers";
+import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions, statusOptions } from "../../util/listingHelpers";
 
 function EditListing() {
   const { id } = useParams();
@@ -28,6 +28,7 @@ function EditListing() {
     delivery_option: "",
     location: "",
     event_date: "",
+    status: "",
   });
 
   const [existingImages, setExistingImages] = useState([]);
@@ -59,6 +60,7 @@ function EditListing() {
         delivery_option: listing.delivery_option || "",
         location: listing.location || "",
         event_date: listing.event_date ? new Date(listing.event_date).toISOString().slice(0, 16) : "",
+        status: listing.status || "",
       });
       setExistingImages(listing.images || []);
     }
@@ -135,6 +137,15 @@ function EditListing() {
           onChange={handleChange}
           label="Listing Type"
           options={listingTypeOptions}
+          required
+        />
+        <FormSelect
+          id="status"
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          label="Listing Status"
+          options={statusOptions}
           required
         />
         <FormInput id="title" name="title" value={formData.title} onChange={handleChange} label="Title" required />
