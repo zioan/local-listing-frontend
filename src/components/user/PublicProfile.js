@@ -22,7 +22,8 @@ function PublicProfile() {
     loadProfile();
   }, [username, fetchPublicProfile, fetchUserListings]);
 
-  if (loading.profile) return <LoadingSpinner />;
+  if (loading.profile) return <LoadingSpinner isLoading={loading.profile} />;
+  if (loading.userListings) return <LoadingSpinner isLoading={loading.userListings} />;
   if (error.profile) return <div className="text-red-500">{error.profile}</div>;
   if (!profile) return null;
 
