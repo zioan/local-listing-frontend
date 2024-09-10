@@ -32,11 +32,11 @@ function App() {
                   <Route exact path="/contact" element={<Contact />} />
                   <Route exact path="/login" element={<Login />} />
                   <Route exact path="/register" element={<Register />} />
+                  <Route path="/profiles/:username" element={<PublicProfile />} />
                   <Route path="/profile/*" element={<Profile />} />
                   <Route path="/listings/:id" element={<ListingDetail />} />
                   <Route path="/listings/:id/edit" element={<EditListing />} />
                   <Route path="/favorite" element={<Favorites />} />
-                  <Route path="/profile/:username" element={<PublicProfile />} />
                   <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>
               </main>

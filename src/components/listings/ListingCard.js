@@ -103,7 +103,7 @@ function ListingCard({ listing }) {
           <span className="truncate">€ {renderPrice()}</span>
           {listing.price_type === "negotiable" && <span className="ml-1 text-xs text-gray-500">(Negotiable)</span>}
         </div>
-        <Link to={`/profile/${listing.user}`} className="text-sm text-blue-600 hover:underline">
+        <Link to={`/profiles/${listing.user}`} className="text-sm text-blue-600 hover:underline">
           {listing.user}
         </Link>
         {shouldShowCondition && listing.condition && listing.condition !== "na" && (

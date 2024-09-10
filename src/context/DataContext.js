@@ -273,7 +273,7 @@ export const DataProvider = ({ children }) => {
     updateLoading("profile", true);
     updateError("profile", null);
     try {
-      const response = await api.get(`profiles/${username}/`);
+      const response = await api.get(`profiles/profiles/${username}/`);
       return response.data;
     } catch (err) {
       updateError("profile", err.message);
@@ -286,7 +286,7 @@ export const DataProvider = ({ children }) => {
     updateLoading("userListings", true);
     updateError("userListings", null);
     try {
-      const response = await api.get(`listings/user/${username}/`);
+      const response = await api.get(`profiles/listings/user/${username}/`);
       return response.data;
     } catch (err) {
       updateError("userListings", err.message);
