@@ -1,18 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useData } from "../../context/DataContext";
-import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ListingCard from "../listings/ListingCard";
 
 const MyListings = () => {
-  const { state, loading, error, fetchMyListings } = useData();
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (user && state.myListings.length === 0) {
-      fetchMyListings();
-    }
-  }, [user, fetchMyListings, state.myListings.length]);
+  const { state, loading, error } = useData();
 
   if (loading.myListings) return <LoadingSpinner isLoading={loading.myListings} />;
   if (error.myListings) return <div>Error: {error.myListings}</div>;
