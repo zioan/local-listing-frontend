@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
+import { useData } from "../../context/DataContext";
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
 function FavoriteButton({ listing }) {
   const { user } = useAuth();
+  const { fetchFavorites, updateFavoriteStatus } = useData();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [isFavorited, setIsFavorited] = useState(listing.is_favorited);
@@ -18,10 +20,12 @@ function FavoriteButton({ listing }) {
     }
     try {
       await api.post(`listings/listings/${listing.id}/favorite/`);
+      const newFavoriteStatus = !isFavorited;
+      setIsFavorited(newFavoriteStatus);
+      updateFavoriteStatus(listing.id, newFavoriteStatus);
+      fetchFavorites();
     } catch (err) {
       setError("Error updating favorite status. Please try again.");
-    } finally {
-      setIsFavorited(!isFavorited);
     }
   };
 

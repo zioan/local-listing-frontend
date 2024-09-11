@@ -102,6 +102,21 @@ export const DataProvider = ({ children }) => {
     }
   }, [user]);
 
+  const updateFavoriteStatus = useCallback((listingId, isFavorited) => {
+    setState((prev) => {
+      const updatedListings = prev.listings.map((listing) => (listing.id === listingId ? { ...listing, is_favorited: isFavorited } : listing));
+      const updatedFavorites = isFavorited
+        ? [...prev.favorites, updatedListings.find((l) => l.id === listingId)]
+        : prev.favorites.filter((fav) => fav.id !== listingId);
+
+      return {
+        ...prev,
+        listings: updatedListings,
+        favorites: updatedFavorites,
+      };
+    });
+  }, []);
+
   const fetchSubcategories = useCallback(
     async (categoryId) => {
       if (!categoryId) return;
@@ -335,6 +350,7 @@ export const DataProvider = ({ children }) => {
         fetchSubcategories,
         fetchListing,
         fetchFavorites,
+        updateFavoriteStatus,
         fetchMyListings,
         updateListing,
         deleteListing,
