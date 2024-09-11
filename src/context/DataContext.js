@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { useAuth } from "./AuthContext";
+import { useWatcher } from "./WatcherContext";
 import api from "../config/api";
 
 const DataContext = createContext();
@@ -6,6 +8,8 @@ const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
+  const { user } = useAuth();
+  const { updateTrigger } = useWatcher();
   const [state, setState] = useState({
     listings: [],
     categories: [],
@@ -84,6 +88,8 @@ export const DataProvider = ({ children }) => {
   }, [state.categories.length]);
 
   const fetchFavorites = useCallback(async () => {
+    if (!user) return;
+
     updateLoading("favorites", true);
     updateError("favorites", null);
     try {
@@ -94,7 +100,7 @@ export const DataProvider = ({ children }) => {
     } finally {
       updateLoading("favorites", false);
     }
-  }, []);
+  }, [user]);
 
   const fetchSubcategories = useCallback(
     async (categoryId) => {
@@ -156,6 +162,8 @@ export const DataProvider = ({ children }) => {
   }, []);
 
   const fetchMyListings = useCallback(async () => {
+    if (!user) return;
+
     updateLoading("myListings", true);
     updateError("myListings", null);
     try {
@@ -166,7 +174,7 @@ export const DataProvider = ({ children }) => {
     } finally {
       updateLoading("myListings", false);
     }
-  }, []);
+  }, [user]);
 
   const invalidateCache = useCallback(
     (key) => {
@@ -268,7 +276,6 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
-  // User Public Profile
   const fetchPublicProfile = useCallback(async (username) => {
     updateLoading("profile", true);
     updateError("profile", null);
@@ -295,6 +302,12 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
+  const refetchUserData = useCallback(async () => {
+    if (user) {
+      await Promise.all([fetchFavorites(), fetchMyListings()]);
+    }
+  }, [user, fetchFavorites, fetchMyListings]);
+
   const initializeData = useCallback(async () => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -304,6 +317,12 @@ export const DataProvider = ({ children }) => {
   useEffect(() => {
     initializeData();
   }, [initializeData]);
+
+  useEffect(() => {
+    if (user) {
+      refetchUserData();
+    }
+  }, [user, refetchUserData, updateTrigger.auth]);
 
   return (
     <DataContext.Provider
@@ -323,6 +342,7 @@ export const DataProvider = ({ children }) => {
         hasMore,
         fetchPublicProfile,
         fetchUserListings,
+        refetchUserData,
         initializeData,
       }}
     >
