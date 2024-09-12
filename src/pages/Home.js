@@ -1,14 +1,22 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useData } from "../context/DataContext";
 import HeroSection from "../components/home/HeroSection";
 import ListingCard from "../components/listings/ListingCard";
 import Filter from "../components/home/Filter";
 import InfiniteScroll from "../components/shared/InfiniteScroll";
+import ActiveFilters from "../components/home/ActiveFilters";
 
 function Home() {
   const { listings, loading, error, fetchListings, hasMore } = useData();
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState(() => {
+    const savedFilters = localStorage.getItem("activeFilters");
+    return savedFilters ? JSON.parse(savedFilters) : {};
+  });
   const [showFilter, setShowFilter] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("activeFilters", JSON.stringify(filters));
+  }, [filters]);
 
   const handleFilterChange = useCallback(
     (newFilters) => {
@@ -18,6 +26,16 @@ function Home() {
     [fetchListings]
   );
 
+  const handleFilterRemove = useCallback(
+    (filterKey) => {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+      fetchListings(true, newFilters);
+    },
+    [filters, fetchListings]
+  );
+
   const loadMore = useCallback(() => {
     fetchListings(false, filters);
   }, [fetchListings, filters]);
@@ -25,6 +43,10 @@ function Home() {
   const toggleFilter = () => {
     setShowFilter(!showFilter);
   };
+
+  useEffect(() => {
+    fetchListings(true, filters);
+  }, []);
 
   if (error.listings) return <div className="text-center text-red-500">{error.listings}</div>;
 
@@ -41,13 +63,12 @@ function Home() {
             {showFilter ? "Hide Filters" : "Show Filters"}
           </button>
         </div>
-
         {showFilter && (
           <div className="mb-6">
-            <Filter onFilterChange={handleFilterChange} onToggleFilter={toggleFilter} />
+            <Filter onFilterChange={handleFilterChange} initialFilters={filters} />
           </div>
         )}
-
+        <ActiveFilters filters={filters} onFilterRemove={handleFilterRemove} />
         <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {listings && listings.length > 0 && listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)}

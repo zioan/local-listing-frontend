@@ -6,20 +6,9 @@ import SubmitBtn from "../shared/form/SubmitBtn";
 import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
-function Filter({ onFilterChange, onToggleFilter }) {
+function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
   const { categories, subcategories, loading, error, fetchSubcategories } = useData();
-  const [filters, setFilters] = useState({
-    listing_type: "",
-    category: "",
-    subcategory: "",
-    min_price: "",
-    max_price: "",
-    condition: "",
-    delivery_option: "",
-    location: "",
-    start_date: "",
-    end_date: "",
-  });
+  const [filters, setFilters] = useState(initialFilters);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
