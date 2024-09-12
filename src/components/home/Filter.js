@@ -4,6 +4,7 @@ import FormSelect from "../shared/form/FormSelect";
 import FormInput from "../shared/form/FormInput";
 import SubmitBtn from "../shared/form/SubmitBtn";
 import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 function Filter({ onFilterChange, onToggleFilter }) {
   const { categories, subcategories, loading, error, fetchSubcategories } = useData();
@@ -64,7 +65,7 @@ function Filter({ onFilterChange, onToggleFilter }) {
     onToggleFilter();
   };
 
-  if (loading.categories) return <p>Loading filters...</p>;
+  if (loading.categories) return <LoadingSpinner isLoading={loading.categories} />;
   if (error.categories) return <p>Error loading filters: {error.categories}</p>;
 
   const subcategoriesForCategory = subcategories && filters.category ? subcategories[filters.category] || [] : [];
