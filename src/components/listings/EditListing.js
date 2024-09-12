@@ -14,7 +14,18 @@ function EditListing() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { state, loading, error, fetchListing, fetchCategories, fetchSubcategories, updateListing, invalidateCache } = useData();
+  const {
+    listingDetails,
+    categories,
+    subcategories,
+    loading,
+    error,
+    fetchListing,
+    fetchCategories,
+    fetchSubcategories,
+    updateListing,
+    invalidateCache,
+  } = useData();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -46,8 +57,8 @@ function EditListing() {
   }, [user, navigate, id, fetchListing, fetchCategories]);
 
   useEffect(() => {
-    if (state.listingDetails[id]) {
-      const listing = state.listingDetails[id];
+    if (listingDetails[id]) {
+      const listing = listingDetails[id];
       setFormData({
         title: listing.title || "",
         description: listing.description || "",
@@ -64,7 +75,7 @@ function EditListing() {
       });
       setExistingImages(listing.images || []);
     }
-  }, [id, state.listingDetails]);
+  }, [id, listingDetails]);
 
   useEffect(() => {
     if (formData.category) {
@@ -175,25 +186,25 @@ function EditListing() {
             required
           />
         )}
-        {state.categories && (
+        {categories && (
           <FormSelect
             id="category"
             name="category"
             value={formData.category}
             onChange={handleChange}
             label="Category"
-            options={state.categories.map((category) => ({ value: category.id, label: category.name }))}
+            options={categories.map((category) => ({ value: category.id, label: category.name }))}
             required
           />
         )}
-        {formData.category && state.subcategories && state.subcategories[formData.category] && (
+        {formData.category && subcategories && subcategories[formData.category] && (
           <FormSelect
             id="subcategory"
             name="subcategory"
             value={formData.subcategory}
             onChange={handleChange}
             label="Subcategory"
-            options={state.subcategories[formData.category].map((subcategory) => ({ value: subcategory.id, label: subcategory.name }))}
+            options={subcategories[formData.category].map((subcategory) => ({ value: subcategory.id, label: subcategory.name }))}
           />
         )}
         <FormSelect

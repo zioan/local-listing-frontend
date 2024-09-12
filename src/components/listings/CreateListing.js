@@ -14,7 +14,7 @@ import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions
 function CreateListing() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { state, loading, error, fetchCategories, fetchSubcategories, invalidateCache } = useData();
+  const { categories, subcategories, loading, error, fetchCategories, fetchSubcategories, invalidateCache } = useData();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -179,13 +179,13 @@ function CreateListing() {
           value={formData.category}
           onChange={handleChange}
           label="Category"
-          options={state.categories.map((category) => ({
+          options={categories.map((category) => ({
             value: category.id,
             label: category.name,
           }))}
           required
         />
-        {formData.category && (
+        {formData.category && !loading.subcategories && (
           <FormSelect
             id="subcategory"
             name="subcategory"
@@ -193,8 +193,8 @@ function CreateListing() {
             onChange={handleChange}
             label="Subcategory"
             options={
-              state.subcategories && state.subcategories[formData.category]
-                ? state.subcategories[formData.category].map((subcategory) => ({
+              subcategories && subcategories[formData.category]
+                ? subcategories[formData.category].map((subcategory) => ({
                     value: subcategory.id,
                     label: subcategory.name,
                   }))
@@ -202,6 +202,8 @@ function CreateListing() {
             }
           />
         )}
+        {loading.subcategories && <p>Loading subcategories...</p>}
+        {error.subcategories && <p className="text-red-500">{error.subcategories}</p>}
         <FormSelect
           id="delivery_option"
           name="delivery_option"
