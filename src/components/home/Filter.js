@@ -6,7 +6,7 @@ import SubmitBtn from "../shared/form/SubmitBtn";
 import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 
 function Filter({ onFilterChange, onToggleFilter }) {
-  const { state, loading, error, fetchSubcategories } = useData();
+  const { categories, subcategories, loading, error, fetchSubcategories } = useData();
   const [filters, setFilters] = useState({
     listing_type: "",
     category: "",
@@ -67,7 +67,7 @@ function Filter({ onFilterChange, onToggleFilter }) {
   if (loading.categories) return <p>Loading filters...</p>;
   if (error.categories) return <p>Error loading filters: {error.categories}</p>;
 
-  const subcategories = state.subcategories && filters.category ? state.subcategories[filters.category] || [] : [];
+  const subcategoriesForCategory = subcategories && filters.category ? subcategories[filters.category] || [] : [];
 
   return (
     <form onSubmit={handleSubmit} className="p-4 bg-white rounded-lg shadow-md">
@@ -88,10 +88,7 @@ function Filter({ onFilterChange, onToggleFilter }) {
           value={filters.category}
           onChange={handleInputChange}
           label="Category"
-          options={[
-            { value: "", label: "All Categories" },
-            ...(state.categories?.map((category) => ({ value: category.id, label: category.name })) || []),
-          ]}
+          options={[{ value: "", label: "All Categories" }, ...(categories?.map((category) => ({ value: category.id, label: category.name })) || [])]}
         />
         <FormSelect
           id="subcategory"
@@ -101,7 +98,7 @@ function Filter({ onFilterChange, onToggleFilter }) {
           label="Subcategory"
           options={[
             { value: "", label: "All Subcategories" },
-            ...subcategories.map((subcategory) => ({ value: subcategory.id, label: subcategory.name })),
+            ...subcategoriesForCategory.map((subcategory) => ({ value: subcategory.id, label: subcategory.name })),
           ]}
           disabled={!filters.category}
         />

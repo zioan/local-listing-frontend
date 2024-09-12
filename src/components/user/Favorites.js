@@ -5,7 +5,7 @@ import ListingCard from "../listings/ListingCard";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
 const Favorites = () => {
-  const { state, loading, error } = useData();
+  const { favorites, loading, error } = useData();
   const { user } = useAuth();
 
   if (loading.favorites) return <LoadingSpinner isLoading={loading.favorites} />;
@@ -16,11 +16,11 @@ const Favorites = () => {
       <h2 className="mb-6 text-2xl font-bold">My Favorites</h2>
 
       {user ? (
-        state.favorites.length === 0 ? (
+        favorites.length === 0 ? (
           <p className="text-center text-gray-600">You haven't added any listings to your favorites yet.</p>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {state.favorites.map((listing) => (
+            {favorites.map((listing) => (
               <ListingCard key={listing.id} listing={listing} />
             ))}
           </div>
