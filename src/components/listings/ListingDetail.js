@@ -98,7 +98,7 @@ function ListingDetail() {
     }
   };
 
-  if (loading[`listing-${id}`]) return <LoadingSpinner isLoading={loading[`listing-${id}`]} />;
+  if (loading.listingDetails) return <LoadingSpinner isLoading={loading.listingDetails} />;
   if (error[`listing-${id}`]) return <div>Error: {error[`listing-${id}`]}</div>;
   if (!listing) return null;
 
