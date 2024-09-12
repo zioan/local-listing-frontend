@@ -6,7 +6,7 @@ import Filter from "../components/home/Filter";
 import InfiniteScroll from "../components/shared/InfiniteScroll";
 
 function Home() {
-  const { state, loading, error, fetchListings, hasMore } = useData();
+  const { listings, loading, error, fetchListings, hasMore } = useData();
   const [filters, setFilters] = useState({});
   const [showFilter, setShowFilter] = useState(false);
 
@@ -50,7 +50,7 @@ function Home() {
 
         <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {state.listings && state.listings.length > 0 && state.listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)}
+            {listings && listings.length > 0 && listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)}
           </div>
         </InfiniteScroll>
       </div>

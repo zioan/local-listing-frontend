@@ -35,18 +35,18 @@ function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { state, fetchListing, loading, error, deleteListing, invalidateCache } = useData();
+  const { listingDetails, fetchListing, loading, error, deleteListing, invalidateCache } = useData();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   useEffect(() => {
-    if (!state.listingDetails[id]) {
+    if (!listingDetails[id]) {
       fetchListing(id);
     }
-  }, [id, fetchListing, state.listingDetails]);
+  }, [id, fetchListing, listingDetails]);
 
-  const listing = state.listingDetails[id];
+  const listing = listingDetails[id];
 
   const getListingTypeLabel = (type) => {
     return listingTypeOptions.find((option) => option.value === type)?.label || type;
