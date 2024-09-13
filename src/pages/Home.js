@@ -16,6 +16,7 @@ function Home() {
   const [showFilter, setShowFilter] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [shouldFetchListings, setShouldFetchListings] = useState(true);
 
   useEffect(() => {
     localStorage.setItem("activeFilters", JSON.stringify(filters));
@@ -24,46 +25,52 @@ function Home() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchTerm = searchParams.get("search");
-    if (searchTerm) {
-      setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
+
+    if (searchTerm !== filters.search) {
+      setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm || "" }));
+      setShouldFetchListings(true);
     }
-    fetchListings(true, { ...filters, search: searchTerm });
-    console.log("loading", loading);
   }, [location.search]);
 
-  const handleFilterChange = useCallback(
-    (newFilters) => {
-      setFilters(newFilters);
-      fetchListings(true, newFilters); // Reset and fetch with new filters
-    },
-    [fetchListings]
-  );
+  useEffect(() => {
+    if (shouldFetchListings) {
+      fetchListings(true, filters);
+      setShouldFetchListings(false);
+    }
+  }, [shouldFetchListings, fetchListings, filters]);
+
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters(newFilters);
+    setShouldFetchListings(true);
+  }, []);
 
   const handleFilterRemove = useCallback(
     (filterKey) => {
       const newFilters = { ...filters };
       delete newFilters[filterKey];
       setFilters(newFilters);
-      fetchListings(true, newFilters);
+      setShouldFetchListings(true);
       if (filterKey === "search") {
         navigate("/");
       }
     },
-    [filters, fetchListings, navigate]
+    [filters, navigate]
   );
 
   const handleSearch = useCallback(
     (searchTerm) => {
       setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
-      fetchListings(true, { ...filters, search: searchTerm });
+      setShouldFetchListings(true);
       navigate(`/?search=${encodeURIComponent(searchTerm)}`);
     },
-    [fetchListings, filters, navigate]
+    [navigate]
   );
 
   const loadMore = useCallback(() => {
-    fetchListings(false, filters);
-  }, [fetchListings, filters]);
+    if (!loading.listings) {
+      fetchListings(false, filters);
+    }
+  }, [fetchListings, filters, loading.listings]);
 
   const toggleFilter = () => {
     setShowFilter(!showFilter);
@@ -92,7 +99,7 @@ function Home() {
         <ActiveFilters filters={filters} onFilterRemove={handleFilterRemove} />
         <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {listings && listings.length > 0 && !loading.listings ? (
+            {listings && listings.length > 0 ? (
               listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
             ) : (
               <div className="text-center text-gray-500 col-span-full">No listings found.</div>
