@@ -106,8 +106,15 @@ export const DataProvider = ({ children }) => {
   const initializeData = useCallback(async () => {
     if (isInitialized.current) return;
     isInitialized.current = true;
-    await Promise.all([fetchCategories(), fetchFavorites(), fetchListings(true), fetchMyListings()]);
-  }, [fetchCategories, fetchFavorites, fetchListings, fetchMyListings]);
+
+    await fetchCategories();
+
+    if (user) {
+      await Promise.all([fetchFavorites(), fetchListings(true), fetchMyListings()]);
+    } else {
+      await fetchListings(true);
+    }
+  }, [fetchCategories, fetchFavorites, fetchListings, fetchMyListings, user]);
 
   useEffect(() => {
     initializeData();

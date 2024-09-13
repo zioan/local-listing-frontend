@@ -14,7 +14,11 @@ const useMyListings = (user) => {
       const response = await api.get("listings/my-listings/");
       setMyListings(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch my listings");
+      if (err.response && err.response.status === 401) {
+        setError("Please log in to view your listings");
+      } else {
+        setError(err.response?.data?.message || "Failed to fetch my listings");
+      }
     } finally {
       setLoading(false);
     }

@@ -14,7 +14,11 @@ const useFavorites = (user) => {
       const response = await api.get("listings/favorites/");
       setFavorites(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch favorites");
+      if (err.response && err.response.status === 401) {
+        setError("Please log in to view favorites");
+      } else {
+        setError(err.response?.data?.message || "Failed to fetch favorites");
+      }
     } finally {
       setLoading(false);
     }

@@ -10,6 +10,12 @@ export const AuthProvider = ({ children }) => {
   const { triggerUpdate } = useWatcher();
 
   const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
     try {
       const currentUser = await authService.getCurrentUser();
       setUser(currentUser);
@@ -17,7 +23,10 @@ export const AuthProvider = ({ children }) => {
         triggerUpdate("auth");
       }
     } catch (error) {
-      if (error.response && error.response.status !== 401) {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("access_token");
+        setUser(null);
+      } else {
         console.error("Error fetching current user:", error);
       }
     } finally {
