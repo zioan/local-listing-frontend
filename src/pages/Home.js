@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import HeroSection from "../components/home/HeroSection";
@@ -6,46 +6,50 @@ import ListingCard from "../components/listings/ListingCard";
 import Filter from "../components/home/Filter";
 import InfiniteScroll from "../components/shared/InfiniteScroll";
 import ActiveFilters from "../components/home/ActiveFilters";
+import SkeletonLoader from "../components/shared/SkeletonLoader";
 
 function Home() {
   const { listings, loading, error, fetchListings, hasMore } = useData();
   const location = useLocation();
   const navigate = useNavigate();
+  const isInitialRender = useRef(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [filters, setFilters] = useState(() => {
-    // Get filters from URL parameters
+  const initializeFilters = () => {
     const searchParams = new URLSearchParams(location.search);
-    const filtersFromUrl = {};
-    for (let [key, value] of searchParams.entries()) {
-      filtersFromUrl[key] = value;
-    }
+    const filtersFromUrl = Object.fromEntries(searchParams);
 
-    // If URL parameters exist, use them
     if (Object.keys(filtersFromUrl).length > 0) {
       return filtersFromUrl;
     }
 
-    // If no URL parameters, try to get filters from session storage
     const storedFilters = sessionStorage.getItem("defaultFilters");
     return storedFilters ? JSON.parse(storedFilters) : {};
-  });
+  };
 
+  const [filters, setFilters] = useState(initializeFilters);
   const [showFilter, setShowFilter] = useState(false);
   const [shouldFetchListings, setShouldFetchListings] = useState(true);
 
   useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
     const searchParams = new URLSearchParams(filters);
     navigate(`?${searchParams.toString()}`, { replace: true });
-
     sessionStorage.setItem("defaultFilters", JSON.stringify(filters));
-
     setShouldFetchListings(true);
+    setIsLoading(true);
   }, [filters, navigate]);
 
   useEffect(() => {
     if (shouldFetchListings) {
-      fetchListings(true, filters);
-      setShouldFetchListings(false);
+      fetchListings(true, filters).finally(() => {
+        setShouldFetchListings(false);
+        setIsLoading(false);
+      });
     }
   }, [shouldFetchListings, fetchListings, filters]);
 
@@ -69,6 +73,8 @@ function Home() {
     setFilters({});
     sessionStorage.removeItem("defaultFilters");
     navigate("/", { replace: true });
+    setShouldFetchListings(true);
+    setIsLoading(true);
   }, [navigate]);
 
   const loadMore = useCallback(() => {
@@ -111,13 +117,17 @@ function Home() {
         )}
         <ActiveFilters filters={filters} onFilterRemove={handleFilterRemove} />
         <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {listings && listings.length > 0 ? (
-              listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
-            ) : (
-              <div className="text-center text-gray-500 col-span-full">No listings found.</div>
-            )}
-          </div>
+          {isLoading ? (
+            <SkeletonLoader count={8} />
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {listings && listings.length > 0 ? (
+                listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
+              ) : (
+                <div className="text-center text-gray-500 col-span-full">No listings found.</div>
+              )}
+            </div>
+          )}
         </InfiniteScroll>
       </div>
     </div>
