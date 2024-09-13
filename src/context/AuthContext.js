@@ -54,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await authService.logout();
       setUser(null);
+      sessionStorage.clear();
       triggerUpdate("auth");
     } catch (error) {
       console.error("Logout failed:", error);
