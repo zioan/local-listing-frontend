@@ -36,6 +36,7 @@ export const DataProvider = ({ children }) => {
     setListings,
     setListingsPage,
     setHasMore,
+    lastFetchedFilters,
   } = useListings();
 
   const { myListings, loading: myListingsLoading, error: myListingsError, fetchMyListings, setMyListings } = useMyListings(user);
@@ -174,6 +175,7 @@ export const DataProvider = ({ children }) => {
     invalidateCache,
     refetchUserData,
     initializeData,
+    lastFetchedFilters,
   };
 
   return <DataContext.Provider value={contextValue}>{children}</DataContext.Provider>;

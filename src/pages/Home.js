@@ -9,49 +9,48 @@ import ActiveFilters from "../components/home/ActiveFilters";
 import SkeletonLoader from "../components/shared/SkeletonLoader";
 
 function Home() {
-  const { listings, loading, error, fetchListings, hasMore } = useData();
+  const { listings, loading, error, fetchListings, hasMore, lastFetchedFilters } = useData();
   const location = useLocation();
   const navigate = useNavigate();
   const isInitialRender = useRef(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const initializeFilters = () => {
     const searchParams = new URLSearchParams(location.search);
     const filtersFromUrl = Object.fromEntries(searchParams);
-
     if (Object.keys(filtersFromUrl).length > 0) {
       return filtersFromUrl;
     }
-
     const storedFilters = sessionStorage.getItem("defaultFilters");
     return storedFilters ? JSON.parse(storedFilters) : {};
   };
 
   const [filters, setFilters] = useState(initializeFilters);
   const [showFilter, setShowFilter] = useState(false);
-  const [shouldFetchListings, setShouldFetchListings] = useState(true);
 
   useEffect(() => {
     if (isInitialRender.current) {
       isInitialRender.current = false;
+      if (JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters)) {
+        setIsLoading(true);
+        fetchListings(true, filters).finally(() => {
+          setIsLoading(false);
+        });
+      }
       return;
     }
 
     const searchParams = new URLSearchParams(filters);
     navigate(`?${searchParams.toString()}`, { replace: true });
     sessionStorage.setItem("defaultFilters", JSON.stringify(filters));
-    setShouldFetchListings(true);
-    setIsLoading(true);
-  }, [filters, navigate]);
 
-  useEffect(() => {
-    if (shouldFetchListings) {
+    if (JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters)) {
+      setIsLoading(true);
       fetchListings(true, filters).finally(() => {
-        setShouldFetchListings(false);
         setIsLoading(false);
       });
     }
-  }, [shouldFetchListings, fetchListings, filters]);
+  }, [filters, navigate, fetchListings, lastFetchedFilters]);
 
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
@@ -73,9 +72,11 @@ function Home() {
     setFilters({});
     sessionStorage.removeItem("defaultFilters");
     navigate("/", { replace: true });
-    setShouldFetchListings(true);
     setIsLoading(true);
-  }, [navigate]);
+    fetchListings(true, {}).finally(() => {
+      setIsLoading(false);
+    });
+  }, [navigate, fetchListings]);
 
   const loadMore = useCallback(() => {
     if (!loading.listings) {
