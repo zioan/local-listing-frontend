@@ -13,7 +13,8 @@ function Home() {
   const location = useLocation();
   const navigate = useNavigate();
   const isInitialRender = useRef(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isReloading, setIsReloading] = useState(true);
 
   const initializeFilters = () => {
     const searchParams = new URLSearchParams(location.search);
@@ -31,12 +32,19 @@ function Home() {
   useEffect(() => {
     if (isInitialRender.current) {
       isInitialRender.current = false;
-      if (JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters)) {
-        setIsLoading(true);
-        fetchListings(true, filters).finally(() => {
+      const delay = 500;
+      setTimeout(() => {
+        if (JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters)) {
+          setIsLoading(true);
+          fetchListings(true, filters).finally(() => {
+            setIsLoading(false);
+            setIsReloading(false);
+          });
+        } else {
           setIsLoading(false);
-        });
-      }
+          setIsReloading(false);
+        }
+      }, delay);
       return;
     }
 
@@ -117,19 +125,23 @@ function Home() {
           </div>
         )}
         <ActiveFilters filters={filters} onFilterRemove={handleFilterRemove} />
-        <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
-          {isLoading ? (
-            <SkeletonLoader count={8} />
-          ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {listings && listings.length > 0 ? (
-                listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
-              ) : (
-                <div className="text-center text-gray-500 col-span-full">No listings found.</div>
-              )}
-            </div>
-          )}
-        </InfiniteScroll>
+        {isReloading ? (
+          <SkeletonLoader count={8} />
+        ) : (
+          <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
+            {isLoading ? (
+              <SkeletonLoader count={8} />
+            ) : (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {listings && listings.length > 0 ? (
+                  listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
+                ) : (
+                  <div className="text-center text-gray-500 col-span-full">No listings found.</div>
+                )}
+              </div>
+            )}
+          </InfiniteScroll>
+        )}
       </div>
     </div>
   );
