@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import Modal from "../shared/Modal";
 import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
 
-const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
+const MessageModal = ({ isOpen, onClose }) => {
   const { user } = useAuth();
-  const { conversations, messages, loading, error, fetchConversations, fetchMessages, sendMessage, createConversation, fetchIncomingMessages } =
+  const { conversations, messages, loading, error, fetchConversations, fetchMessages, sendMessage, createConversation, markMessagesAsRead } =
     useMessages();
   const [currentConversation, setCurrentConversation] = useState(null);
   const [newMessage, setNewMessage] = useState("");
@@ -14,46 +15,43 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && user) {
       fetchConversations();
-      if (listingId) {
-        fetchIncomingMessages(listingId);
-      }
     }
-  }, [isOpen, fetchConversations, fetchIncomingMessages, listingId]);
+  }, [isOpen, user, fetchConversations]);
 
   useEffect(() => {
-    if (currentConversation) {
+    if (currentConversation && user) {
       fetchMessages(currentConversation.id);
       const pollInterval = setInterval(() => {
         fetchMessages(currentConversation.id);
       }, 5000); // Poll every 5 seconds
-
       return () => clearInterval(pollInterval);
     }
-  }, [currentConversation, fetchMessages]);
+  }, [currentConversation, user, fetchMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (currentConversation && messages.length > 0 && user) {
+      const unreadMessages = messages.filter((message) => !message.is_read && message.sender.username !== user.username);
+      if (unreadMessages.length > 0) {
+        markMessagesAsRead(
+          currentConversation.id,
+          unreadMessages.map((msg) => msg.id)
+        );
+      }
+    }
+  }, [messages, currentConversation, user, markMessagesAsRead]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (newMessage.trim() === "") return;
+    if (newMessage.trim() === "" || !user) return;
     setIsSending(true);
     setSendError(null);
     try {
-      let conversationId;
-      if (!currentConversation) {
-        const newConversation = await createConversation(listingId);
-        setCurrentConversation(newConversation);
-        conversationId = newConversation.id;
-      } else {
-        conversationId = currentConversation.id;
-      }
-      await sendMessage(conversationId, newMessage);
+      await sendMessage(currentConversation.id, newMessage);
       setNewMessage("");
-      await fetchMessages(conversationId);
+      await fetchMessages(currentConversation.id);
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
       setSendError("Failed to send message. Please try again.");
@@ -62,8 +60,21 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     }
   };
 
+  if (!user) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} title="Messages" size="md">
+        <div className="p-4 text-center">
+          <p className="mb-4">Please log in to view and send messages.</p>
+          <Link to="/login" className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600" onClick={onClose}>
+            Log In
+          </Link>
+        </div>
+      </Modal>
+    );
+  }
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Messages - ${listingTitle}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title="Messages" size="lg">
       <div className="flex h-96">
         <div className="w-1/3 overflow-y-auto border-r">
           <h3 className="p-2 mb-2 text-lg font-semibold">Conversations</h3>
