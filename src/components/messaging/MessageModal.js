@@ -1,24 +1,45 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Modal from "../shared/Modal";
 import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
 
-const MessageModal = ({ isOpen, onClose }) => {
+const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   const { user } = useAuth();
-  const { conversations, messages, loading, error, fetchConversations, fetchMessages, sendMessage, createConversation, markMessagesAsRead } =
-    useMessages();
+  const {
+    conversations,
+    messages,
+    loading,
+    error,
+    fetchConversations,
+    fetchMessages,
+    sendMessage,
+    createConversation,
+    markMessagesAsRead,
+    fetchConversationUnreadCounts,
+  } = useMessages();
   const [currentConversation, setCurrentConversation] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState(null);
+  const [conversationUnreadCounts, setConversationUnreadCounts] = useState({});
   const messagesEndRef = useRef(null);
+
+  const fetchUnreadCounts = useCallback(async () => {
+    if (user) {
+      const counts = await fetchConversationUnreadCounts();
+      setConversationUnreadCounts(counts || {});
+    }
+  }, [user, fetchConversationUnreadCounts]);
 
   useEffect(() => {
     if (isOpen && user) {
       fetchConversations();
+      fetchUnreadCounts();
+      const pollInterval = setInterval(fetchUnreadCounts, 10000); // Poll every 10 seconds
+      return () => clearInterval(pollInterval);
     }
-  }, [isOpen, user, fetchConversations]);
+  }, [isOpen, user, fetchConversations, fetchUnreadCounts]);
 
   useEffect(() => {
     if (currentConversation && user) {
@@ -39,9 +60,10 @@ const MessageModal = ({ isOpen, onClose }) => {
           currentConversation.id,
           unreadMessages.map((msg) => msg.id)
         );
+        fetchUnreadCounts(); // Refresh unread counts after marking messages as read
       }
     }
-  }, [messages, currentConversation, user, markMessagesAsRead]);
+  }, [messages, currentConversation, user, markMessagesAsRead, fetchUnreadCounts]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -49,9 +71,17 @@ const MessageModal = ({ isOpen, onClose }) => {
     setIsSending(true);
     setSendError(null);
     try {
-      await sendMessage(currentConversation.id, newMessage);
+      let conversationId;
+      if (!currentConversation) {
+        const newConversation = await createConversation(listingId);
+        setCurrentConversation(newConversation);
+        conversationId = newConversation.id;
+      } else {
+        conversationId = currentConversation.id;
+      }
+      await sendMessage(conversationId, newMessage);
       setNewMessage("");
-      await fetchMessages(currentConversation.id);
+      await fetchMessages(conversationId);
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
       setSendError("Failed to send message. Please try again.");
@@ -84,7 +114,12 @@ const MessageModal = ({ isOpen, onClose }) => {
               className={`p-2 cursor-pointer hover:bg-gray-100 ${currentConversation?.id === conv.id ? "bg-gray-200" : ""}`}
               onClick={() => setCurrentConversation(conv)}
             >
-              {conv.listing.title}
+              <div className="flex items-center justify-between">
+                <span>{conv.listing.title}</span>
+                {conversationUnreadCounts[conv.id] > 0 && (
+                  <span className="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full">{conversationUnreadCounts[conv.id]}</span>
+                )}
+              </div>
             </div>
           ))}
         </div>
