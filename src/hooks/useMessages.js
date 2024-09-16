@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../config/api";
+import { appSettings } from "../config/settings";
 
 const useMessages = () => {
   const [conversations, setConversations] = useState([]);
@@ -8,6 +9,7 @@ const useMessages = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [conversationUnreadCounts, setConversationUnreadCounts] = useState({});
   const { user } = useAuth();
 
   const fetchConversations = useCallback(async () => {
@@ -125,7 +127,7 @@ const useMessages = () => {
     if (!user) return;
     try {
       const response = await api.get("messaging/conversation-unread-counts/");
-      return response.data;
+      setConversationUnreadCounts(response.data);
     } catch (err) {
       console.error("Error fetching conversation unread counts:", err);
     }
@@ -138,22 +140,28 @@ const useMessages = () => {
         await api.post(`messaging/conversations/${conversationId}/mark-as-read/`, { message_ids: messageIds });
         setMessages((prevMessages) => prevMessages.map((msg) => (messageIds.includes(msg.id) ? { ...msg, is_read: true } : msg)));
         fetchUnreadCount();
+        fetchConversationUnreadCounts();
       } catch (err) {
         console.error("Error marking messages as read:", err);
       }
     },
-    [user, fetchUnreadCount]
+    [user, fetchUnreadCount, fetchConversationUnreadCounts]
   );
 
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
-      const pollInterval = setInterval(fetchUnreadCount, 10000); // Poll every 10 seconds
+      fetchConversationUnreadCounts();
+      const pollInterval = setInterval(() => {
+        fetchUnreadCount();
+        fetchConversationUnreadCounts();
+      }, appSettings.pollInterval);
       return () => clearInterval(pollInterval);
     } else {
       setUnreadCount(0);
+      setConversationUnreadCounts({});
     }
-  }, [user, fetchUnreadCount]);
+  }, [user, fetchUnreadCount, fetchConversationUnreadCounts]);
 
   return {
     conversations,
@@ -161,6 +169,7 @@ const useMessages = () => {
     loading,
     error,
     unreadCount,
+    conversationUnreadCounts,
     fetchConversations,
     fetchMessages,
     sendMessage,

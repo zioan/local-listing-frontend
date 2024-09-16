@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Modal from "../shared/Modal";
 import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
+import { appSettings } from "../../config/settings";
 
 const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   const { user } = useAuth();
@@ -16,40 +17,32 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     sendMessage,
     createConversation,
     markMessagesAsRead,
+    conversationUnreadCounts,
     fetchConversationUnreadCounts,
   } = useMessages();
   const [currentConversation, setCurrentConversation] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState(null);
-  const [conversationUnreadCounts, setConversationUnreadCounts] = useState({});
   const messagesEndRef = useRef(null);
-
-  const fetchUnreadCounts = useCallback(async () => {
-    if (user) {
-      const counts = await fetchConversationUnreadCounts();
-      setConversationUnreadCounts(counts || {});
-    }
-  }, [user, fetchConversationUnreadCounts]);
 
   useEffect(() => {
     if (isOpen && user) {
       fetchConversations();
-      fetchUnreadCounts();
-      const pollInterval = setInterval(fetchUnreadCounts, 10000); // Poll every 10 seconds
-      return () => clearInterval(pollInterval);
+      fetchConversationUnreadCounts();
     }
-  }, [isOpen, user, fetchConversations, fetchUnreadCounts]);
+  }, [isOpen, user, fetchConversations, fetchConversationUnreadCounts]);
 
   useEffect(() => {
     if (currentConversation && user) {
       fetchMessages(currentConversation.id);
       const pollInterval = setInterval(() => {
         fetchMessages(currentConversation.id);
-      }, 5000); // Poll every 5 seconds
+        fetchConversationUnreadCounts();
+      }, appSettings.pollInterval);
       return () => clearInterval(pollInterval);
     }
-  }, [currentConversation, user, fetchMessages]);
+  }, [currentConversation, user, fetchMessages, fetchConversationUnreadCounts]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,10 +53,9 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
           currentConversation.id,
           unreadMessages.map((msg) => msg.id)
         );
-        fetchUnreadCounts(); // Refresh unread counts after marking messages as read
       }
     }
-  }, [messages, currentConversation, user, markMessagesAsRead, fetchUnreadCounts]);
+  }, [messages, currentConversation, user, markMessagesAsRead]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -82,6 +74,7 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
       await sendMessage(conversationId, newMessage);
       setNewMessage("");
       await fetchMessages(conversationId);
+      fetchConversationUnreadCounts();
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
       setSendError("Failed to send message. Please try again.");
