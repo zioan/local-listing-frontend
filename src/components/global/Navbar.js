@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Disclosure } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon, HeartIcon, UserIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, HeartIcon, UserIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../context/AuthContext";
+import useMessages from "../../hooks/useMessages";
+import MessageModal from "../messaging/MessageModal";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -17,6 +19,16 @@ function classNames(...classes) {
 function Navbar() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { unreadCount, fetchUnreadCount } = useMessages();
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 60000); // Fetch every minute
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchUnreadCount]);
 
   const handleUserIconClick = () => {
     if (user) {
@@ -29,6 +41,8 @@ function Navbar() {
   const handleFavoriteIconClick = () => {
     if (user) {
       navigate("/favorite");
+    } else {
+      navigate("/login");
     }
   };
 
@@ -66,13 +80,27 @@ function Navbar() {
               {/* Right side icons and menu button */}
               <div className="flex items-center">
                 {user && (
-                  <button
-                    onClick={handleFavoriteIconClick}
-                    className="p-1 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  >
-                    <span className="sr-only">View favorites</span>
-                    <HeartIcon className="w-6 h-6" aria-hidden="true" />
-                  </button>
+                  <>
+                    <button
+                      onClick={handleFavoriteIconClick}
+                      className="p-1 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                    >
+                      <span className="sr-only">View favorites</span>
+                      <HeartIcon className="w-6 h-6" aria-hidden="true" />
+                    </button>
+                    <button
+                      onClick={() => setIsMessageModalOpen(true)}
+                      className="relative p-1 ml-3 text-gray-400 bg-gray-800 rounded-full hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                    >
+                      <span className="sr-only">View messages</span>
+                      <ChatBubbleLeftIcon className="w-6 h-6" aria-hidden="true" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-500 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={handleUserIconClick}
@@ -110,6 +138,7 @@ function Navbar() {
               ))}
             </div>
           </Disclosure.Panel>
+          <MessageModal isOpen={isMessageModalOpen} onClose={() => setIsMessageModalOpen(false)} />
         </>
       )}
     </Disclosure>
