@@ -121,13 +121,23 @@ const useMessages = () => {
     }
   }, [user]);
 
+  const fetchConversationUnreadCounts = useCallback(async () => {
+    if (!user) return;
+    try {
+      const response = await api.get("messaging/conversation-unread-counts/");
+      return response.data;
+    } catch (err) {
+      console.error("Error fetching conversation unread counts:", err);
+    }
+  }, [user]);
+
   const markMessagesAsRead = useCallback(
     async (conversationId, messageIds) => {
       if (!user) return;
       try {
         await api.post(`messaging/conversations/${conversationId}/mark-as-read/`, { message_ids: messageIds });
         setMessages((prevMessages) => prevMessages.map((msg) => (messageIds.includes(msg.id) ? { ...msg, is_read: true } : msg)));
-        fetchUnreadCount(); // Update the unread count after marking messages as read
+        fetchUnreadCount();
       } catch (err) {
         console.error("Error marking messages as read:", err);
       }
@@ -138,7 +148,7 @@ const useMessages = () => {
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
-      const pollInterval = setInterval(fetchUnreadCount, 60000); // Poll every minute
+      const pollInterval = setInterval(fetchUnreadCount, 10000); // Poll every 10 seconds
       return () => clearInterval(pollInterval);
     } else {
       setUnreadCount(0);
@@ -157,6 +167,7 @@ const useMessages = () => {
     createConversation,
     fetchIncomingMessages,
     fetchUnreadCount,
+    fetchConversationUnreadCounts,
     markMessagesAsRead,
   };
 };
