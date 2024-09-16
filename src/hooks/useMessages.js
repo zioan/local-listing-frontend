@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import api from "../config/api";
 
 const useMessages = () => {
@@ -6,6 +6,7 @@ const useMessages = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchConversations = useCallback(async () => {
     setLoading(true);
@@ -14,26 +15,10 @@ const useMessages = () => {
       const response = await api.get("messaging/conversations/");
       setConversations(response.data);
     } catch (err) {
+      console.error("Error fetching conversations:", err);
       setError(err.response?.data?.message || "Failed to fetch conversations");
     } finally {
       setLoading(false);
-    }
-  }, []);
-
-  const fetchExistingConversation = useCallback(async (listingId) => {
-    try {
-      const response = await api.get("messaging/conversations/", {
-        params: { listing: listingId },
-      });
-      const existingConversation = response.data.find((conv) => conv.listing.id === listingId);
-      if (existingConversation) {
-        return existingConversation;
-      } else {
-        throw new Error("No existing conversation found");
-      }
-    } catch (error) {
-      console.error("Error fetching existing conversation:", error);
-      throw error;
     }
   }, []);
 
@@ -65,43 +50,73 @@ const useMessages = () => {
     }
   }, []);
 
-  const createConversation = useCallback(
-    async (listingId) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await api.post("messaging/conversations/", { listing: listingId });
-        setConversations((prevConversations) => [...prevConversations, response.data]);
-        return response.data;
-      } catch (err) {
-        console.error("Error creating conversation:", err.response?.data);
-        const errorMessage = err.response?.data?.error || "Failed to create conversation";
-        if (errorMessage.includes("Conversation already exists")) {
-          // Handle existing conversation
-          return await fetchExistingConversation(listingId);
-        } else if (errorMessage.includes("Cannot start a conversation with yourself")) {
-          setError("You cannot message yourself");
-        } else {
-          setError(errorMessage);
+  const createConversation = useCallback(async (listingId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.post("messaging/conversations/", { listing_id: listingId });
+      setConversations((prevConversations) => {
+        const exists = prevConversations.some((conv) => conv.id === response.data.id);
+        if (!exists) {
+          return [...prevConversations, response.data];
         }
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [fetchExistingConversation]
-  );
+        return prevConversations;
+      });
+      return response.data;
+    } catch (err) {
+      console.error("Error creating conversation:", err.response?.data);
+      setError(err.response?.data?.message || "Failed to create conversation");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchIncomingMessages = useCallback(async (listingId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get(`messaging/listing/${listingId}/messages/`);
+      return response.data;
+    } catch (err) {
+      console.error("Error fetching incoming messages:", err);
+      setError(err.response?.data?.message || "Failed to fetch incoming messages");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const response = await api.get("messaging/unread-messages/");
+      setUnreadCount(response.data.unread_count);
+    } catch (err) {
+      console.error("Error fetching unread count:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      fetchUnreadCount();
+      fetchConversations();
+    }, 10000); // Poll every 10 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [fetchUnreadCount, fetchConversations]);
 
   return {
     conversations,
     messages,
     loading,
     error,
+    unreadCount,
     fetchConversations,
     fetchMessages,
     sendMessage,
     createConversation,
-    fetchExistingConversation,
+    fetchIncomingMessages,
+    fetchUnreadCount,
   };
 };
 
