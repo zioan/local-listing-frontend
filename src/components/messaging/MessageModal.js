@@ -5,7 +5,8 @@ import useMessages from "../../hooks/useMessages";
 
 const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   const { user } = useAuth();
-  const { conversations, messages, loading, error, fetchConversations, fetchMessages, sendMessage, createConversation } = useMessages();
+  const { conversations, messages, loading, error, fetchConversations, fetchMessages, sendMessage, createConversation, fetchIncomingMessages } =
+    useMessages();
   const [currentConversation, setCurrentConversation] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -15,12 +16,20 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   useEffect(() => {
     if (isOpen) {
       fetchConversations();
+      if (listingId) {
+        fetchIncomingMessages(listingId);
+      }
     }
-  }, [isOpen, fetchConversations]);
+  }, [isOpen, fetchConversations, fetchIncomingMessages, listingId]);
 
   useEffect(() => {
     if (currentConversation) {
       fetchMessages(currentConversation.id);
+      const pollInterval = setInterval(() => {
+        fetchMessages(currentConversation.id);
+      }, 5000); // Poll every 5 seconds
+
+      return () => clearInterval(pollInterval);
     }
   }, [currentConversation, fetchMessages]);
 
@@ -36,22 +45,17 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     try {
       let conversationId;
       if (!currentConversation) {
-        console.log("Creating new conversation for listing:", listingId);
         const newConversation = await createConversation(listingId);
-        console.log("New conversation created:", newConversation);
         setCurrentConversation(newConversation);
         conversationId = newConversation.id;
       } else {
         conversationId = currentConversation.id;
       }
-      console.log("Sending message to conversation:", conversationId);
       await sendMessage(conversationId, newMessage);
       setNewMessage("");
-      console.log("Fetching messages for conversation:", conversationId);
       await fetchMessages(conversationId);
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
-      console.error("Error details:", error.response?.data);
       setSendError("Failed to send message. Please try again.");
     } finally {
       setIsSending(false);
