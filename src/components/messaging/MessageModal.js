@@ -10,7 +10,6 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   const {
     conversations,
     messages,
-    loading,
     error,
     fetchConversations,
     fetchMessages,
@@ -118,14 +117,13 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
         </div>
         <div className="flex flex-col w-2/3">
           <div className="flex-1 p-4 overflow-y-auto">
-            {loading && <p className="text-center text-gray-500">Loading messages...</p>}
             {error && <p className="text-center text-red-500">{error}</p>}
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`mb-2 p-2 rounded-lg ${message.sender.username === user.username ? "bg-blue-100 ml-auto" : "bg-gray-100"}`}
               >
-                <p className="text-sm font-semibold">{message.sender.username}</p>
+                <p className="text-sm font-semibold">{message.sender.username === user.username ? "You" : message.sender.username}</p>
                 <p>{message.content}</p>
               </div>
             ))}
@@ -140,12 +138,12 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="flex-1 px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Type a message..."
-                  disabled={isSending}
+                  disabled={isSending || !currentConversation}
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-300"
-                  disabled={isSending}
+                  className="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-300 w-[100px]"
+                  disabled={isSending || !currentConversation}
                 >
                   {isSending ? "Sending..." : "Send"}
                 </button>
