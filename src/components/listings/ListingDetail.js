@@ -25,7 +25,6 @@ import {
   CalendarIcon,
   SparklesIcon,
   EyeIcon,
-  PhoneIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";

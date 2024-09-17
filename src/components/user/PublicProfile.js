@@ -8,7 +8,7 @@ import { UserIcon, MapPinIcon, CalendarIcon, TagIcon, StarIcon } from "@heroicon
 
 function PublicProfile() {
   const { username } = useParams();
-  const { fetchPublicProfile, fetchUserListings, state, loading, error } = useData();
+  const { fetchPublicProfile, fetchUserListings, loading, error } = useData();
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
 
