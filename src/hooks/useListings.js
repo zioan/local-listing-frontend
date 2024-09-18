@@ -69,6 +69,21 @@ const useListings = () => {
     }
   }, []);
 
+  const updateListingStatus = useCallback(async (id, newStatus) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.patch(`listings/listings/${id}/update-status/`, { status: newStatus });
+      setListings((prevListings) => prevListings.map((listing) => (listing.id === id ? { ...listing, status: response.data.status } : listing)));
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update listing status");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const deleteListing = useCallback(async (id) => {
     try {
       await api.delete(`listings/listings/${id}/`);
@@ -90,6 +105,7 @@ const useListings = () => {
     error,
     fetchListings,
     updateListing,
+    updateListingStatus,
     deleteListing,
     setListings,
     setListingsPage,

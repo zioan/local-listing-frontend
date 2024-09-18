@@ -30,16 +30,21 @@ import {
 import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 import placeholderImage from "../../assets/placeholder-image.jpg";
 import MessageModal from "../messaging/MessageModal";
+import { statusOptions } from "../../util/listingHelpers";
 
 function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { listingDetails, fetchListing, loading, error, deleteListing, invalidateCache } = useData();
+  const { listingDetails, fetchListing, loading, error, updateListingStatus, deleteListing, invalidateCache } = useData();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [statusUpdateError, setStatusUpdateError] = useState("");
 
   useEffect(() => {
     if (!listingDetails[id]) {
@@ -84,6 +89,21 @@ function ListingDetail() {
         {listing.price_type === "negotiable" && <span className="ml-1 text-sm text-gray-500">(Negotiable)</span>}
       </span>
     );
+  };
+
+  const handleStatusChange = (e) => {
+    setSelectedStatus(e.target.value);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmStatusChange = async () => {
+    try {
+      await updateListingStatus(id, selectedStatus);
+      setIsConfirmModalOpen(false);
+      invalidateCache(`listing-${id}`);
+    } catch (error) {
+      setStatusUpdateError("Failed to update listing status. Please try again.");
+    }
   };
 
   const handleDelete = async () => {
@@ -235,6 +255,7 @@ function ListingDetail() {
                   </button>
                 )}
 
+                {/* Edit and delete buttons */}
                 {user && user.username === listing.user && (
                   <div className="flex space-x-3">
                     <button
@@ -251,6 +272,26 @@ function ListingDetail() {
                       <TrashIcon className="w-5 h-5 mr-2" />
                       Delete
                     </button>
+                  </div>
+                )}
+
+                {user && user.username === listing.user && (
+                  <div className="mt-4">
+                    <label htmlFor="status-select" className="block text-sm font-medium text-gray-700">
+                      Listing Status
+                    </label>
+                    <select
+                      id="status-select"
+                      value={listing.status}
+                      onChange={handleStatusChange}
+                      className="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 )}
               </div>
@@ -277,6 +318,32 @@ function ListingDetail() {
         </div>
       </div>
 
+      {/* Status change modal */}
+      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title="Confirm Status Change">
+        <p className="mt-2 text-sm text-gray-500">
+          Are you sure you want to change the listing status to{" "}
+          <span className="font-medium">{statusOptions.find((option) => option.value === selectedStatus)?.label}</span>?
+        </p>
+        {statusUpdateError && <p className="mt-2 text-sm text-red-600">{statusUpdateError}</p>}
+        <div className="flex justify-end mt-5 space-x-2 sm:mt-6">
+          <button
+            type="button"
+            className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={() => setIsConfirmModalOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={confirmStatusChange}
+          >
+            Confirm Change
+          </button>
+        </div>
+      </Modal>
+
+      {/* Delete confirmation modal */}
       <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Deletion" size="sm">
         <p className="mb-4">Are you sure you want to delete this listing? This action cannot be undone.</p>
         <div className="flex justify-end space-x-3">
@@ -295,8 +362,10 @@ function ListingDetail() {
         </div>
       </Modal>
 
+      {/* Message modal */}
       <MessageModal isOpen={isMessageModalOpen} onClose={() => setIsMessageModalOpen(false)} listingId={listing.id} listingTitle={listing.title} />
 
+      {/* Image gallery */}
       {isGalleryOpen && (
         <ImageGallery
           images={listing.images.map((img) => getCloudinaryImageUrl(img.image))}
