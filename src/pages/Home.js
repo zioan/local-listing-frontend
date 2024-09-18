@@ -134,7 +134,7 @@ function Home() {
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {listings && listings.length > 0 ? (
-                  listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)
+                  listings.map((listing) => listing.status === "active" && <ListingCard key={listing.id} listing={listing} />)
                 ) : (
                   <div className="text-center text-gray-500 col-span-full">No listings found.</div>
                 )}
