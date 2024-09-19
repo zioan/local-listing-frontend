@@ -1,20 +1,17 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import HeroSection from "../components/home/HeroSection";
 import ListingCard from "../components/listings/ListingCard";
 import Filter from "../components/home/Filter";
-import InfiniteScroll from "../components/shared/InfiniteScroll";
 import ActiveFilters from "../components/home/ActiveFilters";
 import SkeletonLoader from "../components/shared/SkeletonLoader";
 
 function Home() {
-  const { listings, loading, error, fetchListings, hasMore, lastFetchedFilters } = useData();
+  const { listings, error, fetchListings, lastFetchedFilters } = useData();
   const location = useLocation();
   const navigate = useNavigate();
-  const isInitialRender = useRef(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [isReloading, setIsReloading] = useState(true);
 
   const initializeFilters = () => {
     const searchParams = new URLSearchParams(location.search);
@@ -30,35 +27,26 @@ function Home() {
   const [showFilter, setShowFilter] = useState(false);
 
   useEffect(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      const delay = 500;
-      setTimeout(() => {
-        if (JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters)) {
-          setIsLoading(true);
-          fetchListings(true, filters).finally(() => {
-            setIsLoading(false);
-            setIsReloading(false);
-          });
-        } else {
-          setIsLoading(false);
-          setIsReloading(false);
-        }
-      }, delay);
-      return;
-    }
+    const loadListings = async () => {
+      setIsLoading(true);
 
+      // Check if the current filters are different from the last fetched filters
+      const filtersChanged = JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters);
+
+      if (filtersChanged) {
+        await fetchListings(filters);
+      }
+
+      setIsLoading(false);
+    };
+    loadListings();
+  }, [fetchListings, filters, lastFetchedFilters]);
+
+  useEffect(() => {
     const searchParams = new URLSearchParams(filters);
     navigate(`?${searchParams.toString()}`, { replace: true });
     sessionStorage.setItem("defaultFilters", JSON.stringify(filters));
-
-    if (JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters)) {
-      setIsLoading(true);
-      fetchListings(true, filters).finally(() => {
-        setIsLoading(false);
-      });
-    }
-  }, [filters, navigate, fetchListings, lastFetchedFilters]);
+  }, [filters, navigate]);
 
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
@@ -80,17 +68,7 @@ function Home() {
     setFilters({});
     sessionStorage.removeItem("defaultFilters");
     navigate("/", { replace: true });
-    setIsLoading(true);
-    fetchListings(true, {}).finally(() => {
-      setIsLoading(false);
-    });
-  }, [navigate, fetchListings]);
-
-  const loadMore = useCallback(() => {
-    if (!loading.listings) {
-      fetchListings(false, filters);
-    }
-  }, [fetchListings, filters, loading.listings]);
+  }, [navigate]);
 
   const toggleFilter = () => {
     setShowFilter(!showFilter);
@@ -125,22 +103,16 @@ function Home() {
           </div>
         )}
         <ActiveFilters filters={filters} onFilterRemove={handleFilterRemove} />
-        {isReloading ? (
+        {isLoading ? (
           <SkeletonLoader count={8} />
         ) : (
-          <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loading={loading.listings}>
-            {isLoading ? (
-              <SkeletonLoader count={8} />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {listings && listings.length > 0 ? (
+              listings.map((listing) => listing.status === "active" && <ListingCard key={listing.id} listing={listing} />)
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {listings && listings.length > 0 ? (
-                  listings.map((listing) => listing.status === "active" && <ListingCard key={listing.id} listing={listing} />)
-                ) : (
-                  <div className="text-center text-gray-500 col-span-full">No listings found.</div>
-                )}
-              </div>
+              <div className="text-center text-gray-500 col-span-full">No listings found.</div>
             )}
-          </InfiniteScroll>
+          </div>
         )}
       </div>
     </div>

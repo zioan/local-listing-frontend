@@ -3,52 +3,28 @@ import api from "../config/api";
 
 const useListings = () => {
   const [listings, setListings] = useState([]);
-  const [listingsPage, setListingsPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastFetchedFilters, setLastFetchedFilters] = useState(null);
 
-  const fetchListings = useCallback(
-    async (reset = false, filters = {}) => {
-      // Check if we already have listings for these filters
-      if (!reset && JSON.stringify(filters) === JSON.stringify(lastFetchedFilters)) {
-        return;
-      }
-
-      if (reset) {
-        setListingsPage(1);
-        setHasMore(true);
-      }
-
-      if (!hasMore && !reset) return;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const params = {
-          page: reset ? 1 : listingsPage,
-          page_size: 20,
-          ...filters,
-        };
-        Object.keys(params).forEach((key) => (params[key] === "" || params[key] === null) && delete params[key]);
-
-        const response = await api.get("listings/listings/", { params });
-        const newListings = response.data.results || [];
-
-        setListings((prev) => (reset ? newListings : [...prev, ...newListings]));
-        setHasMore(!!response.data.next);
-        setListingsPage((prev) => (reset ? 2 : prev + 1));
-        setLastFetchedFilters(filters);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch listings");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [listingsPage, hasMore, lastFetchedFilters]
-  );
+  const fetchListings = useCallback(async (filters = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = {
+        ...filters,
+      };
+      Object.keys(params).forEach((key) => (params[key] === "" || params[key] === null) && delete params[key]);
+      const response = await api.get("listings/listings/", { params });
+      const newListings = response.data.results || [];
+      setListings(newListings);
+      setLastFetchedFilters(filters);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch listings");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const updateListing = useCallback(async (id, listingData) => {
     setLoading(true);
@@ -100,7 +76,6 @@ const useListings = () => {
 
   return {
     listings,
-    hasMore,
     loading,
     error,
     fetchListings,
@@ -108,8 +83,6 @@ const useListings = () => {
     updateListingStatus,
     deleteListing,
     setListings,
-    setListingsPage,
-    setHasMore,
     lastFetchedFilters,
   };
 };
