@@ -9,6 +9,7 @@ import FormSelect from "../shared/form/FormSelect";
 import FormTextArea from "../shared/form/FormTextArea";
 import ImageUpload from "../shared/form/ImageUpload";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import { toast } from "react-toastify";
 import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions } from "../../util/listingHelpers";
 
 function CreateListing() {
@@ -119,8 +120,10 @@ function CreateListing() {
       });
       invalidateCache("listings");
       navigate(`/listings/${response.data.id}`);
+      toast.success("Listing created successfully!");
     } catch (err) {
-      console.error("Error creating listing:", err.response?.data);
+      console.error("Failed to create listing:", err);
+      toast.error(err.response?.data);
       setSubmitError("Failed to create listing. Please try again.");
     } finally {
       setIsSubmitting(false);
