@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import SubmitBtn from "../../components/shared/form/SubmitBtn";
 import { toast } from "react-toastify";
@@ -10,6 +10,7 @@ function Login() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -19,7 +20,8 @@ function Login() {
 
     try {
       await login(email, password);
-      navigate("/profile");
+      const oldPath = location.state?.from?.pathname;
+      navigate(oldPath || "/");
       toast.success("Logged in successfully!");
     } catch (err) {
       if (err.email) {

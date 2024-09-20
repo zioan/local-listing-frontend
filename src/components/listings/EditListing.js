@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import SubmitBtn from "../shared/form/SubmitBtn";
@@ -14,6 +14,7 @@ import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions
 function EditListing() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const {
     listingDetails,
@@ -50,12 +51,12 @@ function EditListing() {
 
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      navigate("/login", { state: { from: location } });
     } else {
       fetchListing(id);
       fetchCategories();
     }
-  }, [user, navigate, id, fetchListing, fetchCategories]);
+  }, [user, navigate, location, id, fetchListing, fetchCategories]);
 
   useEffect(() => {
     if (listingDetails[id]) {

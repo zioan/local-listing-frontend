@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import { useData } from "../../context/DataContext";
@@ -10,12 +10,13 @@ function FavoriteButton({ listing }) {
   const { user } = useAuth();
   const { fetchFavorites, updateFavoriteStatus } = useData();
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState(null);
   const [isFavorited, setIsFavorited] = useState(listing.is_favorited);
 
   const handleFavoriteToggle = async () => {
     if (!user) {
-      navigate("/login");
+      navigate("/login", { state: { from: location } });
       return;
     }
     try {

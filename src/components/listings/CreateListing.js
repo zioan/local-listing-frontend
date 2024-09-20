@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../config/api";
@@ -15,6 +15,7 @@ import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions
 function CreateListing() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { categories, subcategories, loading, error, fetchCategories, fetchSubcategories, invalidateCache } = useData();
   const [formData, setFormData] = useState({
     title: "",
@@ -37,11 +38,11 @@ function CreateListing() {
 
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      navigate("/login", { state: { from: location } });
     } else {
       fetchCategories();
     }
-  }, [user, navigate, fetchCategories]);
+  }, [user, navigate, location, fetchCategories]);
 
   useEffect(() => {
     if (formData.category) {

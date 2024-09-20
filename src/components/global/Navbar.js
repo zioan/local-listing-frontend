@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, HeartIcon, UserIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../context/AuthContext";
@@ -19,6 +19,7 @@ function classNames(...classes) {
 function Navbar() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { unreadCount, fetchUnreadCount } = useMessages();
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
@@ -34,7 +35,7 @@ function Navbar() {
     if (user) {
       navigate("/profile");
     } else {
-      navigate("/login");
+      navigate("/login", { state: { from: location } });
     }
   };
 
@@ -42,7 +43,7 @@ function Navbar() {
     if (user) {
       navigate("/favorite");
     } else {
-      navigate("/login");
+      navigate("/login", { state: { from: location } });
     }
   };
 
