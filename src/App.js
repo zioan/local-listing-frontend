@@ -17,6 +17,8 @@ import EditListing from "./components/listings/EditListing";
 import Favorites from "./components/user/Favorites";
 import AppInitializer from "./components/AppInitializer";
 import PublicProfile from "./components/user/PublicProfile";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -44,6 +46,7 @@ function App() {
                 </main>
                 <Footer />
               </div>
+              <ToastContainer />
             </AppInitializer>
           </Router>
         </DataProvider>
