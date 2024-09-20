@@ -35,8 +35,6 @@ export const DataProvider = ({ children }) => {
     updateListingStatus,
     deleteListing,
     setListings,
-    setListingsPage,
-    setHasMore,
     lastFetchedFilters,
   } = useListings();
 
@@ -48,9 +46,7 @@ export const DataProvider = ({ children }) => {
 
   const resetListings = useCallback(() => {
     setListings([]);
-    setListingsPage(1);
-    setHasMore(true);
-  }, [setListings, setListingsPage, setHasMore]);
+  }, [setListings]);
 
   const resetCategories = useCallback(() => {
     setCategories([]);
