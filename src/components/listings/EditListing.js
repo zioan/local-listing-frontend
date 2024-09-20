@@ -8,6 +8,7 @@ import FormSelect from "../shared/form/FormSelect";
 import FormTextArea from "../shared/form/FormTextArea";
 import ImageUpload from "../shared/form/ImageUpload";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import { toast } from "react-toastify";
 import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions, statusOptions } from "../../util/listingHelpers";
 
 function EditListing() {
@@ -125,8 +126,9 @@ function EditListing() {
       invalidateCache(`listing-${id}`);
       invalidateCache("listings");
       navigate(`/listings/${id}`);
+      toast.success("Listing updated successfully!");
     } catch (err) {
-      console.error("Error updating listing:", err);
+      toast.error("Error updating listing:", err);
       setSubmitError("Failed to update listing. Please try again.");
     } finally {
       setIsSubmitting(false);

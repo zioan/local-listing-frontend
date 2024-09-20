@@ -31,6 +31,7 @@ import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } fro
 import placeholderImage from "../../assets/placeholder-image.jpg";
 import MessageModal from "../messaging/MessageModal";
 import { statusOptions } from "../../util/listingHelpers";
+import { toast } from "react-toastify";
 
 function ListingDetail() {
   const { id } = useParams();
@@ -101,7 +102,9 @@ function ListingDetail() {
       await updateListingStatus(id, selectedStatus);
       setIsConfirmModalOpen(false);
       invalidateCache(`listing-${id}`);
+      toast.success("Listing status updated successfully!");
     } catch (error) {
+      toast.error("Failed to update listing status. Please try again.");
       setStatusUpdateError("Failed to update listing status. Please try again.");
     }
   };
@@ -113,9 +116,9 @@ function ListingDetail() {
       invalidateCache("myListings");
       invalidateCache("favorites");
       navigate("/profile/listings");
+      toast.success("Listing deleted successfully!");
     } catch (err) {
-      console.error("Error deleting listing:", err);
-      // Handle error
+      toast.error("Error deleting listing:", err);
     }
   };
 
