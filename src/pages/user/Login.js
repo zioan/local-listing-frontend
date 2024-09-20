@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import SubmitBtn from "../../components/shared/form/SubmitBtn";
+import { toast } from "react-toastify";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -19,14 +20,19 @@ function Login() {
     try {
       await login(email, password);
       navigate("/profile");
+      toast.success("Logged in successfully!");
     } catch (err) {
       if (err.email) {
+        toast.error(err.email[0]);
         setError(err.email[0]);
       } else if (err.password) {
+        toast.error(err.password[0]);
         setError(err.password[0]);
       } else if (err.error) {
+        toast.error(err.error);
         setError(err.error);
       } else {
+        toast.error("An unexpected error occurred. Please try again.");
         setError("An unexpected error occurred. Please try again.");
       }
     } finally {

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import SubmitBtn from "../../components/shared/form/SubmitBtn";
+import { toast } from "react-toastify";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -34,7 +35,9 @@ function Register() {
     try {
       await register(formData);
       navigate("/profile");
+      toast.success("Account created successfully!");
     } catch (err) {
+      toast.error("Failed to create account. Please try again.");
       setErrors(err);
     } finally {
       setIsLoading(false);
