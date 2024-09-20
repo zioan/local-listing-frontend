@@ -5,6 +5,8 @@ import { formatDate } from "../../util/listingHelpers";
 import ListingCard from "../listings/ListingCard";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import { UserIcon, MapPinIcon, CalendarIcon, TagIcon, StarIcon } from "@heroicons/react/24/outline";
+import ReviewForm from "../reviews/ReviewForm";
+import ReviewList from "../reviews/ReviewList";
 
 function PublicProfile() {
   const { username } = useParams();
@@ -22,17 +24,18 @@ function PublicProfile() {
     loadProfile();
   }, [username, fetchPublicProfile, fetchUserListings]);
 
+  const handleReviewSubmitted = (newReview) => {
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      reviews: [newReview, ...prevProfile.reviews],
+      average_rating: (prevProfile.average_rating * prevProfile.reviews.length + newReview.rating) / (prevProfile.reviews.length + 1),
+    }));
+  };
+
   if (loading.profile) return <LoadingSpinner isLoading={loading.profile} />;
   if (loading.userListings) return <LoadingSpinner isLoading={loading.userListings} />;
   if (error.profile) return <div className="text-red-500">{error.profile}</div>;
   if (!profile) return null;
-
-  const displayRating = (rating) => {
-    if (typeof rating === "number") {
-      return rating.toFixed(1);
-    }
-    return "N/A";
-  };
 
   return (
     <div className="container px-4 py-8 mx-auto">
@@ -73,10 +76,10 @@ function PublicProfile() {
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="flex items-center text-sm font-medium text-gray-500">
                 <StarIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                Rating
+                Average Rating
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {displayRating(profile.rating)} ({profile.num_ratings} ratings)
+                {profile.average_rating ? profile.average_rating.toFixed(1) : "N/A"} ({profile.reviews.length} reviews)
               </dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -86,6 +89,9 @@ function PublicProfile() {
           </dl>
         </div>
       </div>
+
+      <ReviewForm userId={profile.id} onReviewSubmitted={handleReviewSubmitted} />
+      <ReviewList reviews={profile.reviews} />
 
       <h4 className="mt-8 mb-4 text-2xl font-bold">Active Listings</h4>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
