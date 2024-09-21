@@ -15,7 +15,6 @@ const ReviewList = ({ reviews }) => {
               <div className="px-4 py-5 sm:p-6">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-indigo-600">{review.reviewer_username}</span>
-                  {/* <p>{review.created_at}</p> */}
                   <span className="text-sm text-gray-500">{formatDate(review.created_at)}</span>
                 </div>
                 <div className="flex items-center mt-2">
