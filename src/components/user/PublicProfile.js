@@ -29,11 +29,17 @@ function PublicProfile() {
   }, [username, fetchPublicProfile, fetchUserListings]);
 
   const handleReviewSubmitted = (newReview) => {
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      reviews: prevProfile.reviews.map((review) => (review.id === newReview.id ? newReview : review)),
-      average_rating: calculateNewAverageRating(prevProfile, newReview),
-    }));
+    setProfile((prevProfile) => {
+      const updatedReviews = prevProfile.reviews.some((review) => review.id === newReview.id)
+        ? prevProfile.reviews.map((review) => (review.id === newReview.id ? newReview : review))
+        : [...prevProfile.reviews, newReview];
+
+      return {
+        ...prevProfile,
+        reviews: updatedReviews,
+        average_rating: calculateNewAverageRating(prevProfile, newReview),
+      };
+    });
   };
 
   const handleReviewDeleted = (deletedReviewId) => {
