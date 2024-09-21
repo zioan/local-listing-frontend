@@ -7,6 +7,7 @@ import Modal from "../shared/Modal";
 import ImageGallery from "../shared/ImageGallery";
 import FavoriteButton from "./FavoriteButton";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import { FacebookShareLink, XShareLink, WhatsAppShareLink } from "../shared/ShareButtons";
 import {
   HeartIcon,
   MapPinIcon,
@@ -42,7 +43,6 @@ function ListingDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
-
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [statusUpdateError, setStatusUpdateError] = useState("");
@@ -129,6 +129,9 @@ function ListingDetail() {
   const shouldShowCondition = ["item_sale", "item_free", "item_wanted"].includes(listing.listing_type);
   const conditionLabel = conditionOptions.find((option) => option.value === listing.condition)?.label || listing.condition;
 
+  const shareUrl = window.location.href;
+  const shareTitle = `Check out this listing: ${listing.title}`;
+
   return (
     <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
@@ -189,11 +192,7 @@ function ListingDetail() {
                   </>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
-                    <img
-                      src={placeholderImage}
-                      alt={listing.title}
-                      // className="object-contain w-full h-full"
-                    />
+                    <img src={placeholderImage} alt={listing.title} />
                   </div>
                 )}
               </div>
@@ -297,6 +296,16 @@ function ListingDetail() {
                     </select>
                   </div>
                 )}
+
+                {/* Social sharing buttons */}
+                <div className="mt-6">
+                  <h4 className="mb-2 text-sm font-medium text-gray-700">Share this listing:</h4>
+                  <div className="flex space-x-2">
+                    <FacebookShareLink url={shareUrl} quote={shareTitle} />
+                    <XShareLink url={shareUrl} title={shareTitle} />
+                    <WhatsAppShareLink url={shareUrl} title={shareTitle} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
