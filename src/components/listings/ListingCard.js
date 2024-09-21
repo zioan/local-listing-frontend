@@ -26,24 +26,12 @@ function ListingCard({ listing }) {
 
   return (
     <div className="relative flex flex-col h-full overflow-hidden transition duration-300 bg-white rounded-lg shadow-md cursor-pointer hover:shadow-xl">
-      <div className="relative flex-shrink-0 pt-2" style={{ height: "200px" }} onClick={handleCardClick}>
+      <div className="flex-shrink-0 pt-2" style={{ height: "200px" }} onClick={handleCardClick}>
         <img
           src={listing.images && listing.images.length > 0 ? getCloudinaryImageUrl(listing.images[0].image) : placeholderImage}
           alt={listing.title}
           className="object-contain w-full h-full"
         />
-
-        {/* Stats overlay */}
-        <div className="absolute flex items-center px-2 py-1 space-x-2 text-gray-800 bg-white bg-opacity-75 rounded-full top-2 right-2">
-          <span className="flex items-center">
-            <EyeIcon className="w-4 h-4 mr-1" />
-            {listing.view_count}
-          </span>
-          <span className="flex items-center">
-            <HeartIcon className="w-4 h-4 mr-1" />
-            {listing.favorite_count}
-          </span>
-        </div>
       </div>
       <div className="flex flex-col flex-grow p-4 pt-2">
         {/* Listing type */}
