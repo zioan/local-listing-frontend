@@ -98,7 +98,7 @@ const ReviewForm = ({ userId, onReviewSubmitted, onReviewDeleted }) => {
       setShowReviewForm(false);
     } catch (err) {
       console.error("Failed to update review:", err);
-      toast.error("Failed to update review. Please try again.");
+      toast.error(error || "Failed to update review. Please try again.");
     }
   };
 

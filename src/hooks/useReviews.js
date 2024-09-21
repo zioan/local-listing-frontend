@@ -27,11 +27,8 @@ const useReviews = () => {
       const response = await api.post(`/reviews/users/${userId}/reviews/`, reviewData);
       return response.data;
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data);
-      } else {
-        setError("An unexpected error occurred");
-      }
+      setError(err.response?.data?.error || "An unexpected error occurred");
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -44,7 +41,7 @@ const useReviews = () => {
       const response = await api.put(`/reviews/reviews/${reviewId}/`, reviewData);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data || "Failed to update review");
+      setError(err.response?.data?.error || "Failed to update review");
       throw err;
     } finally {
       setLoading(false);
@@ -57,7 +54,7 @@ const useReviews = () => {
     try {
       await api.delete(`/reviews/reviews/${reviewId}/`);
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data || "Failed to delete review");
+      setError(err.response?.data?.error || "Failed to delete review");
       throw err;
     } finally {
       setLoading(false);
