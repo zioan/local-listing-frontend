@@ -60,7 +60,19 @@ const ReviewForm = ({ userId, onReviewSubmitted, onReviewDeleted }) => {
       toast.success("Review submitted successfully!");
     } catch (err) {
       console.error("Failed to submit review:", err);
+      if (err.reviewed_user && Array.isArray(err.reviewed_user)) {
+        toast.error(err.reviewed_user[0]);
+      } else if (typeof err === "object" && err !== null) {
+        Object.entries(err).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            toast.error(`${key}: ${value[0]}`);
+          } else {
+            toast.error(`${key}: ${value}`);
+          }
+        });
+      } else {
         toast.error("Failed to submit review. Please try again.");
+      }
     }
   };
 
