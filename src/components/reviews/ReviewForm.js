@@ -13,28 +13,34 @@ const ReviewForm = ({ userId, onReviewSubmitted, onReviewDeleted }) => {
   const [existingReview, setExistingReview] = useState(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isInitialFetchDone, setIsInitialFetchDone] = useState(false);
   const { user } = useAuth();
   const { submitReview, updateReview, deleteReview, getExistingReview, loading, error } = useReviews();
 
   const fetchExistingReview = useCallback(async () => {
     if (user && userId && user.id !== userId) {
-      // Check to ensure user is not reviewing themselves
-      const review = await getExistingReview(userId, user.id);
-      if (review) {
-        setExistingReview(review);
-        setRating(review.rating);
-        setContent(review.content);
-      } else {
-        setExistingReview(null);
-        setRating(5);
-        setContent("");
+      try {
+        const review = await getExistingReview(userId, user.id);
+        if (review) {
+          setExistingReview(review);
+          setRating(review.rating);
+          setContent(review.content);
+        } else {
+          setExistingReview(null);
+        }
+      } catch (error) {
+        console.error("Error fetching existing review:", error);
+      } finally {
+        setIsInitialFetchDone(true);
       }
     }
   }, [user, userId, getExistingReview]);
 
   useEffect(() => {
-    fetchExistingReview();
-  }, [fetchExistingReview]);
+    if (!isInitialFetchDone) {
+      fetchExistingReview();
+    }
+  }, [fetchExistingReview, isInitialFetchDone]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +60,7 @@ const ReviewForm = ({ userId, onReviewSubmitted, onReviewDeleted }) => {
       toast.success("Review submitted successfully!");
     } catch (err) {
       console.error("Failed to submit review:", err);
-      toast.error("Failed to submit review. Please try again.");
+        toast.error("Failed to submit review. Please try again.");
     }
   };
 
