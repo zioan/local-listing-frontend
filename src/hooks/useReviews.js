@@ -27,8 +27,11 @@ const useReviews = () => {
       const response = await api.post(`/reviews/users/${userId}/reviews/`, reviewData);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data || "Failed to submit review");
-      throw err;
+      if (err.response && err.response.data) {
+        setError(err.response.data);
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
