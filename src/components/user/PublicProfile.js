@@ -81,10 +81,8 @@ function PublicProfile() {
 
   return (
     <div className="container px-4 py-8 mx-auto">
+      <h4 className="mt-8 mb-4 text-2xl font-bold">{profile.username}'s profile</h4>
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg font-medium leading-6 text-gray-900">{profile.username}'s Profile</h3>
-        </div>
         <div className="px-4 py-5 border-t border-gray-200 sm:p-0">
           <dl className="sm:divide-y sm:divide-gray-200">
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -133,9 +131,9 @@ function PublicProfile() {
       </div>
 
       {profile && profile.id && <ReviewForm userId={profile.id} onReviewSubmitted={handleReviewSubmitted} onReviewDeleted={handleReviewDeleted} />}
-      <ReviewList reviews={profile.reviews} />
+      <ReviewList reviews={profile.reviews} user={profile.username} />
 
-      <h4 className="mt-8 mb-4 text-2xl font-bold">Active Listings</h4>
+      <h4 className="mt-8 mb-4 text-2xl font-bold">{profile.username}'s active listings</h4>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {listings.map((listing) => (
           <ListingCard key={listing.id} listing={listing} />
