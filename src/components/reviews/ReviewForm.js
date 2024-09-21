@@ -51,6 +51,15 @@ const ReviewForm = ({ userId, onReviewSubmitted, onReviewDeleted }) => {
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "rating") {
+      setRating(Number(value));
+    } else if (name === "content") {
+      setContent(value);
+    }
+  };
+
   const submitNewReview = async () => {
     try {
       const reviewData = { rating, content };
@@ -135,7 +144,8 @@ const ReviewForm = ({ userId, onReviewSubmitted, onReviewDeleted }) => {
           <label className="block text-sm font-medium text-gray-700">Rating</label>
           <select
             value={rating}
-            onChange={(e) => setRating(Number(e.target.value))}
+            onChange={handleInputChange}
+            name="rating"
             className="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             {[5, 4, 3, 2, 1].map((value) => (
@@ -149,7 +159,8 @@ const ReviewForm = ({ userId, onReviewSubmitted, onReviewDeleted }) => {
           <label className="block text-sm font-medium text-gray-700">Review</label>
           <textarea
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={handleInputChange}
+            name="content"
             rows="3"
             className="block w-full mt-1 border-gray-300 rounded-md sm:text-sm"
             placeholder="Write your review here..."
