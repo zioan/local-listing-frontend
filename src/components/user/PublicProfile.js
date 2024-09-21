@@ -67,6 +67,13 @@ function PublicProfile() {
     return totalRating / reviews.length;
   };
 
+  const getReviewsCountText = (reviews) => {
+    const count = reviews.length;
+    if (count === 0) return "no reviews";
+    if (count === 1) return "1 review";
+    return `${count} reviews`;
+  };
+
   if (loading.profile) return <LoadingSpinner isLoading={loading.profile} />;
   if (loading.userListings) return <LoadingSpinner isLoading={loading.userListings} />;
   if (error.profile) return <div className="text-red-500">{error.profile}</div>;
@@ -114,7 +121,7 @@ function PublicProfile() {
                 Average Rating
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {profile.average_rating ? profile.average_rating.toFixed(1) : "N/A"} ({profile.reviews.length} reviews)
+                {profile.average_rating ? profile.average_rating.toFixed(1) : "N/A"} ({getReviewsCountText(profile.reviews)})
               </dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
