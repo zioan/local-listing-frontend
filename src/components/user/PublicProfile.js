@@ -16,10 +16,14 @@ function PublicProfile() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const profileData = await fetchPublicProfile(username);
-      setProfile(profileData);
-      const userListings = await fetchUserListings(username);
-      setListings(userListings);
+      try {
+        const profileData = await fetchPublicProfile(username);
+        setProfile(profileData);
+        const userListings = await fetchUserListings(username);
+        setListings(userListings);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
     };
     loadProfile();
   }, [username, fetchPublicProfile, fetchUserListings]);
@@ -27,9 +31,34 @@ function PublicProfile() {
   const handleReviewSubmitted = (newReview) => {
     setProfile((prevProfile) => ({
       ...prevProfile,
-      reviews: [newReview, ...prevProfile.reviews],
-      average_rating: (prevProfile.average_rating * prevProfile.reviews.length + newReview.rating) / (prevProfile.reviews.length + 1),
+      reviews: prevProfile.reviews.map((review) => (review.id === newReview.id ? newReview : review)),
+      average_rating: calculateNewAverageRating(prevProfile, newReview),
     }));
+  };
+
+  const handleReviewDeleted = (deletedReviewId) => {
+    setProfile((prevProfile) => {
+      const updatedReviews = prevProfile.reviews.filter((review) => review.id !== deletedReviewId);
+      return {
+        ...prevProfile,
+        reviews: updatedReviews,
+        average_rating: calculateAverageRating(updatedReviews),
+      };
+    });
+  };
+
+  const calculateNewAverageRating = (profile, newReview) => {
+    const oldReview = profile.reviews.find((review) => review.id === newReview.id);
+    const totalRating = profile.average_rating * profile.reviews.length;
+    const newTotalRating = oldReview ? totalRating - oldReview.rating + newReview.rating : totalRating + newReview.rating;
+    const newCount = oldReview ? profile.reviews.length : profile.reviews.length + 1;
+    return newTotalRating / newCount;
+  };
+
+  const calculateAverageRating = (reviews) => {
+    if (reviews.length === 0) return 0;
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return totalRating / reviews.length;
   };
 
   if (loading.profile) return <LoadingSpinner isLoading={loading.profile} />;
@@ -90,7 +119,7 @@ function PublicProfile() {
         </div>
       </div>
 
-      <ReviewForm userId={profile.id} onReviewSubmitted={handleReviewSubmitted} />
+      {profile && profile.id && <ReviewForm userId={profile.id} onReviewSubmitted={handleReviewSubmitted} onReviewDeleted={handleReviewDeleted} />}
       <ReviewList reviews={profile.reviews} />
 
       <h4 className="mt-8 mb-4 text-2xl font-bold">Active Listings</h4>
