@@ -3,7 +3,7 @@ import React from "react";
 const FormSelect = ({ id, name, value, onChange, label, options, required = false }) => {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="block text-sm font-medium leading-6 text-gray-900">
         {label}
       </label>
       <select
@@ -12,7 +12,7 @@ const FormSelect = ({ id, name, value, onChange, label, options, required = fals
         value={value}
         onChange={onChange}
         required={required}
-        className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
       >
         <option value="">Select {label}</option>
         {options.map((option) => (
