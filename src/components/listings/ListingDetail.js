@@ -8,6 +8,7 @@ import ImageGallery from "../shared/ImageGallery";
 import FavoriteButton from "./FavoriteButton";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import { FacebookShareLink, XShareLink, WhatsAppShareLink } from "../shared/ShareButtons";
+import RelatedListings from "./RelatedListings";
 import {
   HeartIcon,
   MapPinIcon,
@@ -329,6 +330,9 @@ function ListingDetail() {
           </div>
         </div>
       </div>
+
+      {/* Related listings */}
+      <RelatedListings category={listing.category} currentListingId={listing.id} />
 
       {/* Status change modal */}
       <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title="Confirm Status Change">
