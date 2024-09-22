@@ -8,8 +8,19 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 
 function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
   const { categories, subcategories, loading, error, fetchSubcategories } = useData();
-  const [filters, setFilters] = useState(initialFilters);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [filters, setFilters] = useState({
+    listing_type: initialFilters.listing_type || "",
+    category: initialFilters.category || "",
+    subcategory: initialFilters.subcategory || "",
+    min_price: initialFilters.min_price || "",
+    max_price: initialFilters.max_price || "",
+    condition: initialFilters.condition || "",
+    delivery_option: initialFilters.delivery_option || "",
+    location: initialFilters.location || "",
+    start_date: initialFilters.start_date || "",
+    end_date: initialFilters.end_date || "",
+  });
 
   useEffect(() => {
     if (filters.category) {
@@ -51,7 +62,6 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
     };
     setFilters(resetFilters);
     onFilterChange({});
-    onToggleFilter();
   };
 
   if (loading.categories) return <LoadingSpinner isLoading={loading.categories} />;
@@ -60,10 +70,8 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
   const subcategoriesForCategory = subcategories && filters.category ? subcategories[filters.category] || [] : [];
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="mb-4 text-xl font-semibold">Advanced Filters</h2>
-
-      <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <FormSelect
           id="listing_type"
           name="listing_type"
@@ -92,6 +100,14 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
           ]}
           disabled={!filters.category}
         />
+        <FormSelect
+          id="condition"
+          name="condition"
+          value={filters.condition}
+          onChange={handleInputChange}
+          label="Condition"
+          options={conditionOptions}
+        />
         <FormInput
           id="min_price"
           name="min_price"
@@ -109,14 +125,6 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
           label="Max Price"
           type="number"
           placeholder="Any"
-        />
-        <FormSelect
-          id="condition"
-          name="condition"
-          value={filters.condition}
-          onChange={handleInputChange}
-          label="Condition"
-          options={conditionOptions}
         />
         <FormSelect
           id="delivery_option"
@@ -138,7 +146,7 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
         <FormInput id="start_date" name="start_date" value={filters.start_date} onChange={handleInputChange} label="Start Date" type="date" />
         <FormInput id="end_date" name="end_date" value={filters.end_date} onChange={handleInputChange} label="End Date" type="date" />
       </div>
-      <div className="flex justify-end mt-6 space-x-4">
+      <div className="flex justify-end space-x-4">
         <button
           type="button"
           onClick={handleReset}
@@ -146,9 +154,7 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
         >
           Reset
         </button>
-        <div className="w-24">
-          <SubmitBtn isSubmitting={isSubmitting}>Apply</SubmitBtn>
-        </div>
+        <SubmitBtn isSubmitting={isSubmitting}>Apply Filters</SubmitBtn>
       </div>
     </form>
   );
