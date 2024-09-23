@@ -19,6 +19,7 @@ import AppInitializer from "./components/AppInitializer";
 import PublicProfile from "./components/user/PublicProfile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ScrollToTop from "./util/ScrollToTop";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
       <AuthProvider>
         <DataProvider>
           <Router>
+            <ScrollToTop />
             <AppInitializer>
               <div className="flex flex-col min-h-screen bg-gray-100">
                 <Navbar />
