@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { listingTypeOptions } from "../../util/listingHelpers";
 import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import FavoriteButton from "./FavoriteButton";
-import { EyeIcon, HeartIcon } from "@heroicons/react/24/outline";
 import placeholderImage from "../../assets/placeholder-image.jpg";
 
 function ListingCard({ listing }) {
