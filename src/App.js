@@ -20,40 +20,43 @@ import PublicProfile from "./components/user/PublicProfile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ScrollToTop from "./util/ScrollToTop";
+import ErrorBoundary from "./util/ErrorBoundary";
 
 function App() {
   return (
-    <WatcherProvider>
-      <AuthProvider>
-        <DataProvider>
-          <Router>
-            <ScrollToTop />
-            <AppInitializer>
-              <div className="flex flex-col min-h-screen bg-gray-100">
-                <Navbar />
-                <main className="flex-grow">
-                  <Routes>
-                    <Route exact path="/" element={<Home />} />
-                    <Route exact path="/about" element={<About />} />
-                    <Route exact path="/contact" element={<Contact />} />
-                    <Route exact path="/login" element={<Login />} />
-                    <Route exact path="/register" element={<Register />} />
-                    <Route path="/profiles/:username" element={<PublicProfile />} />
-                    <Route path="/profile/*" element={<Profile />} />
-                    <Route path="/listings/:id" element={<ListingDetail />} />
-                    <Route path="/listings/:id/edit" element={<EditListing />} />
-                    <Route path="/favorite" element={<Favorites />} />
-                    <Route path="*" element={<div>404 Not Found</div>} />
-                  </Routes>
-                </main>
-                <Footer />
-              </div>
-              <ToastContainer />
-            </AppInitializer>
-          </Router>
-        </DataProvider>
-      </AuthProvider>
-    </WatcherProvider>
+    <ErrorBoundary>
+      <WatcherProvider>
+        <AuthProvider>
+          <DataProvider>
+            <Router>
+              <ScrollToTop />
+              <AppInitializer>
+                <div className="flex flex-col min-h-screen bg-gray-100">
+                  <Navbar />
+                  <main className="flex-grow">
+                    <Routes>
+                      <Route exact path="/" element={<Home />} />
+                      <Route exact path="/about" element={<About />} />
+                      <Route exact path="/contact" element={<Contact />} />
+                      <Route exact path="/login" element={<Login />} />
+                      <Route exact path="/register" element={<Register />} />
+                      <Route path="/profiles/:username" element={<PublicProfile />} />
+                      <Route path="/profile/*" element={<Profile />} />
+                      <Route path="/listings/:id" element={<ListingDetail />} />
+                      <Route path="/listings/:id/edit" element={<EditListing />} />
+                      <Route path="/favorite" element={<Favorites />} />
+                      <Route path="*" element={<div>404 Not Found</div>} />
+                    </Routes>
+                  </main>
+                  <Footer />
+                </div>
+                <ToastContainer />
+              </AppInitializer>
+            </Router>
+          </DataProvider>
+        </AuthProvider>
+      </WatcherProvider>
+    </ErrorBoundary>
   );
 }
 

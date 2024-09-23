@@ -24,8 +24,28 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        localStorage.removeItem("access_token");
-        setUser(null);
+        // Try to refresh the token
+        try {
+          const refreshToken = localStorage.getItem("refresh_token");
+          if (refreshToken) {
+            const newTokens = await authService.refreshToken(refreshToken);
+            localStorage.setItem("access_token", newTokens.access);
+            localStorage.setItem("refresh_token", newTokens.refresh);
+            // Retry fetching user with new token
+            const currentUser = await authService.getCurrentUser();
+            setUser(currentUser);
+            if (currentUser) {
+              triggerUpdate("auth");
+            }
+          } else {
+            throw new Error("No refresh token available");
+          }
+        } catch (refreshError) {
+          console.error("Error refreshing token");
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          setUser(null);
+        }
       } else {
         console.error("Error fetching current user:", error);
       }

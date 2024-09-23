@@ -94,9 +94,8 @@ const authService = {
     }
   },
 
-  refreshToken: async () => {
+  refreshToken: async (refreshToken) => {
     try {
-      const refreshToken = localStorage.getItem("refresh_token");
       const response = await axiosInstance.post("token/refresh/", { refresh: refreshToken });
       if (response.data.access) {
         localStorage.setItem("access_token", response.data.access);
