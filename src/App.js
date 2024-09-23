@@ -8,8 +8,6 @@ import { SearchProvider } from "./context/SearchContext";
 import Navbar from "./components/global/Navbar";
 import Footer from "./components/global/Footer";
 import Home from "./pages/Home";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
 import Login from "./pages/user/Login";
 import Register from "./pages/user/Register";
 import Profile from "./pages/user/Profile";
@@ -38,8 +36,6 @@ function App() {
                     <main className="flex-grow">
                       <Routes>
                         <Route exact path="/" element={<Home />} />
-                        <Route exact path="/about" element={<About />} />
-                        <Route exact path="/contact" element={<Contact />} />
                         <Route exact path="/login" element={<Login />} />
                         <Route exact path="/register" element={<Register />} />
                         <Route path="/profiles/:username" element={<PublicProfile />} />
