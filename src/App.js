@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import { WatcherProvider } from "./context/WatcherContext";
+import { SearchProvider } from "./context/SearchContext";
 import Navbar from "./components/global/Navbar";
 import Footer from "./components/global/Footer";
 import Home from "./pages/Home";
@@ -28,31 +29,33 @@ function App() {
       <WatcherProvider>
         <AuthProvider>
           <DataProvider>
-            <Router>
-              <ScrollToTop />
-              <AppInitializer>
-                <div className="flex flex-col min-h-screen bg-gray-100">
-                  <Navbar />
-                  <main className="flex-grow">
-                    <Routes>
-                      <Route exact path="/" element={<Home />} />
-                      <Route exact path="/about" element={<About />} />
-                      <Route exact path="/contact" element={<Contact />} />
-                      <Route exact path="/login" element={<Login />} />
-                      <Route exact path="/register" element={<Register />} />
-                      <Route path="/profiles/:username" element={<PublicProfile />} />
-                      <Route path="/profile/*" element={<Profile />} />
-                      <Route path="/listings/:id" element={<ListingDetail />} />
-                      <Route path="/listings/:id/edit" element={<EditListing />} />
-                      <Route path="/favorite" element={<Favorites />} />
-                      <Route path="*" element={<div>404 Not Found</div>} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                </div>
-                <ToastContainer />
-              </AppInitializer>
-            </Router>
+            <SearchProvider>
+              <Router>
+                <ScrollToTop />
+                <AppInitializer>
+                  <div className="flex flex-col min-h-screen bg-gray-100">
+                    <Navbar />
+                    <main className="flex-grow">
+                      <Routes>
+                        <Route exact path="/" element={<Home />} />
+                        <Route exact path="/about" element={<About />} />
+                        <Route exact path="/contact" element={<Contact />} />
+                        <Route exact path="/login" element={<Login />} />
+                        <Route exact path="/register" element={<Register />} />
+                        <Route path="/profiles/:username" element={<PublicProfile />} />
+                        <Route path="/profile/*" element={<Profile />} />
+                        <Route path="/listings/:id" element={<ListingDetail />} />
+                        <Route path="/listings/:id/edit" element={<EditListing />} />
+                        <Route path="/favorite" element={<Favorites />} />
+                        <Route path="*" element={<div>404 Not Found</div>} />
+                      </Routes>
+                    </main>
+                    <Footer />
+                  </div>
+                  <ToastContainer />
+                </AppInitializer>
+              </Router>
+            </SearchProvider>
           </DataProvider>
         </AuthProvider>
       </WatcherProvider>
