@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import { useSearch } from "../context/SearchContext";
 import HeroSection from "../components/home/HeroSection";
 import ListingCard from "../components/listings/ListingCard";
 import Filter from "../components/home/Filter";
@@ -11,6 +12,7 @@ import { FunnelIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 function Home() {
   const { listings, error, fetchListings, lastFetchedFilters } = useData();
+  const { searchTerm, handleSearch } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +34,7 @@ function Home() {
         location: filtersFromUrl.location || "",
         start_date: filtersFromUrl.start_date || "",
         end_date: filtersFromUrl.end_date || "",
+        search: filtersFromUrl.search || "",
       };
     }
     const storedFilters = sessionStorage.getItem("defaultFilters");
@@ -49,6 +52,7 @@ function Home() {
           location: "",
           start_date: "",
           end_date: "",
+          search: "",
         };
   }
 
@@ -74,28 +78,37 @@ function Home() {
     sessionStorage.setItem("defaultFilters", JSON.stringify(filters));
   }, [filters, navigate]);
 
+  useEffect(() => {
+    if (searchTerm !== filters.search) {
+      setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
+    }
+  }, [searchTerm]);
+
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
     setShowFilterModal(false);
   }, []);
 
-  const handleFilterRemove = useCallback((filterKey) => {
-    setFilters((prevFilters) => {
-      const newFilters = { ...prevFilters };
-      delete newFilters[filterKey];
-      return newFilters;
-    });
-  }, []);
-
-  const handleSearch = useCallback((searchTerm) => {
-    setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
-  }, []);
+  const handleFilterRemove = useCallback(
+    (filterKey) => {
+      setFilters((prevFilters) => {
+        const newFilters = { ...prevFilters };
+        delete newFilters[filterKey];
+        return newFilters;
+      });
+      if (filterKey === "search") {
+        handleSearch("");
+      }
+    },
+    [handleSearch]
+  );
 
   const resetFilters = useCallback(() => {
     setFilters({});
     sessionStorage.removeItem("defaultFilters");
     navigate("/", { replace: true });
-  }, [navigate]);
+    handleSearch("");
+  }, [navigate, handleSearch]);
 
   const toggleFilterModal = () => {
     setShowFilterModal(!showFilterModal);
@@ -103,7 +116,7 @@ function Home() {
 
   if (error.listings) return <div className="text-center text-red-500">{error.listings}</div>;
 
-  const hasActiveFilters = Object.keys(filters).length > 0;
+  const hasActiveFilters = Object.keys(filters).some((key) => filters[key] !== "");
 
   return (
     <div className="min-h-screen bg-gray-100">
