@@ -77,7 +77,16 @@ function Home() {
   useEffect(() => {
     const searchParams = new URLSearchParams(filters);
     navigate(`?${searchParams.toString()}`, { replace: true });
-    sessionStorage.setItem("defaultFilters", JSON.stringify(filters));
+
+    // Store only non-empty filters in session storage
+    const nonEmptyFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+      if (value !== "") {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+
+    sessionStorage.setItem("defaultFilters", JSON.stringify(nonEmptyFilters));
   }, [filters, navigate]);
 
   useEffect(() => {
