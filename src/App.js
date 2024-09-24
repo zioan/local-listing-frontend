@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import { WatcherProvider } from "./context/WatcherContext";
 import { SearchProvider } from "./context/SearchContext";
+import { appSettings } from "./config/settings";
 import Navbar from "./components/global/Navbar";
 import Footer from "./components/global/Footer";
 import Home from "./pages/Home";
@@ -58,7 +59,7 @@ function App() {
                     </main>
                     <Footer />
                   </div>
-                  <ToastContainer />
+                  <ToastContainer autoClose={appSettings.toastDuration} />
                 </AppInitializer>
               </Router>
             </SearchProvider>
