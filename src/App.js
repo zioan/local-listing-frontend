@@ -20,6 +20,11 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ScrollToTop from "./util/ScrollToTop";
 import ErrorBoundary from "./util/ErrorBoundary";
+import UnauthorizedError from "./components/errors/UnauthorizedError";
+import ForbiddenError from "./components/errors/ForbiddenError";
+import NotFoundError from "./components/errors/NotFoundError";
+import ServerError from "./components/errors/ServerError";
+import GenericError from "./components/errors/GenericError";
 
 function App() {
   return (
@@ -43,7 +48,12 @@ function App() {
                         <Route path="/listings/:id" element={<ListingDetail />} />
                         <Route path="/listings/:id/edit" element={<EditListing />} />
                         <Route path="/favorite" element={<Favorites />} />
-                        <Route path="*" element={<div>404 Not Found</div>} />
+                        <Route path="/unauthorized" element={<UnauthorizedError />} />
+                        <Route path="/forbidden" element={<ForbiddenError />} />
+                        <Route path="/not-found" element={<NotFoundError />} />
+                        <Route path="/server-error" element={<ServerError />} />
+                        <Route path="/error" element={<GenericError />} />
+                        <Route path="*" element={<NotFoundError />} />
                       </Routes>
                     </main>
                     <Footer />
