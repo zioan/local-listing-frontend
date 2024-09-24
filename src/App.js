@@ -19,7 +19,7 @@ import PublicProfile from "./components/user/PublicProfile";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ScrollToTop from "./util/ScrollToTop";
-import ErrorBoundary from "./util/ErrorBoundary";
+import { ErrorBoundary } from "./util/ErrorBoundary";
 import UnauthorizedError from "./components/errors/UnauthorizedError";
 import ForbiddenError from "./components/errors/ForbiddenError";
 import NotFoundError from "./components/errors/NotFoundError";

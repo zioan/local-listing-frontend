@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import authService from "../lib/authService";
+import { HttpError } from "../util/ErrorBoundary";
 
 const BASE_API_URL = process.env.REACT_APP_BASE_API_URL;
 
@@ -24,32 +25,52 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If the error is 401 and we haven't retried yet
+    if (!error.response) {
+      throw new HttpError("Network error", 0);
+    }
+
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
           const newTokens = await authService.refreshToken(refreshToken);
           localStorage.setItem("access_token", newTokens.access);
           localStorage.setItem("refresh_token", newTokens.refresh);
-
-          // Update the original request with the new token
           originalRequest.headers["Authorization"] = `Bearer ${newTokens.access}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
-        console.error("Error refreshing token:", refreshError);
-        // Clear tokens and redirect to login
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        toast.error("Your session has expired. Please log in again.");
         window.location.href = "/login";
+        throw new HttpError("Session expired", 401);
       }
     }
 
-    return Promise.reject(error);
+    let errorMessage;
+    switch (error.response.status) {
+      case 400:
+        errorMessage = "Bad request. Please check your input.";
+        break;
+      case 401:
+        errorMessage = "You are not authorized to access this resource.";
+        break;
+      case 403:
+        errorMessage = "You don't have permission to access this resource.";
+        break;
+      case 404:
+        errorMessage = "The requested resource was not found.";
+        break;
+      case 500:
+        errorMessage = "An internal server error occurred. Please try again later.";
+        break;
+      default:
+        errorMessage = error.response.data.message || "An unexpected error occurred.";
+    }
+
+    toast.error(errorMessage);
+    throw new HttpError(errorMessage, error.response.status);
   }
 );
 
