@@ -20,6 +20,7 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     fetchConversationUnreadCounts,
   } = useMessages();
   const [currentConversation, setCurrentConversation] = useState(null);
+  const [currentTitle, setCurrentTitle] = useState(listingTitle);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState(null);
@@ -29,8 +30,15 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     if (isOpen && user) {
       fetchConversations();
       fetchConversationUnreadCounts();
+      if (listingId) {
+        const existingConversation = conversations.find((conv) => conv.listing.id === listingId);
+        if (existingConversation) {
+          setCurrentConversation(existingConversation);
+          setCurrentTitle(existingConversation.listing.title);
+        }
+      }
     }
-  }, [isOpen, user, fetchConversations, fetchConversationUnreadCounts]);
+  }, [isOpen, user, fetchConversations, fetchConversationUnreadCounts, listingId, conversations]);
 
   useEffect(() => {
     if (currentConversation && user) {
@@ -56,6 +64,11 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     }
   }, [messages, currentConversation, user, markMessagesAsRead]);
 
+  const handleChangeConversation = (conv) => {
+    setCurrentConversation(conv);
+    setCurrentTitle(conv.listing.title);
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() === "" || !user) return;
@@ -64,6 +77,9 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     try {
       let conversationId;
       if (!currentConversation) {
+        if (!listingId) {
+          throw new Error("No listing selected for new conversation");
+        }
         const newConversation = await createConversation(listingId);
         setCurrentConversation(newConversation);
         conversationId = newConversation.id;
@@ -96,7 +112,7 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Messages" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={currentTitle ? currentTitle : "Messages"} size="lg">
       <div className="flex h-96">
         <div className="w-1/3 overflow-y-auto border-r">
           <h3 className="p-2 mb-2 text-lg font-semibold">Conversations</h3>
@@ -104,7 +120,7 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
             <div
               key={conv.id}
               className={`p-2 cursor-pointer hover:bg-gray-100 ${currentConversation?.id === conv.id ? "bg-gray-200" : ""}`}
-              onClick={() => setCurrentConversation(conv)}
+              onClick={() => handleChangeConversation(conv)}
             >
               <div className="flex items-center justify-between">
                 <span>{conv.listing.title}</span>
@@ -138,12 +154,12 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="flex-1 px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Type a message..."
-                  disabled={isSending || !currentConversation}
+                  disabled={isSending || (!currentConversation && !listingId)}
                 />
                 <button
                   type="submit"
                   className="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-300 w-[100px]"
-                  disabled={isSending || !currentConversation}
+                  disabled={isSending || (!currentConversation && !listingId)}
                 >
                   {isSending ? "Sending..." : "Send"}
                 </button>

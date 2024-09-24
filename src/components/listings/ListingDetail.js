@@ -382,7 +382,7 @@ function ListingDetail() {
       </Modal>
 
       {/* Message modal */}
-      <MessageModal isOpen={isMessageModalOpen} onClose={() => setIsMessageModalOpen(false)} listingId={listing.id} listingTitle={listing.title} />
+      <MessageModal isOpen={isMessageModalOpen} onClose={() => setIsMessageModalOpen(false)} listingId={listing?.id} listingTitle={listing?.title} />
 
       {/* Image gallery */}
       {isGalleryOpen && (
