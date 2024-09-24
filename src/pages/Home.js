@@ -10,6 +10,16 @@ import SkeletonLoader from "../components/shared/SkeletonLoader";
 import Modal from "../components/shared/Modal";
 import { FunnelIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
+// Utility function to get non-empty filters
+const getNonEmptyFilters = (filters) => {
+  return Object.entries(filters).reduce((acc, [key, value]) => {
+    if (value && value.trim() !== "") {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+};
+
 function Home() {
   const { listings, error, fetchListings, lastFetchedFilters } = useData();
   const { searchTerm, handleSearch } = useSearch();
@@ -23,39 +33,15 @@ function Home() {
     const searchParams = new URLSearchParams(location.search);
     const filtersFromUrl = Object.fromEntries(searchParams);
 
-    if (Object.keys(filtersFromUrl).length > 0) {
-      return {
-        listing_type: filtersFromUrl.listing_type || "",
-        category: filtersFromUrl.category || "",
-        subcategory: filtersFromUrl.subcategory || "",
-        min_price: filtersFromUrl.min_price || "",
-        max_price: filtersFromUrl.max_price || "",
-        condition: filtersFromUrl.condition || "",
-        delivery_option: filtersFromUrl.delivery_option || "",
-        location: filtersFromUrl.location || "",
-        start_date: filtersFromUrl.start_date || "",
-        end_date: filtersFromUrl.end_date || "",
-        search: filtersFromUrl.search || "",
-      };
+    // Use the non-empty filters from URL or sessionStorage
+    const nonEmptyFilters = getNonEmptyFilters(filtersFromUrl);
+
+    if (Object.keys(nonEmptyFilters).length > 0) {
+      return nonEmptyFilters;
     }
 
     const storedFilters = sessionStorage.getItem("defaultFilters");
-
-    return storedFilters
-      ? JSON.parse(storedFilters)
-      : {
-          listing_type: "",
-          category: "",
-          subcategory: "",
-          min_price: "",
-          max_price: "",
-          condition: "",
-          delivery_option: "",
-          location: "",
-          start_date: "",
-          end_date: "",
-          search: "",
-        };
+    return storedFilters ? JSON.parse(storedFilters) : {};
   }
 
   useEffect(() => {
@@ -75,18 +61,15 @@ function Home() {
   }, [fetchListings, filters, lastFetchedFilters]);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(filters);
+    const nonEmptyFilters = getNonEmptyFilters(filters);
+    const searchParams = new URLSearchParams(nonEmptyFilters);
     navigate(`?${searchParams.toString()}`, { replace: true });
 
-    // Store only non-empty filters in session storage
-    const nonEmptyFilters = Object.entries(filters).reduce((acc, [key, value]) => {
-      if (value !== "") {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    sessionStorage.setItem("defaultFilters", JSON.stringify(nonEmptyFilters));
+    if (Object.keys(nonEmptyFilters).length > 0) {
+      sessionStorage.setItem("defaultFilters", JSON.stringify(nonEmptyFilters));
+    } else {
+      sessionStorage.removeItem("defaultFilters");
+    }
   }, [filters, navigate]);
 
   useEffect(() => {
