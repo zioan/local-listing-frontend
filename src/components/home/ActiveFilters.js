@@ -1,8 +1,11 @@
 import React from "react";
+import { useData } from "../../context/DataContext";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 
 const ActiveFilters = ({ filters, onFilterRemove }) => {
+  const { categories, subcategories } = useData();
+
   const getFilterLabel = (key, value) => {
     switch (key) {
       case "listing_type":
@@ -12,9 +15,11 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
       case "delivery_option":
         return deliveryOptions.find((option) => option.value === value)?.label;
       case "category":
-        return `Category: ${value}`;
+        const category = categories.find((cat) => cat.id.toString() === value);
+        return `Category: ${category ? category.name : value}`;
       case "subcategory":
-        return `Subcategory: ${value}`;
+        const subcategory = subcategories[filters.category]?.find((subcat) => subcat.id.toString() === value);
+        return `Subcategory: ${subcategory ? subcategory.name : value}`;
       case "min_price":
         return `Min Price: $${value}`;
       case "max_price":

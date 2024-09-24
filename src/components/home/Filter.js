@@ -32,17 +32,27 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: value,
-      ...(name === "category" ? { subcategory: "" } : {}),
-    }));
+    setFilters((prevFilters) => {
+      if (name === "category") {
+        return {
+          ...prevFilters,
+          [name]: value,
+          subcategory: "",
+        };
+      }
+      return { ...prevFilters, [name]: value };
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const formattedFilters = Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== ""));
+    const formattedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+      if (value) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
     onFilterChange(formattedFilters);
     setIsSubmitting(false);
   };

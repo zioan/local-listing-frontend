@@ -22,6 +22,7 @@ function Home() {
   function initializeFilters() {
     const searchParams = new URLSearchParams(location.search);
     const filtersFromUrl = Object.fromEntries(searchParams);
+
     if (Object.keys(filtersFromUrl).length > 0) {
       return {
         listing_type: filtersFromUrl.listing_type || "",
@@ -37,6 +38,7 @@ function Home() {
         search: filtersFromUrl.search || "",
       };
     }
+
     const storedFilters = sessionStorage.getItem("defaultFilters");
 
     return storedFilters
