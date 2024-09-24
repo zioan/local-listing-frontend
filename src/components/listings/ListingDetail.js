@@ -103,6 +103,7 @@ function ListingDetail() {
       await updateListingStatus(id, selectedStatus);
       setIsConfirmModalOpen(false);
       invalidateCache(`listing-${id}`);
+      invalidateCache("listings");
       toast.success("Listing status updated successfully!");
     } catch (error) {
       toast.error("Failed to update listing status. Please try again.");

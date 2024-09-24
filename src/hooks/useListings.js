@@ -50,7 +50,11 @@ const useListings = () => {
     setError(null);
     try {
       const response = await api.patch(`listings/listings/${id}/update-status/`, { status: newStatus });
-      setListings((prevListings) => prevListings.map((listing) => (listing.id === id ? { ...listing, status: response.data.status } : listing)));
+      setListings((prevListings) =>
+        prevListings.map((listing) =>
+          listing.id === id ? { ...listing, status: response.data.status, is_active: response.data.status === "active" } : listing
+        )
+      );
       return response.data;
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update listing status");
