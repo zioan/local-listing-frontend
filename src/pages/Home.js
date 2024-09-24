@@ -96,6 +96,12 @@ function Home() {
       setFilters((prevFilters) => {
         const newFilters = { ...prevFilters };
         delete newFilters[filterKey];
+
+        // If the removed filter is 'category', also remove 'subcategory'
+        if (filterKey === "category") {
+          delete newFilters["subcategory"];
+        }
+
         return newFilters;
       });
       if (filterKey === "search") {
