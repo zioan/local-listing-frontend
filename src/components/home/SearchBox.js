@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSearch } from "../../context/SearchContext";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 const SearchModal = ({ isOpen, onClose, children }) => {
@@ -42,15 +43,54 @@ const SearchModal = ({ isOpen, onClose, children }) => {
 
 const SearchBox = () => {
   const { searchTerm, handleSearch } = useSearch();
-  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const updateSearchParams = useCallback(
+    (search) => {
+      const searchParams = new URLSearchParams(location.search);
+      for (let [key, value] of searchParams.entries()) {
+        if (value === "") {
+          searchParams.delete(key);
+        }
+      }
+      if (search) {
+        searchParams.set("search", search);
+      } else {
+        searchParams.delete("search");
+      }
+      navigate(`?${searchParams.toString()}`, { replace: true });
+
+      // Update sessionStorage
+      const currentFilters = JSON.parse(sessionStorage.getItem("defaultFilters") || "{}");
+      const updatedFilters = { ...currentFilters, search };
+      sessionStorage.setItem("defaultFilters", JSON.stringify(updatedFilters));
+    },
+    [location.search, navigate]
+  );
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      const searchParams = new URLSearchParams(location.search);
+      const searchFromUrl = searchParams.get("search") || "";
+      setLocalSearchTerm(searchFromUrl);
+      if (searchFromUrl !== searchTerm) {
+        handleSearch(searchFromUrl);
+      }
+    }
+  }, [location.search, searchTerm, handleSearch]);
 
   useEffect(() => {
     setLocalSearchTerm(searchTerm);
@@ -60,6 +100,7 @@ const SearchBox = () => {
     e.preventDefault();
     handleSearch(localSearchTerm);
     setIsModalOpen(false);
+    updateSearchParams(localSearchTerm);
   };
 
   const searchInput = (
