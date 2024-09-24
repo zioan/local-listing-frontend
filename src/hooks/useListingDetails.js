@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
+import { HttpError } from "../util/ErrorBoundary";
 
 const useListingDetails = () => {
   const [listingDetails, setListingDetails] = useState({});
@@ -17,8 +18,12 @@ const useListingDetails = () => {
       }));
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch listing details");
-      throw err;
+      if (err instanceof HttpError) {
+        setError(err);
+        return null;
+      }
+      setError(new Error("An unexpected error occurred"));
+      return null;
     } finally {
       setLoading(false);
     }

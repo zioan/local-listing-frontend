@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
+import { HttpError } from "../util/ErrorBoundary";
 
 const useListings = () => {
   const [listings, setListings] = useState([]);
@@ -20,7 +21,12 @@ const useListings = () => {
       setListings(newListings);
       setLastFetchedFilters(filters);
     } catch (err) {
+      if (err instanceof HttpError) {
+        setError(err);
+        return null;
+      }
       setError(err.response?.data?.message || "Failed to fetch listings");
+      return null;
     } finally {
       setLoading(false);
     }
