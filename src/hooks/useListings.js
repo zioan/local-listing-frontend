@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
-import { HttpError } from "../util/ErrorBoundary";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useListings = () => {
   const [listings, setListings] = useState([]);
@@ -19,12 +19,7 @@ const useListings = () => {
       const newListings = response.data.results || [];
       setListings(newListings);
     } catch (err) {
-      if (err instanceof HttpError) {
-        setError(err);
-        return null;
-      }
-      setError(err.response?.data?.message || "Failed to fetch listings");
-      return null;
+      handleApiError(err, "Failed to fetch listings", setError);
     } finally {
       setLoading(false);
     }
@@ -42,8 +37,7 @@ const useListings = () => {
       setListings((prev) => prev.map((listing) => (listing.id === id ? response.data : listing)));
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to update listing");
-      throw err;
+      handleApiError(err, "Failed to update listing", setError);
     } finally {
       setLoading(false);
     }
@@ -61,8 +55,7 @@ const useListings = () => {
       );
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to update listing status");
-      throw err;
+      handleApiError(err, "Failed to update listing status", setError);
     } finally {
       setLoading(false);
     }
@@ -73,12 +66,8 @@ const useListings = () => {
       await api.delete(`listings/listings/${id}/`);
       setListings((prev) => prev.filter((listing) => listing.id !== id));
       return { success: true };
-    } catch (error) {
-      console.error("Error deleting listing:", error);
-      return {
-        success: false,
-        error: error.response?.data?.message || "Failed to delete listing",
-      };
+    } catch (err) {
+      handleApiError(err, "Failed to delete listing", setError);
     }
   }, []);
 
