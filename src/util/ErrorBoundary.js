@@ -3,7 +3,6 @@ import { Navigate } from "react-router-dom";
 
 export const handleErrorRedirect = (error) => {
   if (!error) return null;
-
   switch (error.status) {
     case 400:
       return <Navigate to="/error" />;
@@ -20,7 +19,7 @@ export const handleErrorRedirect = (error) => {
   }
 };
 
-class ErrorBoundary extends React.Component {
+export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -38,11 +37,23 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-class HttpError extends Error {
+export class HttpError extends Error {
   constructor(message, status) {
     super(message);
     this.status = status;
   }
 }
 
-export { ErrorBoundary, HttpError };
+const createHttpError = (err, fallbackMessage) => {
+  const errorMessage = err.response?.data?.message || fallbackMessage;
+  const statusCode = err.response?.status || 500;
+  return new HttpError(errorMessage, statusCode);
+};
+
+export const handleApiError = (err, fallbackMessage, setError) => {
+  const httpError = createHttpError(err, fallbackMessage);
+  if (setError) {
+    setError(httpError);
+  }
+  throw httpError;
+};
