@@ -21,7 +21,7 @@ const getNonEmptyFilters = (filters) => {
 };
 
 function Home() {
-  const { listings, error, fetchListings, lastFetchedFilters } = useData();
+  const { listings, error, fetchListings } = useData();
   const { searchTerm, handleSearch } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,44 +32,30 @@ function Home() {
   function initializeFilters() {
     const searchParams = new URLSearchParams(location.search);
     const filtersFromUrl = Object.fromEntries(searchParams);
+    const storedFilters = JSON.parse(sessionStorage.getItem("defaultFilters") || "{}");
 
-    // Use the non-empty filters from URL or sessionStorage
-    const nonEmptyFilters = getNonEmptyFilters(filtersFromUrl);
-
-    if (Object.keys(nonEmptyFilters).length > 0) {
-      return nonEmptyFilters;
-    }
-
-    const storedFilters = sessionStorage.getItem("defaultFilters");
-    return storedFilters ? JSON.parse(storedFilters) : {};
+    // Prioritize stored filters, but use URL params if stored filters are empty
+    return Object.keys(storedFilters).length > 0 ? storedFilters : getNonEmptyFilters(filtersFromUrl);
   }
 
   useEffect(() => {
     const loadListings = async () => {
       setIsLoading(true);
-
-      // Check if the current filters are different from the last fetched filters
-      const filtersChanged = JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters);
-
-      if (filtersChanged) {
+      try {
         await fetchListings(filters);
+      } catch (error) {
+        // Reminder handle error
+        console.error("Error fetching listings:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
     loadListings();
-  }, [fetchListings, filters, lastFetchedFilters]);
+  }, [fetchListings, filters]);
 
   useEffect(() => {
-    const nonEmptyFilters = getNonEmptyFilters(filters);
-    const searchParams = new URLSearchParams(nonEmptyFilters);
+    const searchParams = new URLSearchParams(getNonEmptyFilters(filters));
     navigate(`?${searchParams.toString()}`, { replace: true });
-
-    if (Object.keys(nonEmptyFilters).length > 0) {
-      sessionStorage.setItem("defaultFilters", JSON.stringify(nonEmptyFilters));
-    } else {
-      sessionStorage.removeItem("defaultFilters");
-    }
   }, [filters, navigate]);
 
   useEffect(() => {
@@ -81,6 +67,8 @@ function Home() {
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
     setShowFilterModal(false);
+    // Only update sessionStorage when filters are changed via UI
+    sessionStorage.setItem("defaultFilters", JSON.stringify(getNonEmptyFilters(newFilters)));
   }, []);
 
   const handleFilterRemove = useCallback(
@@ -94,6 +82,8 @@ function Home() {
           delete newFilters["subcategory"];
         }
 
+        // Update sessionStorage when a filter is removed
+        sessionStorage.setItem("defaultFilters", JSON.stringify(getNonEmptyFilters(newFilters)));
         return newFilters;
       });
       if (filterKey === "search") {

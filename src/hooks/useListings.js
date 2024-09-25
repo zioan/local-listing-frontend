@@ -6,7 +6,6 @@ const useListings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [lastFetchedFilters, setLastFetchedFilters] = useState(null);
 
   const fetchListings = useCallback(async (filters = {}) => {
     setLoading(true);
@@ -19,7 +18,6 @@ const useListings = () => {
       const response = await api.get("listings/listings/", { params });
       const newListings = response.data.results || [];
       setListings(newListings);
-      setLastFetchedFilters(filters);
     } catch (err) {
       if (err instanceof HttpError) {
         setError(err);
@@ -93,7 +91,6 @@ const useListings = () => {
     updateListingStatus,
     deleteListing,
     setListings,
-    lastFetchedFilters,
   };
 };
 
