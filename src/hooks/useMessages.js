@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../config/api";
 import { appSettings } from "../config/settings";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useMessages = () => {
   const [conversations, setConversations] = useState([]);
@@ -20,8 +21,8 @@ const useMessages = () => {
       const response = await api.get("messaging/conversations/");
       setConversations(response.data);
     } catch (err) {
-      console.error("Error fetching conversations:", err);
       setError(err.response?.data?.message || "Failed to fetch conversations");
+      handleApiError(err, "Failed to fetch conversations");
     } finally {
       setLoading(false);
     }
@@ -36,8 +37,8 @@ const useMessages = () => {
         const response = await api.get(`messaging/conversations/${conversationId}/messages/`);
         setMessages(response.data);
       } catch (err) {
-        console.error("Error fetching messages:", err);
         setError(err.response?.data?.message || "Failed to fetch messages");
+        handleApiError(err, "Failed to fetch messages");
       } finally {
         setLoading(false);
       }
@@ -55,9 +56,8 @@ const useMessages = () => {
         setMessages((prevMessages) => [...prevMessages, response.data]);
         return response.data;
       } catch (err) {
-        console.error("Error sending message:", err);
         setError(err.response?.data?.message || "Failed to send message");
-        throw err;
+        handleApiError(err, "Failed to send message");
       } finally {
         setLoading(false);
       }
@@ -81,9 +81,8 @@ const useMessages = () => {
         });
         return response.data;
       } catch (err) {
-        console.error("Error creating conversation:", err);
         setError(err.response?.data?.message || "Failed to create conversation");
-        throw err;
+        handleApiError(err, "Failed to create conversation");
       } finally {
         setLoading(false);
       }
@@ -100,9 +99,8 @@ const useMessages = () => {
         const response = await api.get(`messaging/listing/${listingId}/messages/`);
         return response.data;
       } catch (err) {
-        console.error("Error fetching incoming messages:", err);
         setError(err.response?.data?.message || "Failed to fetch incoming messages");
-        throw err;
+        handleApiError(err, "Failed to fetch incoming messages");
       } finally {
         setLoading(false);
       }
@@ -119,7 +117,7 @@ const useMessages = () => {
       const response = await api.get("messaging/unread-messages/");
       setUnreadCount(response.data.unread_count);
     } catch (err) {
-      console.error("Error fetching unread count:", err);
+      handleApiError(err, "Failed to fetch unread count");
     }
   }, [user]);
 
@@ -129,7 +127,7 @@ const useMessages = () => {
       const response = await api.get("messaging/conversation-unread-counts/");
       setConversationUnreadCounts(response.data);
     } catch (err) {
-      console.error("Error fetching conversation unread counts:", err);
+      handleApiError(err, "Failed to fetch conversation unread counts");
     }
   }, [user]);
 
@@ -142,7 +140,7 @@ const useMessages = () => {
         fetchUnreadCount();
         fetchConversationUnreadCounts();
       } catch (err) {
-        console.error("Error marking messages as read:", err);
+        handleApiError(err, "Failed to mark messages as read");
       }
     },
     [user, fetchUnreadCount, fetchConversationUnreadCounts]

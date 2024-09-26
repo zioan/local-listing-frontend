@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useMyListings = (user) => {
   const [myListings, setMyListings] = useState([]);
@@ -19,6 +20,7 @@ const useMyListings = (user) => {
       } else {
         setError(err.response?.data?.message || "Failed to fetch my listings");
       }
+      handleApiError(err, "Failed to fetch my listings");
     } finally {
       setLoading(false);
     }

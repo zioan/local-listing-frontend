@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useProfile = () => {
   const [loading, setLoading] = useState(false);
@@ -13,6 +14,8 @@ const useProfile = () => {
       return response.data;
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch public profile");
+      handleApiError(err, "Failed to fetch public profile");
+      return null;
     } finally {
       setLoading(false);
     }
@@ -26,6 +29,8 @@ const useProfile = () => {
       return response.data;
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch user listings");
+      handleApiError(err, "Failed to fetch user listings");
+      return null;
     } finally {
       setLoading(false);
     }

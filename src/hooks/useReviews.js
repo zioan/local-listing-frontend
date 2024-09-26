@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../config/api";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useReviews = () => {
   const [loading, setLoading] = useState(false);
@@ -14,8 +15,8 @@ const useReviews = () => {
       }
       return response.data;
     } catch (error) {
-      console.error("Error fetching existing review:", error);
       setError("Failed to fetch existing review");
+      handleApiError(error, "Failed to fetch existing review");
       return null;
     }
   };
@@ -28,7 +29,7 @@ const useReviews = () => {
       return response.data;
     } catch (err) {
       setError(err.response?.data?.error || "An unexpected error occurred");
-      throw err;
+      handleApiError(err, "Failed to submit review");
     } finally {
       setLoading(false);
     }
@@ -42,7 +43,7 @@ const useReviews = () => {
       return response.data;
     } catch (err) {
       setError(err.response?.data?.error || "Failed to update review");
-      throw err;
+      handleApiError(err, "Failed to update review");
     } finally {
       setLoading(false);
     }
@@ -55,7 +56,7 @@ const useReviews = () => {
       await api.delete(`/reviews/reviews/${reviewId}/`);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to delete review");
-      throw err;
+      handleApiError(err, "Failed to delete review");
     } finally {
       setLoading(false);
     }

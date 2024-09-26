@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -15,6 +16,7 @@ const useCategories = () => {
       setCategories(response.data);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch categories");
+      handleApiError(err, "Failed to fetch categories");
     } finally {
       setLoading(false);
     }

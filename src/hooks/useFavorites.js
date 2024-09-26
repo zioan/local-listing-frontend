@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useFavorites = (user) => {
   const [favorites, setFavorites] = useState([]);
@@ -19,6 +20,7 @@ const useFavorites = (user) => {
       } else {
         setError(err.response?.data?.message || "Failed to fetch favorites");
       }
+      handleApiError(err, "Failed to fetch favorites");
     } finally {
       setLoading(false);
     }

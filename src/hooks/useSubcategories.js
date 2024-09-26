@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
+import { handleApiError } from "../util/ErrorBoundary";
 
 const useSubcategories = () => {
   const [subcategories, setSubcategories] = useState({});
@@ -19,8 +20,8 @@ const useSubcategories = () => {
         [categoryId]: subcategoriesData,
       }));
     } catch (err) {
-      console.error("Error fetching subcategories:", err);
       setError(err.response?.data?.message || "Failed to fetch subcategories");
+      handleApiError(err, "Failed to fetch subcategories");
       setSubcategories((prev) => ({
         ...prev,
         [categoryId]: [],
