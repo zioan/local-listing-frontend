@@ -9,6 +9,7 @@ import ActiveFilters from "../components/home/ActiveFilters";
 import SkeletonLoader from "../components/shared/SkeletonLoader";
 import Modal from "../components/shared/Modal";
 import { FunnelIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { toast } from "react-toastify";
 
 // Utility function to get non-empty filters
 const getNonEmptyFilters = (filters) => {
@@ -44,8 +45,9 @@ function Home() {
       try {
         await fetchListings(filters);
       } catch (error) {
-        // Reminder handle error
-        console.error("Error fetching listings:", error);
+        toast.error(error, {
+          toastId: `error-${error}`, // Prevent duplicate toasts
+        });
       } finally {
         setIsLoading(false);
       }
