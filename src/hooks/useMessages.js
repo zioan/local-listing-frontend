@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../config/api";
 import { appSettings } from "../config/settings";
-import { handleApiError } from "../util/ErrorBoundary";
+import { useError } from "../context/ErrorContext";
 
 const useMessages = () => {
   const [conversations, setConversations] = useState([]);
@@ -12,6 +12,7 @@ const useMessages = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [conversationUnreadCounts, setConversationUnreadCounts] = useState({});
   const { user } = useAuth();
+  const { handleApiError } = useError();
 
   const fetchConversations = useCallback(async () => {
     if (!user) return;

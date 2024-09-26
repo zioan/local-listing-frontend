@@ -1,11 +1,12 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
-import { handleApiError } from "../util/ErrorBoundary";
+import { useError } from "../context/ErrorContext";
 
 const useFavorites = (user) => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { handleApiError } = useError();
 
   const fetchFavorites = useCallback(async () => {
     if (!user) return;

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import api from "../config/api";
-import { handleApiError } from "../util/ErrorBoundary";
+import { useError } from "../context/ErrorContext";
 
 const useReviews = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { handleApiError } = useError();
 
   const getExistingReview = async (reviewedUserId, reviewerId) => {
     try {

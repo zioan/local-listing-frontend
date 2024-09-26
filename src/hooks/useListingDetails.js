@@ -1,11 +1,12 @@
 import { useState, useCallback } from "react";
 import api from "../config/api";
-import { handleApiError } from "../util/ErrorBoundary";
+import { useError } from "../context/ErrorContext";
 
 const useListingDetails = () => {
   const [listingDetails, setListingDetails] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { handleApiError } = useError();
 
   const fetchListing = useCallback(async (id) => {
     setLoading(true);
