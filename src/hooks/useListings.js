@@ -11,15 +11,13 @@ const useListings = () => {
     setLoading(true);
     setError(null);
     try {
-      const params = {
-        ...filters,
-      };
+      const params = { ...filters };
       Object.keys(params).forEach((key) => (params[key] === "" || params[key] === null) && delete params[key]);
       const response = await api.get("listings/listings/", { params });
       const newListings = response.data.results || [];
       setListings(newListings);
     } catch (err) {
-      handleApiError(err, "Failed to fetch listings", setError);
+      handleApiError(err, "Failed to fetch listings");
     } finally {
       setLoading(false);
     }
@@ -37,7 +35,7 @@ const useListings = () => {
       setListings((prev) => prev.map((listing) => (listing.id === id ? response.data : listing)));
       return response.data;
     } catch (err) {
-      handleApiError(err, "Failed to update listing", setError);
+      handleApiError(err, "Failed to update listing");
     } finally {
       setLoading(false);
     }
@@ -55,7 +53,7 @@ const useListings = () => {
       );
       return response.data;
     } catch (err) {
-      handleApiError(err, "Failed to update listing status", setError);
+      handleApiError(err, "Failed to update listing status");
     } finally {
       setLoading(false);
     }
@@ -67,7 +65,7 @@ const useListings = () => {
       setListings((prev) => prev.filter((listing) => listing.id !== id));
       return { success: true };
     } catch (err) {
-      handleApiError(err, "Failed to delete listing", setError);
+      handleApiError(err, "Failed to delete listing");
     }
   }, []);
 
