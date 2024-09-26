@@ -69,7 +69,9 @@ api.interceptors.response.use(
         errorMessage = error.response.data.message || "An unexpected error occurred.";
     }
 
-    toast.error(errorMessage);
+    toast.error(errorMessage, {
+      toastId: `error-${error.response.status}`, // Prevent duplicate toasts
+    });
     throw new HttpError(errorMessage, error.response.status);
   }
 );
