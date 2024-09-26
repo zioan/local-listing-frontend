@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { DataProvider } from "./context/DataContext";
 import { WatcherProvider } from "./context/WatcherContext";
@@ -21,20 +21,23 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ScrollToTop from "./util/ScrollToTop";
 import { ErrorBoundary } from "./util/ErrorBoundary";
+import { ErrorProvider } from "./context/ErrorContext";
 import UnauthorizedError from "./components/errors/UnauthorizedError";
 import ForbiddenError from "./components/errors/ForbiddenError";
 import NotFoundError from "./components/errors/NotFoundError";
 import ServerError from "./components/errors/ServerError";
 import GenericError from "./components/errors/GenericError";
 
-function App() {
+const AppContent = () => {
+  const navigate = useNavigate();
+
   return (
-    <ErrorBoundary>
-      <WatcherProvider>
-        <AuthProvider>
-          <DataProvider>
-            <SearchProvider>
-              <Router>
+    <ErrorProvider navigate={navigate}>
+      <ErrorBoundary>
+        <WatcherProvider>
+          <AuthProvider>
+            <DataProvider>
+              <SearchProvider>
                 <ScrollToTop />
                 <AppInitializer>
                   <div className="flex flex-col min-h-screen bg-gray-100">
@@ -61,12 +64,20 @@ function App() {
                   </div>
                   <ToastContainer autoClose={appSettings.toastDuration} />
                 </AppInitializer>
-              </Router>
-            </SearchProvider>
-          </DataProvider>
-        </AuthProvider>
-      </WatcherProvider>
-    </ErrorBoundary>
+              </SearchProvider>
+            </DataProvider>
+          </AuthProvider>
+        </WatcherProvider>
+      </ErrorBoundary>
+    </ErrorProvider>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 
