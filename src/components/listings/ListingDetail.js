@@ -34,7 +34,6 @@ import placeholderImage from "../../assets/placeholder-image.jpg";
 import MessageModal from "../messaging/MessageModal";
 import { statusOptions } from "../../util/listingHelpers";
 import { toast } from "react-toastify";
-import { handleErrorRedirect } from "../../util/ErrorBoundary";
 
 function ListingDetail() {
   const { id } = useParams();
@@ -126,8 +125,6 @@ function ListingDetail() {
   };
 
   if (loading.listingDetails) return <LoadingSpinner isLoading={loading.listingDetails} />;
-  const errorRedirect = error.listingDetails && handleErrorRedirect(error.listingDetails);
-  if (errorRedirect) return errorRedirect;
   if (!listing) return null;
 
   const shouldShowCondition = ["item_sale", "item_free", "item_wanted"].includes(listing.listing_type);
