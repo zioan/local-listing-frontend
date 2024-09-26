@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import authService from "../lib/authService";
-import { HttpError } from "../util/ErrorBoundary";
+import { HttpError } from "../context/ErrorContext";
 
 const BASE_API_URL = process.env.REACT_APP_BASE_API_URL;
 
