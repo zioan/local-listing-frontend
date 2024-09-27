@@ -8,12 +8,14 @@ import {
   HeartIcon,
   HomeIcon,
   ArrowRightOnRectangleIcon,
+  LockClosedIcon,
 } from "@heroicons/react/24/outline";
 
 const menuItems = [
   { name: "Home", path: "/", icon: HomeIcon },
   { name: "Profile Overview", path: "/profile", icon: UserIcon },
   { name: "Update Profile", path: "/profile/update", icon: PencilIcon },
+  { name: "Change Password", path: "/profile/change-password", icon: LockClosedIcon },
   { name: "My Listings", path: "/profile/listings", icon: ClipboardDocumentListIcon },
   { name: "Create Listing", path: "/profile/listings/create", icon: PlusCircleIcon },
   { name: "Favorites", path: "/profile/favorites", icon: HeartIcon },

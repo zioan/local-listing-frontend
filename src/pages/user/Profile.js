@@ -7,6 +7,7 @@ import UpdateProfile from "../../components/user/UpdateProfile";
 import MyListings from "../../components/user/MyListings";
 import CreateListing from "../../components/listings/CreateListing";
 import Favorites from "../../components/user/Favorites";
+import ChangePassword from "../../components/user/ChangePassword";
 
 function Profile() {
   const { user, logout } = useAuth();
@@ -29,6 +30,7 @@ function Profile() {
                   <Route path="/listings" element={<MyListings />} />
                   <Route path="/listings/create" element={<CreateListing />} />
                   <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/change-password" element={<ChangePassword />} />
                 </Routes>
               </div>
             </main>
