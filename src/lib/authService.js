@@ -58,7 +58,7 @@ const authService = {
       }
       await axiosInstance.post("logout/", { refresh_token: refreshToken });
     } catch (error) {
-      console.error("Logout error:", error);
+      throw error;
     } finally {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
@@ -80,7 +80,6 @@ const authService = {
         localStorage.removeItem("refresh_token");
         return null;
       }
-      console.error("Error fetching current user:", error);
       throw error;
     }
   },
