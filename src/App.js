@@ -11,6 +11,8 @@ import Footer from "./components/global/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/user/Login";
 import Register from "./pages/user/Register";
+import ForgotPassword from "./pages/user/ForgotPassword";
+import ResetPassword from "./pages/user/ResetPassword";
 import Profile from "./pages/user/Profile";
 import ListingDetail from "./components/listings/ListingDetail";
 import EditListing from "./components/listings/EditListing";
@@ -47,6 +49,8 @@ const AppContent = () => {
                         <Route exact path="/" element={<Home />} />
                         <Route exact path="/login" element={<Login />} />
                         <Route exact path="/register" element={<Register />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/profiles/:username" element={<PublicProfile />} />
                         <Route path="/profile/*" element={<Profile />} />
                         <Route path="/listings/:id" element={<ListingDetail />} />
