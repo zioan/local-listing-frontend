@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../../util/listingHelpers";
 
 const ReviewList = ({ reviews, user }) => {
-  console.log("reviews", reviews);
   return (
     <div className="mt-6">
       {reviews.length === 0 ? (
