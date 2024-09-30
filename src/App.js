@@ -29,7 +29,7 @@ import ForbiddenError from "./components/errors/ForbiddenError";
 import NotFoundError from "./components/errors/NotFoundError";
 import ServerError from "./components/errors/ServerError";
 import GenericError from "./components/errors/GenericError";
-import ProtectedRoute from "./util/ProtectedRoute";
+import AuthRoute from "./util/AuthRoute";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -48,17 +48,31 @@ const AppContent = () => {
                     <main className="flex-grow">
                       <Routes>
                         <Route exact path="/" element={<Home />} />
-                        <Route exact path="/login" element={<Login />} />
-                        <Route exact path="/register" element={<Register />} />
+                        <Route
+                          path="/login"
+                          element={
+                            <AuthRoute authRequired={false}>
+                              <Login />
+                            </AuthRoute>
+                          }
+                        />
+                        <Route
+                          path="/register"
+                          element={
+                            <AuthRoute authRequired={false}>
+                              <Register />
+                            </AuthRoute>
+                          }
+                        />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/profiles/:username" element={<PublicProfile />} />
                         <Route
                           path="/profile/*"
                           element={
-                            <ProtectedRoute>
+                            <AuthRoute authRequired={true}>
                               <Profile />
-                            </ProtectedRoute>
+                            </AuthRoute>
                           }
                         />
                         <Route path="/listings/:id" element={<ListingDetail />} />
