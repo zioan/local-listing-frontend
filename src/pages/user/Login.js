@@ -2,40 +2,56 @@ import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import SubmitBtn from "../../components/shared/form/SubmitBtn";
+import FormInput from "../../components/shared/form/FormInput";
 import { toast } from "react-toastify";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setIsSubmitting(true);
-    setError("");
+    setErrors({});
 
     try {
-      await login(email, password);
+      await login(formData.email, formData.password);
       const oldPath = location.state?.from?.pathname;
       navigate(oldPath || "/");
       toast.success("Logged in successfully!");
     } catch (err) {
-      if (err.email) {
-        toast.error(err.email[0]);
-        setError(err.email[0]);
-      } else if (err.password) {
-        toast.error(err.password[0]);
-        setError(err.password[0]);
-      } else if (err.error) {
-        toast.error(err.error);
-        setError(err.error);
+      if (typeof err === "object" && err !== null) {
+        setErrors(err);
+        if (err.non_field_errors) {
+          toast.error(err.non_field_errors[0]);
+        } else {
+          toast.error("Login failed. Please check your credentials and try again.");
+        }
       } else {
         toast.error("An unexpected error occurred. Please try again.");
-        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -49,42 +65,26 @@ function Login() {
           <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">Sign in to your account</h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <input type="hidden" name="remember" defaultValue="true" />
-          <div className="-space-y-px rounded-md shadow-sm">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
+          <FormInput
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            label="Email address"
+            required
+            error={errors.email}
+          />
+          <FormInput
+            id="password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            label="Password"
+            required
+            error={errors.password}
+          />
           <div className="flex items-center justify-between">
             <div className="text-sm">
               <Link to="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
@@ -92,12 +92,11 @@ function Login() {
               </Link>
             </div>
           </div>
-
           <div>
             <SubmitBtn isSubmitting={isSubmitting}>Sign in</SubmitBtn>
           </div>
         </form>
-        {error && <p className="mt-2 text-sm text-center text-red-600">{error}</p>}
+        {errors.non_field_errors && <p className="mt-2 text-sm text-center text-red-600">{errors.non_field_errors}</p>}
         <div className="text-sm text-center">
           <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
             Don't have an account? Sign up

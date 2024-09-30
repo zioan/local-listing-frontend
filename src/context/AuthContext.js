@@ -65,8 +65,13 @@ export const AuthProvider = ({ children }) => {
       triggerUpdate("auth");
       return data;
     } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
+      if (error.response && error.response.data) {
+        const responseError = new Error("Login failed");
+        responseError.data = error.response.data;
+        throw responseError;
+      } else {
+        throw new Error("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
