@@ -88,10 +88,10 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const registeredUser = await authService.register(userData);
-      setUser(registeredUser);
+      const data = await authService.register(userData);
+      setUser(data.user);
       triggerUpdate("auth");
-      return registeredUser;
+      return data;
     } catch (error) {
       throw error;
     }

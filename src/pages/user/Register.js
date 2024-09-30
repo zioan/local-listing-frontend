@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import SubmitBtn from "../../components/shared/form/SubmitBtn";
+import FormInput from "../../components/shared/form/FormInput";
 import { toast } from "react-toastify";
 
 function Register() {
@@ -15,7 +16,7 @@ function Register() {
     city: "",
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
 
@@ -25,22 +26,32 @@ function Register() {
       ...prevState,
       [name]: value,
     }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
     setErrors({});
-
     try {
       await register(formData);
       navigate("/profile");
       toast.success("Account created successfully!");
     } catch (err) {
-      toast.error("Failed to create account. Please try again.");
-      setErrors(err);
+      if (err && typeof err === "object") {
+        setErrors(err);
+        Object.entries(err).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            value.forEach((message) => toast.error(message));
+          } else {
+            toast.error(value);
+          }
+        });
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -51,39 +62,54 @@ function Register() {
           <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">Create your account</h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="-space-y-px rounded-md shadow-sm">
-            {Object.entries({
-              email: "Email address",
-              username: "Username",
-              password: "Password",
-              password2: "Confirm Password",
-              street: "Street",
-              zip: "ZIP Code",
-              city: "City",
-            }).map(([name, label]) => (
-              <div key={name}>
-                <label htmlFor={name} className="sr-only">
-                  {label}
-                </label>
-                <input
-                  id={name}
-                  name={name}
-                  type={name.includes("password") ? "password" : "text"}
-                  required={!["street", "zip", "city"].includes(name)}
-                  className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder={label}
-                  value={formData[name]}
-                  onChange={handleChange}
-                />
-                {errors[name] && <p className="mt-2 text-sm text-red-600">{errors[name]}</p>}
-              </div>
-            ))}
-          </div>
-
+          <FormInput
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            label="Email address"
+            required
+            error={errors.email}
+          />
+          <FormInput
+            id="username"
+            name="username"
+            type="text"
+            value={formData.username}
+            onChange={handleChange}
+            label="Username"
+            required
+            error={errors.username}
+          />
+          <FormInput
+            id="password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            label="Password"
+            required
+            error={errors.password}
+          />
+          <FormInput
+            id="password2"
+            name="password2"
+            type="password"
+            value={formData.password2}
+            onChange={handleChange}
+            label="Confirm Password"
+            required
+            error={errors.password2}
+          />
+          <FormInput id="street" name="street" type="text" value={formData.street} onChange={handleChange} label="Street" error={errors.street} />
+          <FormInput id="zip" name="zip" type="text" value={formData.zip} onChange={handleChange} label="ZIP Code" error={errors.zip} />
+          <FormInput id="city" name="city" type="text" value={formData.city} onChange={handleChange} label="City" error={errors.city} />
           <div>
-            <SubmitBtn isLoading={isLoading}>Register</SubmitBtn>
+            <SubmitBtn isSubmitting={isSubmitting}>Register</SubmitBtn>
           </div>
         </form>
+        {errors.non_field_errors && <p className="mt-2 text-sm text-center text-red-600">{errors.non_field_errors}</p>}
         <div className="text-sm text-center">
           <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
             Already have an account? Sign in

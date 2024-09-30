@@ -31,9 +31,9 @@ const authService = {
         localStorage.setItem("access_token", response.data.access);
         localStorage.setItem("refresh_token", response.data.refresh);
       }
-      return response.data.user;
+      return response.data;
     } catch (error) {
-      throw error.response ? error.response.data : error.message;
+      throw error.response ? error.response.data : error;
     }
   },
 
