@@ -29,6 +29,7 @@ import ForbiddenError from "./components/errors/ForbiddenError";
 import NotFoundError from "./components/errors/NotFoundError";
 import ServerError from "./components/errors/ServerError";
 import GenericError from "./components/errors/GenericError";
+import ProtectedRoute from "./util/ProtectedRoute";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -52,7 +53,14 @@ const AppContent = () => {
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route path="/profiles/:username" element={<PublicProfile />} />
-                        <Route path="/profile/*" element={<Profile />} />
+                        <Route
+                          path="/profile/*"
+                          element={
+                            <ProtectedRoute>
+                              <Profile />
+                            </ProtectedRoute>
+                          }
+                        />
                         <Route path="/listings/:id" element={<ListingDetail />} />
                         <Route path="/listings/:id/edit" element={<EditListing />} />
                         <Route path="/favorite" element={<Favorites />} />
