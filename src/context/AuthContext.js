@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.clear();
       triggerUpdate("auth");
     } catch (error) {
-      console.error("Logout failed:", error);
+      throw error;
     }
   };
 
@@ -93,7 +93,6 @@ export const AuthProvider = ({ children }) => {
       triggerUpdate("auth");
       return registeredUser;
     } catch (error) {
-      console.error("Registration failed:", error);
       throw error;
     }
   };
