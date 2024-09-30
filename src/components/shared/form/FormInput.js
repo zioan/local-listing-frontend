@@ -1,6 +1,6 @@
 import React from "react";
 
-const FormInput = ({ id, name, value, onChange, label, type = "text", required = false, autoComplete = "off" }) => {
+const FormInput = ({ id, name, value, onChange, label, type = "text", required = false, autoComplete = "off", error }) => {
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium leading-6 text-gray-900">
@@ -14,8 +14,11 @@ const FormInput = ({ id, name, value, onChange, label, type = "text", required =
         onChange={onChange}
         required={required}
         autoComplete={autoComplete}
-        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+        className={`block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ${
+          error ? "ring-red-500" : "ring-gray-300"
+        } placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
       />
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>
   );
 };
