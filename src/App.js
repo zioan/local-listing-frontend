@@ -28,6 +28,7 @@ import ForgotPassword from "./pages/user/ForgotPassword";
 import ResetPassword from "./pages/user/ResetPassword";
 import Profile from "./pages/user/Profile";
 import ListingDetail from "./components/listings/ListingDetail";
+import EditListing from "./components/listings/EditListing";
 import Favorites from "./components/user/Favorites";
 import PublicProfile from "./components/user/PublicProfile";
 
@@ -46,6 +47,7 @@ const routes = [
   { path: "/reset-password/:token", element: <ResetPassword />, authRequired: false },
   { path: "/profile/*", element: <Profile />, authRequired: true },
   { path: "/listings/:id", element: <ListingDetail />, authRequired: null },
+  { path: "/listings/:id/edit", element: <EditListing />, authRequired: true },
   { path: "/favorite", element: <Favorites />, authRequired: true },
   { path: "/profiles/:username", element: <PublicProfile />, authRequired: null },
   { path: "/unauthorized", element: <UnauthorizedError />, authRequired: null },
