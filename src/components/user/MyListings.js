@@ -3,10 +3,21 @@ import { useData } from "../../context/DataContext";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ListingCard from "../listings/ListingCard";
 
+/**
+ * MyListings component displays the listings created by the user.
+ *
+ * It shows a loading spinner while fetching data, handles errors,
+ * and renders the list of the user's listings or a message if no listings exist.
+ *
+ * @returns {JSX.Element} The MyListings component.
+ */
 const MyListings = () => {
   const { myListings, loading, error } = useData();
 
+  // Show loading spinner if myListings are being fetched
   if (loading.myListings) return <LoadingSpinner isLoading={loading.myListings} />;
+
+  // Show error message if there's an error fetching myListings
   if (error.myListings) return <div>Error: {error.myListings}</div>;
 
   return (
