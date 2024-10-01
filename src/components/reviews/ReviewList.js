@@ -2,6 +2,16 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../util/listingHelpers";
 
+/**
+ * ReviewList Component
+ *
+ * This component displays a list of reviews made by a specific user. It handles the display of
+ * review details such as reviewer username, review date, rating, and review content.
+ *
+ * @param {Array} reviews - Array of review objects.
+ * @param {string} user - Username of the user whose reviews are displayed.
+ * @returns JSX.Element
+ */
 const ReviewList = ({ reviews, user }) => {
   return (
     <div className="mt-6">
