@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
+import { useError } from "../../context/ErrorContext";
 import SubmitBtn from "../shared/form/SubmitBtn";
 import FormInput from "../shared/form/FormInput";
 import FormSelect from "../shared/form/FormSelect";
@@ -11,11 +12,16 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 import { toast } from "react-toastify";
 import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions, statusOptions } from "../../util/listingHelpers";
 
+/**
+ * EditListing component for editing an existing listing
+ * @returns {JSX.Element} The EditListing component
+ */
 function EditListing() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { handleApiError } = useError();
   const {
     listingDetails,
     categories,
@@ -47,17 +53,22 @@ function EditListing() {
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
 
+  /**
+   * Fetch user data and listing details on component mount
+   */
   useEffect(() => {
     if (!user) {
       navigate("/login", { state: { from: location } });
     } else {
-      fetchListing(id);
-      fetchCategories();
+      fetchListing(id).catch((err) => handleApiError(err, "Failed to fetch listing details"));
+      fetchCategories().catch((err) => handleApiError(err, "Failed to fetch categories"));
     }
-  }, [user, navigate, location, id, fetchListing, fetchCategories]);
+  }, [user, navigate, location, id, fetchListing, fetchCategories, handleApiError]);
 
+  /**
+   * Update form data when listing details are fetched
+   */
   useEffect(() => {
     if (listingDetails[id]) {
       const listing = listingDetails[id];
@@ -79,12 +90,19 @@ function EditListing() {
     }
   }, [id, listingDetails]);
 
+  /**
+   * Fetch subcategories when category changes
+   */
   useEffect(() => {
     if (formData.category) {
-      fetchSubcategories(formData.category);
+      fetchSubcategories(formData.category).catch((err) => handleApiError(err, "Failed to fetch subcategories"));
     }
-  }, [formData.category, fetchSubcategories]);
+  }, [formData.category, fetchSubcategories, handleApiError]);
 
+  /**
+   * Handle form input changes
+   * @param {Object} e - The event object
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
@@ -96,22 +114,37 @@ function EditListing() {
     });
   };
 
+  /**
+   * Handle new image additions
+   * @param {Object} e - The event object
+   */
   const handleNewImageAdd = (e) => {
     setNewImages((prev) => [...prev, ...e.target.files]);
   };
 
+  /**
+   * Handle existing image removals
+   * @param {number} imageId - The ID of the image to remove
+   */
   const handleExistingImageRemove = (imageId) => {
     setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
   };
 
+  /**
+   * Handle new image removals
+   * @param {number} index - The index of the image to remove
+   */
   const handleNewImageRemove = (index) => {
     setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  /**
+   * Handle form submission
+   * @param {Object} e - The event object
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitError(null);
 
     const listingData = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -119,6 +152,7 @@ function EditListing() {
         listingData.append(key, formData[key]);
       }
     });
+
     existingImages.forEach((img) => listingData.append("existing_images", img.id));
     newImages.forEach((image) => listingData.append("new_images", image));
 
@@ -129,8 +163,7 @@ function EditListing() {
       navigate(`/listings/${id}`);
       toast.success("Listing updated successfully!");
     } catch (err) {
-      toast.error("Error updating listing:", err);
-      setSubmitError("Failed to update listing. Please try again.");
+      handleApiError(err, "Failed to update listing");
     } finally {
       setIsSubmitting(false);
     }
@@ -142,7 +175,6 @@ function EditListing() {
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="mb-6 text-3xl font-bold">Edit Listing</h1>
-      {submitError && <div className="mb-4 text-red-500">{submitError}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormSelect
           id="listing_type"
