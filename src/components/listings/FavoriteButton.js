@@ -8,6 +8,12 @@ import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 
+/**
+ * FavoriteButton component for toggling favorite status of a listing
+ * @param {Object} props - Component props
+ * @param {Object} props.listing - The listing object
+ * @returns {JSX.Element} FavoriteButton component
+ */
 function FavoriteButton({ listing }) {
   const { user } = useAuth();
   const { fetchFavorites, updateFavoriteStatus } = useData();
@@ -16,11 +22,15 @@ function FavoriteButton({ listing }) {
   const location = useLocation();
   const [isFavorited, setIsFavorited] = useState(listing.is_favorited);
 
+  /**
+   * Handles the toggling of favorite status
+   */
   const handleFavoriteToggle = async () => {
     if (!user) {
       navigate("/login", { state: { from: location } });
       return;
     }
+
     try {
       await api.post(`listings/listings/${listing.id}/favorite/`);
       const newFavoriteStatus = !isFavorited;
