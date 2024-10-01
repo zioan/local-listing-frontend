@@ -35,11 +35,19 @@ import MessageModal from "../messaging/MessageModal";
 import { statusOptions } from "../../util/listingHelpers";
 import { toast } from "react-toastify";
 
+/**
+ * ListingDetail Component
+ *
+ * This component displays the detailed view of a listing. It fetches the listing data, handles status updates,
+ * deletion, and provides sharing options.
+ *
+ * @returns JSX.Element
+ */
 function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { listingDetails, fetchListing, loading, error, updateListingStatus, deleteListing, invalidateCache } = useData();
+  const { listingDetails, fetchListing, loading, updateListingStatus, deleteListing, invalidateCache } = useData();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -48,6 +56,7 @@ function ListingDetail() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [statusUpdateError, setStatusUpdateError] = useState("");
 
+  // Fetch listing details if they haven't been loaded yet
   useEffect(() => {
     if (!listingDetails[id]) {
       fetchListing(id);
@@ -56,10 +65,26 @@ function ListingDetail() {
 
   const listing = listingDetails[id];
 
+  /**
+   * getListingTypeLabel
+   *
+   * Returns the label for a given listing type.
+   *
+   * @param {string} type - The listing type (e.g., "item_sale", "service").
+   * @returns {string} - The label of the listing type.
+   */
   const getListingTypeLabel = (type) => {
     return listingTypeOptions.find((option) => option.value === type)?.label || type;
   };
 
+  /**
+   * getListingTypeIcon
+   *
+   * Returns the icon corresponding to the listing type.
+   *
+   * @param {string} type - The listing type (e.g., "item_sale", "job").
+   * @returns JSX.Element - The icon associated with the listing type.
+   */
   const getListingTypeIcon = (type) => {
     switch (type) {
       case "item_sale":
@@ -81,6 +106,13 @@ function ListingDetail() {
     }
   };
 
+  /**
+   * renderPrice
+   *
+   * Returns the appropriate price display based on the listing's price type.
+   *
+   * @returns {JSX.Element|string} - The formatted price or relevant message (e.g., "Free", "N/A").
+   */
   const renderPrice = () => {
     if (listing.price_type === "free") return "Free";
     if (listing.price_type === "contact") return "- Contact for price";
@@ -93,11 +125,23 @@ function ListingDetail() {
     );
   };
 
+  /**
+   * handleStatusChange
+   *
+   * Handles the selection of a new listing status by the user.
+   *
+   * @param {Event} e - The change event triggered by the status select input.
+   */
   const handleStatusChange = (e) => {
     setSelectedStatus(e.target.value);
     setIsConfirmModalOpen(true);
   };
 
+  /**
+   * confirmStatusChange
+   *
+   * Confirms the status update by calling the API and handling the response.
+   */
   const confirmStatusChange = async () => {
     try {
       await updateListingStatus(id, selectedStatus);
@@ -111,6 +155,11 @@ function ListingDetail() {
     }
   };
 
+  /**
+   * handleDelete
+   *
+   * Deletes the current listing and navigates back to the user's listings page.
+   */
   const handleDelete = async () => {
     try {
       await deleteListing(id);
