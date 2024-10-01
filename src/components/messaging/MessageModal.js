@@ -5,6 +5,18 @@ import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
 import { appSettings } from "../../config/settings";
 
+/**
+ * MessageModal Component
+ *
+ * This component handles sending and receiving messages within a modal. It manages
+ * conversations related to specific listings and allows users to send and view messages.
+ *
+ * @param {boolean} isOpen - Determines if the modal is open or not.
+ * @param {function} onClose - Function to close the modal.
+ * @param {number} listingId - ID of the listing for which the conversation is taking place.
+ * @param {string} listingTitle - Title of the listing for message context.
+ * @returns JSX.Element
+ */
 const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
   const { user } = useAuth();
   const {
@@ -40,17 +52,25 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     }
   }, [isOpen, user, fetchConversations, fetchConversationUnreadCounts, listingId, conversations]);
 
+  /**
+   * useEffect: Fetches messages for the current conversation and periodically polls for new messages.
+   * Also fetches updated unread counts for conversations.
+   */
   useEffect(() => {
     if (currentConversation && user) {
       fetchMessages(currentConversation.id);
       const pollInterval = setInterval(() => {
         fetchMessages(currentConversation.id);
         fetchConversationUnreadCounts();
-      }, appSettings.pollInterval);
+      }, appSettings.pollInterval); // Polling interval from appSettings
       return () => clearInterval(pollInterval);
     }
   }, [currentConversation, user, fetchMessages, fetchConversationUnreadCounts]);
 
+  /**
+   * useEffect: Scrolls to the bottom of the message list whenever new messages arrive.
+   * Also marks unread messages as read if they belong to the current conversation.
+   */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     if (currentConversation && messages.length > 0 && user) {
@@ -64,11 +84,26 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
     }
   }, [messages, currentConversation, user, markMessagesAsRead]);
 
+  /**
+   * handleChangeConversation
+   *
+   * Handles switching between conversations when a new one is selected.
+   *
+   * @param {Object} conv - The new conversation to switch to.
+   */
   const handleChangeConversation = (conv) => {
     setCurrentConversation(conv);
     setCurrentTitle(conv.listing.title);
   };
 
+  /**
+   * handleSendMessage
+   *
+   * Sends a new message in the current conversation or starts a new conversation
+   * if one does not already exist for the listing. Handles error states and message fetching.
+   *
+   * @param {Event} e - The form submit event.
+   */
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() === "" || !user) return;
@@ -91,7 +126,6 @@ const MessageModal = ({ isOpen, onClose, listingId, listingTitle }) => {
       await fetchMessages(conversationId);
       fetchConversationUnreadCounts();
     } catch (error) {
-      console.error("Error in handleSendMessage:", error);
       setSendError("Failed to send message. Please try again.");
     } finally {
       setIsSending(false);
