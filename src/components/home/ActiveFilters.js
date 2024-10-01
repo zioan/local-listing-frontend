@@ -3,9 +3,27 @@ import { useData } from "../../context/DataContext";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 
+/**
+ * ActiveFilters Component
+ *
+ * This component displays a list of active filters that the user has applied. Each filter can be removed individually.
+ *
+ * @param {Object} filters - An object containing the active filters applied by the user.
+ * @param {Function} onFilterRemove - A callback function to remove a specific filter when the user clicks the remove button.
+ */
 const ActiveFilters = ({ filters, onFilterRemove }) => {
   const { categories, subcategories } = useData();
 
+  /**
+   * getFilterLabel
+   *
+   * Retrieves the label for a filter based on the key and value.
+   * It handles various filter types like listing type, condition, category, etc.
+   *
+   * @param {string} key - The filter key (e.g., "listing_type", "category").
+   * @param {string|number} value - The filter value.
+   * @returns {string} - The label for the filter.
+   */
   const getFilterLabel = (key, value) => {
     switch (key) {
       case "listing_type":
@@ -35,6 +53,7 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
     }
   };
 
+  // If there are no filters applied, don't render the component
   if (Object.keys(filters).length === 0) return null;
 
   return (
