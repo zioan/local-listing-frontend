@@ -6,6 +6,15 @@ import SubmitBtn from "../shared/form/SubmitBtn";
 import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
+/**
+ * Filter component for applying and resetting filters in a listing context.
+ *
+ * @param {Object} props - The component props.
+ * @param {Function} props.onFilterChange - Callback function to be called when filters are applied.
+ * @param {Function} props.onToggleFilter - Callback function for toggling filter visibility (not used in this implementation).
+ * @param {Object} props.initialFilters - The initial filter values.
+ * @returns {JSX.Element} The rendered filter form.
+ */
 function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
   const { categories, subcategories, loading, error, fetchSubcategories } = useData();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +39,11 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
     }
   }, [filters.category, fetchSubcategories]);
 
+  /**
+   * Handles input changes in the filter form.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLSelectElement>} e - The event triggered by input change.
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => {
@@ -37,13 +51,18 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
         return {
           ...prevFilters,
           [name]: value,
-          subcategory: "",
+          subcategory: "", // Reset subcategory when category changes
         };
       }
       return { ...prevFilters, [name]: value };
     });
   };
 
+  /**
+   * Handles form submission to apply filters.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -57,6 +76,9 @@ function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
     setIsSubmitting(false);
   };
 
+  /**
+   * Resets all filters to their initial state.
+   */
   const handleReset = () => {
     const resetFilters = {
       listing_type: "",

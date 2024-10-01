@@ -3,6 +3,15 @@ import { useSearch } from "../../context/SearchContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
+/**
+ * Modal component for displaying search inputs.
+ *
+ * @param {Object} props - The modal properties.
+ * @param {boolean} props.isOpen - Indicates if the modal is open.
+ * @param {Function} props.onClose - Function to call when the modal is closed.
+ * @param {React.ReactNode} props.children - Content to render inside the modal.
+ * @returns {JSX.Element|null} The rendered modal or null if not open.
+ */
 const SearchModal = ({ isOpen, onClose, children }) => {
   const modalRef = useRef();
 
@@ -41,6 +50,14 @@ const SearchModal = ({ isOpen, onClose, children }) => {
   );
 };
 
+/**
+ * SearchBox component for searching items in the application.
+ *
+ * It displays an input field for search terms and a button to submit the search.
+ * The input is responsive and switches to a modal view on mobile devices.
+ *
+ * @returns {JSX.Element} The rendered search box.
+ */
 const SearchBox = () => {
   const { searchTerm, handleSearch } = useSearch();
   const [localSearchTerm, setLocalSearchTerm] = useState("");
@@ -57,6 +74,11 @@ const SearchBox = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  /**
+   * Updates the search parameters in the URL and session storage.
+   *
+   * @param {string} search - The search term to update in the URL.
+   */
   const updateSearchParams = useCallback(
     (search) => {
       const searchParams = new URLSearchParams(location.search);
@@ -96,6 +118,11 @@ const SearchBox = () => {
     setLocalSearchTerm(searchTerm);
   }, [searchTerm]);
 
+  /**
+   * Handles the submission of the search form.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+   */
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     handleSearch(localSearchTerm);

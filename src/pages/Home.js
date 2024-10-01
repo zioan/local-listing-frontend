@@ -21,6 +21,10 @@ const getNonEmptyFilters = (filters) => {
   }, {});
 };
 
+/**
+ * Home component for displaying listings with filtering options.
+ * It handles fetching data, search functionality, and displaying listings.
+ */
 function Home() {
   const { listings, error, fetchListings } = useData();
   const { searchTerm, handleSearch } = useSearch();
@@ -30,6 +34,7 @@ function Home() {
   const [filters, setFilters] = useState(initializeFilters());
   const [showFilterModal, setShowFilterModal] = useState(false);
 
+  // Function to initialize filters from URL parameters or session storage
   function initializeFilters() {
     const searchParams = new URLSearchParams(location.search);
     const filtersFromUrl = Object.fromEntries(searchParams);
@@ -39,6 +44,7 @@ function Home() {
     return Object.keys(storedFilters).length > 0 ? storedFilters : getNonEmptyFilters(filtersFromUrl);
   }
 
+  // Effect for fetching listings when filters change
   useEffect(() => {
     const loadListings = async () => {
       setIsLoading(true);
@@ -55,17 +61,20 @@ function Home() {
     loadListings();
   }, [fetchListings, filters]);
 
+  // Effect for updating the URL with active filters
   useEffect(() => {
     const searchParams = new URLSearchParams(getNonEmptyFilters(filters));
     navigate(`?${searchParams.toString()}`, { replace: true });
   }, [filters, navigate]);
 
+  // Effect to sync search term with filters
   useEffect(() => {
     if (searchTerm !== filters.search) {
       setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
     }
   }, [searchTerm]);
 
+  // Handle changes to filters
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
     setShowFilterModal(false);
@@ -73,6 +82,7 @@ function Home() {
     sessionStorage.setItem("defaultFilters", JSON.stringify(getNonEmptyFilters(newFilters)));
   }, []);
 
+  // Handle removing a filter
   const handleFilterRemove = useCallback(
     (filterKey) => {
       setFilters((prevFilters) => {
@@ -95,6 +105,7 @@ function Home() {
     [handleSearch]
   );
 
+  // Reset all filters
   const resetFilters = useCallback(() => {
     setFilters({});
     sessionStorage.removeItem("defaultFilters");
@@ -102,12 +113,15 @@ function Home() {
     handleSearch("");
   }, [navigate, handleSearch]);
 
+  // Toggle filter modal visibility
   const toggleFilterModal = () => {
     setShowFilterModal(!showFilterModal);
   };
 
+  // Display error message if there are issues with listings
   if (error.listings) return <div className="text-center text-red-500">{error.listings}</div>;
 
+  // Check if there are active filters
   const hasActiveFilters = Object.keys(filters).some((key) => filters[key] !== "");
 
   return (
