@@ -1,10 +1,11 @@
 import React from "react";
 
-const FormSelect = ({ id, name, value, onChange, label, options, required = false }) => {
+const FormSelect = ({ id, name, value, onChange, label, options, required = false, className = "" }) => {
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium leading-6 text-gray-900">
         {label}
+        {required && <span className="ml-1 text-red-500">*</span>}
       </label>
       <select
         id={id}
@@ -12,7 +13,7 @@ const FormSelect = ({ id, name, value, onChange, label, options, required = fals
         value={value}
         onChange={onChange}
         required={required}
-        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+        className={`block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6 ${className}`}
       >
         <option value="">Select {label}</option>
         {options.map((option) => (

@@ -6,14 +6,14 @@ import React from "react";
  * - isSubmitting: A boolean that indicates whether the form is currently being submitted.
  * This can be handled by using state in the parent component.
  */
-function SubmitBtn({ children, isSubmitting }) {
+function SubmitBtn({ children, isSubmitting, className = "" }) {
   return (
     <button
       type="submit"
       disabled={isSubmitting}
       className={`w-full px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 flex items-center justify-center ${
         isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-      }`}
+      } ${className}`}
     >
       {isSubmitting ? (
         <>
