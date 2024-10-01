@@ -3,15 +3,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import { useData } from "../../context/DataContext";
+import { useError } from "../../context/ErrorContext";
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
+import { toast } from "react-toastify";
 
 function FavoriteButton({ listing }) {
   const { user } = useAuth();
   const { fetchFavorites, updateFavoriteStatus } = useData();
+  const { handleApiError } = useError();
   const navigate = useNavigate();
   const location = useLocation();
-  const [error, setError] = useState(null);
   const [isFavorited, setIsFavorited] = useState(listing.is_favorited);
 
   const handleFavoriteToggle = async () => {
@@ -25,12 +27,11 @@ function FavoriteButton({ listing }) {
       setIsFavorited(newFavoriteStatus);
       updateFavoriteStatus(listing.id, newFavoriteStatus);
       fetchFavorites();
+      toast.success(newFavoriteStatus ? "Added to favorites" : "Removed from favorites");
     } catch (err) {
-      setError("Error updating favorite status. Please try again.");
+      handleApiError(err, "Error updating favorite status");
     }
   };
-
-  if (error) return <div className="py-10 text-center text-red-500">{error}</div>;
 
   return (
     <button onClick={handleFavoriteToggle} className="focus:outline-none" aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}>
