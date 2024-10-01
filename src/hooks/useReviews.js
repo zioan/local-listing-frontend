@@ -2,17 +2,29 @@ import { useState } from "react";
 import api from "../config/api";
 import { useError } from "../context/ErrorContext";
 
+/**
+ * Custom hook for managing user reviews.
+ *
+ * @returns {Object} An object containing loading state, error information,
+ *                  and functions to get, submit, update, and delete reviews.
+ */
 const useReviews = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { handleApiError } = useError();
 
+  /**
+   * Retrieves an existing review between a reviewed user and a reviewer.
+   *
+   * @param {string} reviewedUserId - The ID of the user being reviewed.
+   * @param {string} reviewerId - The ID of the reviewer.
+   * @returns {Object|null} The existing review data or null if no review exists.
+   */
   const getExistingReview = async (reviewedUserId, reviewerId) => {
     try {
       const response = await api.get(`reviews/users/${reviewedUserId}/reviewer/${reviewerId}/`);
       if (response.status === 204) {
-        // No content, means no existing review
-        return null;
+        return null; // No content means no existing review
       }
       return response.data;
     } catch (error) {
@@ -22,6 +34,13 @@ const useReviews = () => {
     }
   };
 
+  /**
+   * Submits a new review for a user.
+   *
+   * @param {string} userId - The ID of the user being reviewed.
+   * @param {Object} reviewData - The data for the new review.
+   * @returns {Object|null} The submitted review data or null if an error occurs.
+   */
   const submitReview = async (userId, reviewData) => {
     setLoading(true);
     setError(null);
@@ -36,6 +55,13 @@ const useReviews = () => {
     }
   };
 
+  /**
+   * Updates an existing review.
+   *
+   * @param {string} reviewId - The ID of the review to update.
+   * @param {Object} reviewData - The new data for the review.
+   * @returns {Object|null} The updated review data or null if an error occurs.
+   */
   const updateReview = async (reviewId, reviewData) => {
     setLoading(true);
     setError(null);
@@ -50,6 +76,11 @@ const useReviews = () => {
     }
   };
 
+  /**
+   * Deletes a review by its ID.
+   *
+   * @param {string} reviewId - The ID of the review to delete.
+   */
   const deleteReview = async (reviewId) => {
     setLoading(true);
     setError(null);

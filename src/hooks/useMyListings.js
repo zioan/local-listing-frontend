@@ -2,12 +2,22 @@ import { useState, useCallback } from "react";
 import api from "../config/api";
 import { useError } from "../context/ErrorContext";
 
+/**
+ * Custom hook for managing user's listings functionality.
+ *
+ * @param {Object} user - The authenticated user object.
+ * @returns {Object} An object containing myListings, loading state, error information,
+ *                  and functions to fetch and manage user's listings.
+ */
 const useMyListings = (user) => {
   const [myListings, setMyListings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { handleApiError } = useError();
 
+  /**
+   * Fetches the current user's listings from the API.
+   */
   const fetchMyListings = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -25,7 +35,7 @@ const useMyListings = (user) => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, handleApiError]);
 
   return {
     myListings,
