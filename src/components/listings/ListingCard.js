@@ -5,17 +5,46 @@ import { getCloudinaryImageUrl } from "../../lib/cloudinaryUtil";
 import FavoriteButton from "./FavoriteButton";
 import placeholderImage from "../../assets/placeholder-image.jpg";
 
+/**
+ * ListingCard Component
+ *
+ * This component represents a single listing card. It displays basic information about the listing,
+ * such as price and listing type. When clicked, it navigates to the detailed view of the listing.
+ *
+ * @param {Object} listing - The listing object containing information like id, price, and type.
+ * @returns JSX.Element
+ */
 function ListingCard({ listing }) {
   const navigate = useNavigate();
 
+  /**
+   * handleCardClick
+   *
+   * Navigates to the listing details page when the card is clicked.
+   */
   const handleCardClick = () => {
     navigate(`/listings/${listing.id}`);
   };
 
+  /**
+   * getListingTypeLabel
+   *
+   * Retrieves the label for the listing type.
+   *
+   * @param {string} type - The listing type (e.g., "item_sale", "service").
+   * @returns {string} - The label corresponding to the listing type.
+   */
   const getListingTypeLabel = (type) => {
     return listingTypeOptions.find((option) => option.value === type)?.label || type;
   };
 
+  /**
+   * renderPrice
+   *
+   * Returns the price display based on the listing's price type.
+   *
+   * @returns {string} - The formatted price or relevant message (e.g., "Free", "Contact for price").
+   */
   const renderPrice = () => {
     if (listing.price_type === "free") return "Free";
     if (listing.price_type === "contact") return "- Contact for price";

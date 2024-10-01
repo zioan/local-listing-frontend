@@ -3,14 +3,35 @@ import { useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import ListingCard from "./ListingCard";
 
+/**
+ * RelatedListings Component
+ *
+ * This component displays a list of related listings based on the category of the current listing.
+ * It filters out the current listing and only shows listings that are active and belong to the same category.
+ *
+ * @param {string} category - The category of the current listing.
+ * @param {number} currentListingId - The ID of the current listing to exclude it from related listings.
+ * @returns JSX.Element
+ */
 const RelatedListings = ({ category, currentListingId }) => {
   const { listings } = useData();
   const navigate = useNavigate();
 
+  /**
+   * useMemo hook to calculate related listings based on category and current listing.
+   * It filters listings that match the category, are active, and excludes the current listing.
+   *
+   * @returns {Array} - An array of related listings, limited to 4 items.
+   */
   const relatedListings = useMemo(() => {
-    return listings.filter((listing) => listing.category === category && listing.id !== currentListingId && listing.status === "active").slice(0, 4);
+    return listings.filter((listing) => listing.category === category && listing.id !== currentListingId && listing.status === "active").slice(0, 4); // Limit to 4 related listings
   }, [listings, category, currentListingId]);
 
+  /**
+   * handleViewMore
+   *
+   * Navigates to home page with the category filter to view more listings in the same category.
+   */
   const handleViewMore = () => {
     navigate(`/?category=${category}`);
   };
