@@ -2,13 +2,29 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 import authService from "../lib/authService";
 import { useWatcher } from "./WatcherContext";
 
+// Create a context for authentication
 const AuthContext = createContext(null);
 
+/**
+ * AuthProvider component that wraps the application and provides
+ * authentication context to its children.
+ *
+ * It manages the user's authentication state and loading status,
+ * fetches user data, and handles login, logout, registration, and
+ * profile updates.
+ *
+ * @param {Object} props - React props
+ * @param {ReactNode} props.children - Children components to be wrapped
+ * @returns {JSX.Element} The AuthProvider component
+ */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const { triggerUpdate } = useWatcher();
-
+  /**
+   * Fetches the current user data from the API using the stored access token.
+   * If the token is invalid or expired, attempts to refresh the token.
+   */
   const fetchUser = useCallback(async () => {
     const token = localStorage.getItem("access_token");
     if (!token) {
@@ -20,7 +36,7 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await authService.getCurrentUser();
       setUser(currentUser);
       if (currentUser) {
-        triggerUpdate("auth");
+        triggerUpdate("auth"); // Trigger an update in the watcher context
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -31,7 +47,7 @@ export const AuthProvider = ({ children }) => {
             const newTokens = await authService.refreshToken(refreshToken);
             localStorage.setItem("access_token", newTokens.access);
             localStorage.setItem("refresh_token", newTokens.refresh);
-            // Retry fetching user with new token
+            // Retry fetching user with the new token
             const currentUser = await authService.getCurrentUser();
             setUser(currentUser);
             if (currentUser) {
@@ -54,10 +70,19 @@ export const AuthProvider = ({ children }) => {
     }
   }, [triggerUpdate]);
 
+  // Fetch user data when the component mounts
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
+  /**
+   * Logs in a user with the provided email and password.
+   *
+   * @param {string} email - User's email
+   * @param {string} password - User's password
+   * @returns {Promise<Object>} Response data from the login API
+   * @throws {Error} Throws an error if the login fails
+   */
   const login = async (email, password) => {
     try {
       const data = await authService.login(email, password);
@@ -75,6 +100,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Logs out the current user and clears session storage.
+   *
+   * @returns {Promise<void>}
+   * @throws {Error} Throws an error if the logout fails
+   */
   const logout = async () => {
     try {
       await authService.logout();
@@ -86,6 +117,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Registers a new user with the provided user data.
+   *
+   * @param {Object} userData - The data for the new user
+   * @returns {Promise<Object>} Response data from the registration API
+   * @throws {Error} Throws an error if the registration fails
+   */
   const register = async (userData) => {
     try {
       const data = await authService.register(userData);
@@ -97,6 +135,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Updates the current user's profile with new data.
+   *
+   * @param {Object} userData - The updated user data
+   * @returns {Promise<Object>} Response data from the update API
+   * @throws {Error} Throws an error if the profile update fails
+   */
   const updateProfile = async (userData) => {
     try {
       const updatedUser = await authService.updateProfile(userData);
@@ -126,4 +171,9 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+/**
+ * Custom hook to access the AuthContext.
+ *
+ * @returns {Object} The authentication context value
+ */
 export const useAuth = () => useContext(AuthContext);

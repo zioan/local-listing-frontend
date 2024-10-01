@@ -10,21 +10,34 @@ import useListingDetails from "../hooks/useListingDetails";
 import useProfile from "../hooks/useProfile";
 import useCacheManagement from "../hooks/useCacheManagement";
 
+// Create a context for data management
 const DataContext = createContext();
 
+/**
+ * Custom hook to access the DataContext.
+ *
+ * @returns {Object} The data context value
+ */
 export const useData = () => useContext(DataContext);
 
+/**
+ * DataProvider component that wraps the application and provides
+ * data context to its children. It manages various data states such
+ * as categories, subcategories, favorites, listings, and user data.
+ *
+ * @param {Object} props - React props
+ * @param {ReactNode} props.children - Children components to be wrapped
+ * @returns {JSX.Element} The DataProvider component
+ */
 export const DataProvider = ({ children }) => {
   const { user } = useAuth();
   const { updateTrigger } = useWatcher();
   const isInitialized = useRef(false);
 
+  // Hooks to manage various data states
   const { categories, loading: categoriesLoading, error: categoriesError, fetchCategories, setCategories } = useCategories();
-
   const { subcategories, loading: subcategoriesLoading, error: subcategoriesError, fetchSubcategories, setSubcategories } = useSubcategories();
-
   const { favorites, loading: favoritesLoading, error: favoritesError, fetchFavorites, updateFavoriteStatus, setFavorites } = useFavorites(user);
-
   const {
     listings,
     hasMore,
@@ -36,29 +49,21 @@ export const DataProvider = ({ children }) => {
     deleteListing,
     setListings,
   } = useListings();
-
   const { myListings, loading: myListingsLoading, error: myListingsError, fetchMyListings, setMyListings } = useMyListings(user);
-
   const { listingDetails, loading: listingDetailsLoading, error: listingDetailsError, fetchListing, setListingDetails } = useListingDetails();
-
   const { loading: profileLoading, error: profileError, fetchPublicProfile, fetchUserListings } = useProfile();
 
-  const resetListings = useCallback(() => {
-    setListings([]);
-  }, [setListings]);
+  // Reset functions for data states
+  const resetListings = useCallback(() => setListings([]), [setListings]);
+  const resetCategories = useCallback(() => setCategories([]), [setCategories]);
+  const resetFavorites = useCallback(() => setFavorites([]), [setFavorites]);
+  const resetMyListings = useCallback(() => setMyListings([]), [setMyListings]);
 
-  const resetCategories = useCallback(() => {
-    setCategories([]);
-  }, [setCategories]);
-
-  const resetFavorites = useCallback(() => {
-    setFavorites([]);
-  }, [setFavorites]);
-
-  const resetMyListings = useCallback(() => {
-    setMyListings([]);
-  }, [setMyListings]);
-
+  /**
+   * Resets the details of a specific listing by its ID.
+   *
+   * @param {number} listingId - The ID of the listing to reset
+   */
   const resetListingDetails = useCallback(
     (listingId) => {
       setListingDetails((prev) => {
@@ -70,6 +75,11 @@ export const DataProvider = ({ children }) => {
     [setListingDetails]
   );
 
+  /**
+   * Resets the subcategories for a specific category by its ID.
+   *
+   * @param {number} categoryId - The ID of the category to reset subcategories for
+   */
   const resetSubcategories = useCallback(
     (categoryId) => {
       setSubcategories((prev) => {
@@ -81,6 +91,7 @@ export const DataProvider = ({ children }) => {
     [setSubcategories]
   );
 
+  // Cache management hook
   const { invalidateCache } = useCacheManagement(
     resetListings,
     resetCategories,
@@ -94,12 +105,19 @@ export const DataProvider = ({ children }) => {
     fetchMyListings
   );
 
+  /**
+   * Refetches user-related data when the user changes.
+   */
   const refetchUserData = useCallback(async () => {
     if (user) {
       await Promise.all([fetchFavorites(), fetchMyListings()]);
     }
   }, [user, fetchFavorites, fetchMyListings]);
 
+  /**
+   * Initializes data fetching when the provider mounts.
+   * Fetches categories and user-related data based on authentication status.
+   */
   const initializeData = useCallback(async () => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -113,16 +131,24 @@ export const DataProvider = ({ children }) => {
     }
   }, [fetchCategories, fetchFavorites, fetchListings, fetchMyListings, user]);
 
+  // Fetch initial data on mount
   useEffect(() => {
     initializeData();
   }, [initializeData]);
 
+  // Refetch user data when user changes or the auth context updates
   useEffect(() => {
     if (user) {
       refetchUserData();
     }
   }, [user, refetchUserData, updateTrigger.auth]);
 
+  /**
+   * Updates the favorite status of a listing and updates the local listings state.
+   *
+   * @param {number} listingId - The ID of the listing
+   * @param {boolean} isFavorited - The new favorite status
+   */
   const updateFavoriteStatusAndListings = useCallback(
     (listingId, isFavorited) => {
       updateFavoriteStatus(listingId, isFavorited, listings);
@@ -131,6 +157,7 @@ export const DataProvider = ({ children }) => {
     [updateFavoriteStatus, listings, setListings]
   );
 
+  // Context value to be provided
   const contextValue = {
     categories,
     subcategories,
