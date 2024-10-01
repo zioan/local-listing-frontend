@@ -5,11 +5,19 @@ import FormInput from "../../components/shared/form/FormInput";
 import SubmitBtn from "../../components/shared/form/SubmitBtn";
 import { toast } from "react-toastify";
 
+/**
+ * ForgotPassword component for handling password reset requests.
+ * Allows users to submit their email address to receive a password reset link.
+ */
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
 
+  /**
+   * Handles the form submission to request a password reset.
+   * @param {Object} e - The event object.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -24,6 +32,7 @@ function ForgotPassword() {
     }
   };
 
+  // Render a confirmation message if the email has been sent
   if (isEmailSent) {
     return (
       <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-gray-50 sm:px-6 lg:px-8">
@@ -44,6 +53,7 @@ function ForgotPassword() {
     );
   }
 
+  // Render the password reset form
   return (
     <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-gray-50 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">

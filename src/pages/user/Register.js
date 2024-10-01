@@ -5,6 +5,10 @@ import SubmitBtn from "../../components/shared/form/SubmitBtn";
 import FormInput from "../../components/shared/form/FormInput";
 import { toast } from "react-toastify";
 
+/**
+ * Register component that handles user registration.
+ * It collects user details and communicates with the auth context to create a new account.
+ */
 function Register() {
   const [formData, setFormData] = useState({
     email: "",
@@ -22,6 +26,7 @@ function Register() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Update form data state and clear any existing error for the current field
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -33,18 +38,20 @@ function Register() {
     e.preventDefault();
     setIsSubmitting(true);
     setErrors({});
+
     try {
       await register(formData);
       navigate("/profile");
       toast.success("Account created successfully!");
     } catch (err) {
       if (err && typeof err === "object") {
-        setErrors(err);
+        setErrors(err); // Set the error state with the received error object
         Object.entries(err).forEach(([key, value]) => {
+          // Check if the error value is an array (multiple messages)
           if (Array.isArray(value)) {
             value.forEach((message) => toast.error(message));
           } else {
-            toast.error(value);
+            toast.error(value); // Single error message
           }
         });
       } else {

@@ -5,6 +5,10 @@ import FormInput from "../../components/shared/form/FormInput";
 import SubmitBtn from "../../components/shared/form/SubmitBtn";
 import { toast } from "react-toastify";
 
+/**
+ * ResetPassword component for handling password resets.
+ * It allows users to enter a new password and confirm it using a token from the URL parameters.
+ */
 function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,18 +19,21 @@ function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if the passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
+
     setIsSubmitting(true);
     setError("");
+
     try {
       await api.post("users/password-reset-confirm/", { token, new_password: password });
       toast.success("Password reset successful!");
       navigate("/login");
     } catch (error) {
-      console.error("Password reset failed:", error);
       toast.error(error.response?.data?.error || "Failed to reset password. Please try again.");
       setError(error.response?.data?.error || "Failed to reset password. Please try again.");
     } finally {
