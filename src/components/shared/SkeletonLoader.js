@@ -1,5 +1,12 @@
 import React from "react";
 
+/**
+ * SkeletonLoader component displays a placeholder loader for content.
+ *
+ * @param {Object} props - The component props.
+ * @param {number} [props.count=1] - The number of skeleton loaders to display.
+ * @returns {JSX.Element} The skeleton loaders.
+ */
 const SkeletonLoader = ({ count = 1 }) => {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

@@ -2,6 +2,19 @@ import React from "react";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { getCloudinaryImageUrl } from "../../../lib/cloudinaryUtil";
 
+/**
+ * ImageUpload Component
+ *
+ * This component allows users to upload new images and manage existing images.
+ * Users can remove existing images or preview new images before uploading.
+ *
+ * @param {Array} existingImages - Array of existing images to display.
+ * @param {Array} newImages - Array of new images to be uploaded.
+ * @param {function} onExistingImageRemove - Function to handle the removal of existing images.
+ * @param {function} onNewImageAdd - Function to handle the addition of new images.
+ * @param {function} onNewImageRemove - Function to handle the removal of new images.
+ * @returns JSX.Element
+ */
 const ImageUpload = ({ existingImages, newImages, onExistingImageRemove, onNewImageAdd, onNewImageRemove }) => {
   return (
     <div>

@@ -1,10 +1,15 @@
 import React from "react";
 
 /**
- * The SubmitBtn component takes two props:
- * - children: The content of the button. This can be a string or any other React component.
- * - isSubmitting: A boolean that indicates whether the form is currently being submitted.
- * This can be handled by using state in the parent component.
+ * SubmitBtn Component
+ *
+ * A button component that displays a loading spinner while submitting.
+ * It disables the button and shows an animated spinner when the `isSubmitting` prop is true.
+ *
+ * @param {React.ReactNode} children - The content to be displayed inside the button when not submitting.
+ * @param {boolean} isSubmitting - Flag to indicate if the submission is in progress.
+ * @param {string} [className] - Additional CSS classes for custom styling.
+ * @returns {JSX.Element} The rendered button component.
  */
 function SubmitBtn({ children, isSubmitting, className = "" }) {
   return (

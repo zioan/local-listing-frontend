@@ -9,6 +9,7 @@ const api = axios.create({
   baseURL: BASE_API_URL,
 });
 
+// Request interceptor for adding the Authorization header
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
@@ -20,6 +21,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Response interceptor for handling errors and refreshing tokens
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -48,6 +50,7 @@ api.interceptors.response.use(
       }
     }
 
+    // Error message based on response status
     let errorMessage;
     switch (error.response.status) {
       case 400:
@@ -69,9 +72,11 @@ api.interceptors.response.use(
         errorMessage = error.response.data.message || "An unexpected error occurred.";
     }
 
+    // Show error notification
     toast.error(errorMessage, {
       toastId: `error-${error.response.status}`, // Prevent duplicate toasts
     });
+
     throw new HttpError(errorMessage, error.response.status);
   }
 );

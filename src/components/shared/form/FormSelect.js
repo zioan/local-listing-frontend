@@ -1,5 +1,21 @@
 import React from "react";
 
+/**
+ * FormSelect Component
+ *
+ * This component renders a styled select dropdown with an optional label
+ * and customizable props including options, required status, and additional styling.
+ *
+ * @param {string} id - Unique identifier for the select element.
+ * @param {string} name - Name attribute for the select element.
+ * @param {string} value - Current value of the select element.
+ * @param {function} onChange - Function to handle changes in the select element.
+ * @param {string} label - Label for the select element.
+ * @param {Array} options - Array of options to populate the select dropdown.
+ * @param {boolean} required - Indicates if the field is required (default is false).
+ * @param {string} className - Additional custom classes for styling.
+ * @returns JSX.Element
+ */
 const FormSelect = ({ id, name, value, onChange, label, options, required = false, className = "" }) => {
   return (
     <div>
