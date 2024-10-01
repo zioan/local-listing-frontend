@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { useAuth } from "../../context/AuthContext";
+import { useError } from "../../context/ErrorContext";
 import api from "../../config/api";
 import SubmitBtn from "../shared/form/SubmitBtn";
 import FormInput from "../shared/form/FormInput";
@@ -12,11 +13,20 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 import { toast } from "react-toastify";
 import { listingTypeOptions, conditionOptions, deliveryOptions, priceTypeOptions } from "../../util/listingHelpers";
 
+/**
+ * CreateListing Component
+ *
+ * This component provides a form for users to create a new listing.
+ * It handles form submission, image uploads, and various listing types.
+ */
 function CreateListing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { categories, subcategories, loading, error, fetchCategories, fetchSubcategories, invalidateCache } = useData();
+  const { handleApiError } = useError();
+
+  // Form data state
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -34,22 +44,27 @@ function CreateListing() {
 
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
 
+  // Fetch categories on component mount
   useEffect(() => {
     if (!user) {
       navigate("/login", { state: { from: location } });
     } else {
-      fetchCategories();
+      fetchCategories().catch((err) => handleApiError(err, "Failed to fetch categories"));
     }
-  }, [user, navigate, location, fetchCategories]);
+  }, [user, navigate, location, fetchCategories, handleApiError]);
 
+  // Fetch subcategories when category changes
   useEffect(() => {
     if (formData.category) {
-      fetchSubcategories(formData.category);
+      fetchSubcategories(formData.category).catch((err) => handleApiError(err, "Failed to fetch subcategories"));
     }
-  }, [formData.category, fetchSubcategories]);
+  }, [formData.category, fetchSubcategories, handleApiError]);
 
+  /**
+   * Handle form input changes
+   * @param {Event} e - The input change event
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
@@ -76,28 +91,38 @@ function CreateListing() {
     });
   };
 
+  /**
+   * Handle image upload
+   * @param {Event} e - The file input change event
+   */
   const handleImageChange = (e) => {
     setImages([...images, ...e.target.files]);
   };
 
+  /**
+   * Handle image removal
+   * @param {number} index - The index of the image to remove
+   */
   const handleImageRemove = (index) => {
     setImages(images.filter((_, i) => i !== index));
   };
 
+  /**
+   * Handle form submission
+   * @param {Event} e - The form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitError(null);
 
     // Validation
     if (["item_sale", "item_free", "item_wanted"].includes(formData.listing_type) && !formData.condition) {
-      setSubmitError("Condition is required for item listings.");
+      toast.error("Condition is required for item listings.");
       setIsSubmitting(false);
       return;
     }
-
     if (formData.listing_type === "event" && !formData.event_date) {
-      setSubmitError("Event date is required for event listings.");
+      toast.error("Event date is required for event listings.");
       setIsSubmitting(false);
       return;
     }
@@ -123,9 +148,7 @@ function CreateListing() {
       navigate(`/listings/${response.data.id}`);
       toast.success("Listing created successfully!");
     } catch (err) {
-      console.error("Failed to create listing:", err);
-      toast.error(err.response?.data);
-      setSubmitError("Failed to create listing. Please try again.");
+      handleApiError(err, "Failed to create listing");
     } finally {
       setIsSubmitting(false);
     }
@@ -137,7 +160,6 @@ function CreateListing() {
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="mb-6 text-3xl font-bold">Create a New Listing</h1>
-      {submitError && <div className="mb-4 text-red-500">{submitError}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormSelect
           id="listing_type"
@@ -153,7 +175,16 @@ function CreateListing() {
         {formData.listing_type !== "item_free" && (
           <>
             {!["free", "contact", "na"].includes(formData.price_type) && (
-              <FormInput id="price" name="price" value={formData.price} onChange={handleChange} label="Price" type="number" required />
+              <FormInput
+                id="price"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                label="Price"
+                type="number"
+                required
+                className="sm:max-w-xs"
+              />
             )}
             <FormSelect
               id="price_type"
@@ -217,7 +248,7 @@ function CreateListing() {
           options={deliveryOptions}
           required
         />
-        <FormInput id="location" name="location" value={formData.location} onChange={handleChange} label="Location" />
+        <FormInput id="location" name="location" value={formData.location} onChange={handleChange} label="Location" className="sm:max-w-xs" />
         {formData.listing_type === "event" && (
           <FormInput
             id="event_date"
@@ -227,11 +258,14 @@ function CreateListing() {
             label="Event Date and Time"
             type="datetime-local"
             required
+            className="sm:max-w-xs"
           />
         )}
         <ImageUpload newImages={images} onNewImageAdd={handleImageChange} onNewImageRemove={handleImageRemove} />
         <div>
-          <SubmitBtn isSubmitting={isSubmitting}>Create Listing</SubmitBtn>
+          <SubmitBtn isSubmitting={isSubmitting} className="m-auto sm:max-w-xs">
+            Create Listing
+          </SubmitBtn>
         </div>
       </form>
     </div>
