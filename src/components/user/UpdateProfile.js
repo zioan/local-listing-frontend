@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useError } from "../../context/ErrorContext";
 import authService from "../../lib/authService";
 import SubmitBtn from "../shared/form/SubmitBtn";
+import FormInput from "../shared/form/FormInput";
+import { toast } from "react-toastify";
 
 const UpdateProfile = () => {
   const { user, fetchUser } = useAuth();
+  const { handleApiError } = useError();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -12,21 +16,27 @@ const UpdateProfile = () => {
     zip: "",
     city: "",
   });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        username: user.username || "",
-        email: user.email || "",
-        street: user.street || "",
-        zip: user.zip || "",
-        city: user.city || "",
-      });
-    }
-  }, [user]);
+    const loadUserData = async () => {
+      try {
+        if (user) {
+          setFormData({
+            username: user.username || "",
+            email: user.email || "",
+            street: user.street || "",
+            zip: user.zip || "",
+            city: user.city || "",
+          });
+        }
+      } catch (error) {
+        handleApiError(error, "Failed to load user data");
+      }
+    };
+
+    loadUserData();
+  }, [user, handleApiError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,14 +49,12 @@ const UpdateProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError("");
-    setSuccess("");
     try {
       await authService.updateProfile(formData);
       await fetchUser();
-      setSuccess("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (err) {
-      setError("Failed to update profile. Please try again.");
+      handleApiError(err, "Failed to update profile");
     } finally {
       setIsSubmitting(false);
     }
@@ -54,78 +62,17 @@ const UpdateProfile = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10">
+      <h2 className="mb-6 text-2xl font-bold">Update Profile</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
+        <FormInput id="username" name="username" value={formData.username} onChange={handleChange} label="Username" required />
+        <FormInput id="email" name="email" value={formData.email} onChange={handleChange} label="Email" type="email" required />
+        <FormInput id="street" name="street" value={formData.street} onChange={handleChange} label="Street" />
+        <FormInput id="zip" name="zip" value={formData.zip} onChange={handleChange} label="ZIP Code" />
+        <FormInput id="city" name="city" value={formData.city} onChange={handleChange} label="City" />
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-            Username
-          </label>
-          <input
-            type="text"
-            name="username"
-            id="username"
-            value={formData.username}
-            onChange={handleChange}
-            className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="street" className="block text-sm font-medium text-gray-700">
-            Street
-          </label>
-          <input
-            type="text"
-            name="street"
-            id="street"
-            value={formData.street}
-            onChange={handleChange}
-            className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="zip" className="block text-sm font-medium text-gray-700">
-            ZIP Code
-          </label>
-          <input
-            type="text"
-            name="zip"
-            id="zip"
-            value={formData.zip}
-            onChange={handleChange}
-            className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-            City
-          </label>
-          <input
-            type="text"
-            name="city"
-            id="city"
-            value={formData.city}
-            onChange={handleChange}
-            className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <SubmitBtn isSubmitting={isSubmitting}>Update Profile x</SubmitBtn>
+          <SubmitBtn isSubmitting={isSubmitting}>Update Profile</SubmitBtn>
         </div>
       </form>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      {success && <p className="mt-2 text-sm text-green-600">{success}</p>}
     </div>
   );
 };
