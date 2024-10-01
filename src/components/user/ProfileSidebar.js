@@ -11,6 +11,7 @@ import {
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
 
+// Define menu items with name, path, and icon
 const menuItems = [
   { name: "Home", path: "/", icon: HomeIcon },
   { name: "Profile Overview", path: "/profile", icon: UserIcon },
@@ -21,11 +22,27 @@ const menuItems = [
   { name: "Favorites", path: "/profile/favorites", icon: HeartIcon },
 ];
 
+/**
+ * ProfileSidebar component displays the navigation sidebar for the user profile.
+ *
+ * It renders menu items for various profile-related actions and a logout button.
+ *
+ * @param {Object} props
+ * @param {boolean} [props.isMobile=false] - Indicates if the sidebar is in mobile view.
+ * @param {function} props.onLogout - Callback function to handle user logout.
+ * @returns {JSX.Element} The ProfileSidebar component.
+ */
 const ProfileSidebar = ({ isMobile = false, onLogout }) => {
   const location = useLocation();
 
+  /**
+   * Renders a single menu item for the sidebar.
+   *
+   * @param {Object} item - The menu item data.
+   * @returns {JSX.Element} The rendered menu item link.
+   */
   const renderMenuItem = (item) => {
-    const isActive = location.pathname === item.path;
+    const isActive = location.pathname === item.path; // Determine if the item is active
     const IconComponent = item.icon;
 
     return (
@@ -45,11 +62,16 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
             ${isMobile ? "" : "mr-3"}
           `}
         />
-        {!isMobile && <span>{item.name}</span>}
+        {!isMobile && <span>{item.name}</span>} {/* Display name only in desktop view */}
       </Link>
     );
   };
 
+  /**
+   * Renders the logout button for the sidebar.
+   *
+   * @returns {JSX.Element} The rendered logout button.
+   */
   const renderLogoutButton = () => (
     <button
       onClick={onLogout}
@@ -66,10 +88,11 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
           ${isMobile ? "" : "mr-3"}
         `}
       />
-      {!isMobile && <span>Logout</span>}
+      {!isMobile && <span>Logout</span>} {/* Display name only in desktop view */}
     </button>
   );
 
+  // Render mobile view for the sidebar
   if (isMobile) {
     return (
       <div className="fixed inset-x-0 bottom-0 flex items-center justify-between px-4 py-2 bg-white border-t border-gray-200">
@@ -79,6 +102,7 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
     );
   }
 
+  // Render desktop view for the sidebar
   return (
     <div className="p-4 space-y-1 bg-white rounded-lg shadow">
       <nav className="space-y-1">{menuItems.map(renderMenuItem)}</nav>

@@ -7,13 +7,21 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 import { UserIcon, MapPinIcon, CalendarIcon, TagIcon, StarIcon } from "@heroicons/react/24/outline";
 import ReviewForm from "../reviews/ReviewForm";
 import ReviewList from "../reviews/ReviewList";
+import { toast } from "react-toastify";
 
+/**
+ * PublicProfile component displays a user's public profile, including their
+ * personal information, listings, and reviews.
+ *
+ * @returns {JSX.Element} The PublicProfile component.
+ */
 function PublicProfile() {
   const { username } = useParams();
   const { fetchPublicProfile, fetchUserListings, loading, error } = useData();
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
 
+  // Effect to load profile and listings data when the component mounts
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -22,12 +30,13 @@ function PublicProfile() {
         const userListings = await fetchUserListings(username);
         setListings(userListings);
       } catch (error) {
-        console.error("Error loading profile:", error);
+        toast.error("An error occurred while loading the profile");
       }
     };
     loadProfile();
   }, [username, fetchPublicProfile, fetchUserListings]);
 
+  // Handle new review submission
   const handleReviewSubmitted = (newReview) => {
     setProfile((prevProfile) => {
       const updatedReviews = prevProfile.reviews.some((review) => review.id === newReview.id)
@@ -42,6 +51,7 @@ function PublicProfile() {
     });
   };
 
+  // Handle review deletion
   const handleReviewDeleted = (deletedReviewId) => {
     setProfile((prevProfile) => {
       const updatedReviews = prevProfile.reviews.filter((review) => review.id !== deletedReviewId);
@@ -53,6 +63,7 @@ function PublicProfile() {
     });
   };
 
+  // Calculate new average rating after a review is submitted
   const calculateNewAverageRating = (profile, newReview) => {
     const oldReview = profile.reviews.find((review) => review.id === newReview.id);
     const totalRating = profile.average_rating * profile.reviews.length;
@@ -61,12 +72,14 @@ function PublicProfile() {
     return newTotalRating / newCount;
   };
 
+  // Calculate average rating from reviews
   const calculateAverageRating = (reviews) => {
     if (reviews.length === 0) return 0;
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     return totalRating / reviews.length;
   };
 
+  // Get reviews count text
   const getReviewsCountText = (reviews) => {
     const count = reviews.length;
     if (count === 0) return "no reviews";
@@ -74,10 +87,11 @@ function PublicProfile() {
     return `${count} reviews`;
   };
 
+  // Loading and error handling
   if (loading.profile) return <LoadingSpinner isLoading={loading.profile} />;
   if (loading.userListings) return <LoadingSpinner isLoading={loading.userListings} />;
   if (error.profile) return <div className="text-red-500">{error.profile}</div>;
-  if (!profile) return null;
+  if (!profile) return null; // Return nothing if profile is not yet loaded
 
   return (
     <div className="container px-4 py-8 mx-auto">
@@ -85,6 +99,7 @@ function PublicProfile() {
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
         <div className="px-4 py-5 border-t border-gray-200 sm:p-0">
           <dl className="sm:divide-y sm:divide-gray-200">
+            {/* Display user profile information */}
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="flex items-center text-sm font-medium text-gray-500">
                 <UserIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
@@ -130,6 +145,7 @@ function PublicProfile() {
         </div>
       </div>
 
+      {/* Review form and list */}
       {profile && profile.id && <ReviewForm userId={profile.id} onReviewSubmitted={handleReviewSubmitted} onReviewDeleted={handleReviewDeleted} />}
       <ReviewList reviews={profile.reviews} user={profile.username} />
 

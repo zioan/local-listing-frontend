@@ -6,6 +6,11 @@ import SubmitBtn from "../shared/form/SubmitBtn";
 import FormInput from "../shared/form/FormInput";
 import { toast } from "react-toastify";
 
+/**
+ * UpdateProfile component allows users to update their profile information.
+ *
+ * @returns {JSX.Element} The UpdateProfile component.
+ */
 const UpdateProfile = () => {
   const { user, fetchUser } = useAuth();
   const { handleApiError } = useError();
@@ -18,6 +23,7 @@ const UpdateProfile = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Load user data when the component mounts or when user changes
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -38,6 +44,7 @@ const UpdateProfile = () => {
     loadUserData();
   }, [user, handleApiError]);
 
+  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -46,6 +53,7 @@ const UpdateProfile = () => {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -64,6 +72,7 @@ const UpdateProfile = () => {
     <div className="max-w-md mx-auto mt-10">
       <h2 className="mb-6 text-2xl font-bold">Update Profile</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Form inputs for profile details */}
         <FormInput id="username" name="username" value={formData.username} onChange={handleChange} label="Username" required />
         <FormInput id="email" name="email" value={formData.email} onChange={handleChange} label="Email" type="email" required />
         <FormInput id="street" name="street" value={formData.street} onChange={handleChange} label="Street" />

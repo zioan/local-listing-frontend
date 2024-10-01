@@ -9,9 +9,14 @@ import CreateListing from "../../components/listings/CreateListing";
 import Favorites from "../../components/user/Favorites";
 import ChangePassword from "../../components/user/ChangePassword";
 
+/**
+ * Profile component that displays user profile information and related features.
+ * Routes are nested for different profile-related views.
+ */
 function Profile() {
   const { user, logout } = useAuth();
 
+  // Redirect to login if the user is not authenticated
   if (!user) {
     return <Navigate to="/login" />;
   }
