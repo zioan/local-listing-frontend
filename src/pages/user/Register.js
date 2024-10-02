@@ -22,7 +22,7 @@ function Register() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,6 +41,7 @@ function Register() {
 
     try {
       await register(formData);
+      await login(formData.email, formData.password);
       navigate("/profile");
       toast.success("Account created successfully!");
     } catch (err) {
