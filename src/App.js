@@ -33,6 +33,7 @@ import Favorites from "./components/user/Favorites";
 import PublicProfile from "./components/user/PublicProfile";
 import CookieBanner from "./components/cookies/CookieBanner";
 import CookiePage from "./pages/CookiePage";
+import TermsAndConditions from "./pages/TermsAndConditions";
 
 // error components
 import NotFoundError from "./components/errors/NotFoundError";
@@ -57,6 +58,7 @@ const routes = [
   { path: "/server-error", element: <ServerError />, authRequired: null },
   { path: "/error", element: <GenericError />, authRequired: null },
   { path: "/cookies", element: <CookiePage />, authRequired: null },
+  { path: "/terms", element: <TermsAndConditions />, authRequired: null },
   { path: "*", element: <NotFoundError />, authRequired: null },
 ];
 
