@@ -34,6 +34,7 @@ import PublicProfile from "./components/user/PublicProfile";
 import CookieBanner from "./components/cookies/CookieBanner";
 import CookiePage from "./pages/CookiePage";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // error components
 import NotFoundError from "./components/errors/NotFoundError";
@@ -59,6 +60,7 @@ const routes = [
   { path: "/error", element: <GenericError />, authRequired: null },
   { path: "/cookies", element: <CookiePage />, authRequired: null },
   { path: "/terms", element: <TermsAndConditions />, authRequired: null },
+  { path: "/privacy", element: <PrivacyPolicy />, authRequired: null },
   { path: "*", element: <NotFoundError />, authRequired: null },
 ];
 
