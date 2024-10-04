@@ -21,7 +21,7 @@ const MyListings = () => {
   if (error.myListings) return <div>Error: {error.myListings}</div>;
 
   return (
-    <div className="container px-4 mx-auto">
+    <div className="container px-4 mx-auto my-10">
       <h2 className="mb-4 text-2xl font-bold">My Listings</h2>
       {myListings.length === 0 ? (
         <p>You haven't created any listings yet.</p>

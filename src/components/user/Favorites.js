@@ -23,7 +23,7 @@ const Favorites = () => {
   if (error.favorites) return <div className="text-red-500">Error: {error.favorites}</div>;
 
   return (
-    <div className="container px-4 py-8 mx-auto">
+    <div className="container px-4 py-10 mx-auto">
       <h2 className="mb-6 text-2xl font-bold">My Favorites</h2>
 
       {user ? (

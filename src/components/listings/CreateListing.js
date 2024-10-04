@@ -158,7 +158,7 @@ function CreateListing() {
   if (error.categories) return <div className="text-red-500">{error.categories}</div>;
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto my-10">
       <h1 className="mb-6 text-3xl font-bold">Create a New Listing</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormSelect

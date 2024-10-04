@@ -60,43 +60,46 @@ const ChangePassword = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
-      {/* Input for current password */}
-      <FormInput
-        id="current-password"
-        name="current-password"
-        type="password"
-        value={currentPassword}
-        onChange={(e) => setCurrentPassword(e.target.value)}
-        label="Current Password"
-        required
-        autoComplete="new-password"
-      />
-      {/* Input for new password */}
-      <FormInput
-        id="new-password"
-        name="new-password"
-        type="password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        label="New Password"
-        required
-        autoComplete="new-password"
-      />
-      {/* Input for confirming the new password */}
-      <FormInput
-        id="confirm-password"
-        name="confirm-password"
-        type="password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        label="Confirm New Password"
-        required
-        autoComplete="new-password"
-      />
-      {/* Submit button */}
-      <SubmitBtn isSubmitting={isLoading}>Change Password</SubmitBtn>
-    </form>
+    <div className="max-w-md mx-auto my-10">
+      <h2 className="mb-6 text-2xl font-bold">Change Password</h2>
+      <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
+        {/* Input for current password */}
+        <FormInput
+          id="current-password"
+          name="current-password"
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          label="Current Password"
+          required
+          autoComplete="new-password"
+        />
+        {/* Input for new password */}
+        <FormInput
+          id="new-password"
+          name="new-password"
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          label="New Password"
+          required
+          autoComplete="new-password"
+        />
+        {/* Input for confirming the new password */}
+        <FormInput
+          id="confirm-password"
+          name="confirm-password"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          label="Confirm New Password"
+          required
+          autoComplete="new-password"
+        />
+        {/* Submit button */}
+        <SubmitBtn isSubmitting={isLoading}>Change Password</SubmitBtn>
+      </form>
+    </div>
   );
 };
 

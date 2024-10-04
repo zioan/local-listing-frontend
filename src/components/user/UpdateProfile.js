@@ -69,7 +69,7 @@ const UpdateProfile = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
+    <div className="max-w-md mx-auto my-10">
       <h2 className="mb-6 text-2xl font-bold">Update Profile</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Form inputs for profile details */}
