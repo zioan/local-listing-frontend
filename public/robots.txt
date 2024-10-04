@@ -1,3 +1,9 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /messages/
+Disallow: /favorite/
+
+Sitemap: https://listings-frontend-901f68be9063.herokuapp.com/sitemap.xml
