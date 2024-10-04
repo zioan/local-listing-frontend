@@ -119,7 +119,7 @@ function ListingDetail() {
     if (listing.price_type === "na") return "- N/A";
     return (
       <span>
-        ${listing.price}
+        {listing.price}
         {listing.price_type === "negotiable" && <span className="ml-1 text-sm text-gray-500">(Negotiable)</span>}
       </span>
     );
