@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
 import MessageModal from "../messaging/MessageModal";
 import SearchBox from "../home/SearchBox";
+import Tooltip from "../shared/Tooltip";
 
 function Navbar() {
   const { user } = useAuth();
@@ -54,15 +55,21 @@ function Navbar() {
           {/* Right side icons */}
           <div className="flex items-center space-x-4">
             <NavLink to="/" aria-label="Home" className="text-gray-300 hover:text-white">
-              <HomeIcon className="w-6 h-6" />
+              <Tooltip content="Home" position="bottom">
+                <HomeIcon className="w-6 h-6" />
+              </Tooltip>
             </NavLink>
             {user && (
               <>
                 <button onClick={handleFavoriteIconClick} aria-label="Favorites" className="text-gray-300 hover:text-white">
-                  <HeartIcon className="w-6 h-6" />
+                  <Tooltip content="Favorite" position="bottom">
+                    <HeartIcon className="w-6 h-6" />
+                  </Tooltip>
                 </button>
                 <button onClick={() => setIsMessageModalOpen(true)} aria-label="Messages" className="relative text-gray-300 hover:text-white">
-                  <ChatBubbleLeftIcon className="w-6 h-6" />
+                  <Tooltip content="Messages" position="bottom">
+                    <ChatBubbleLeftIcon className="w-6 h-6" />
+                  </Tooltip>
                   {unreadCount > 0 && (
                     <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-500 rounded-full">
                       {unreadCount}
@@ -72,7 +79,9 @@ function Navbar() {
               </>
             )}
             <button onClick={handleUserIconClick} aria-label="Profile" className="text-gray-300 hover:text-white">
-              <UserIcon className="w-6 h-6" />
+              <Tooltip content={user ? "Profile" : "Log in"} position="bottom">
+                <UserIcon className="w-6 h-6" />
+              </Tooltip>
             </button>
           </div>
         </div>

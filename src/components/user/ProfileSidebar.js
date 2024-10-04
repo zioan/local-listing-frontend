@@ -10,6 +10,7 @@ import {
   ArrowRightOnRectangleIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
+import Tooltip from "../shared/Tooltip";
 
 // Define menu items with name, path, and icon
 const menuItems = [
@@ -46,25 +47,27 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
     const IconComponent = item.icon;
 
     return (
-      <Link
-        key={item.name}
-        to={item.path}
-        aria-label={item.name}
-        className={`
+      <Tooltip content={item.name} position={isMobile ? "top" : "none"}>
+        <Link
+          key={item.name}
+          to={item.path}
+          aria-label={item.name}
+          className={`
           group flex items-center px-3 py-2 text-sm font-medium rounded-md w-full
           ${isActive ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}
           ${isMobile ? "justify-center" : ""}
         `}
-      >
-        <IconComponent
-          className={`
+        >
+          <IconComponent
+            className={`
             flex-shrink-0 w-6 h-6
             ${isActive ? "text-gray-500" : "text-gray-400 group-hover:text-gray-500"}
             ${isMobile ? "" : "mr-3"}
           `}
-        />
-        {!isMobile && <span>{item.name}</span>} {/* Display name only in desktop view */}
-      </Link>
+          />
+          {!isMobile && <span>{item.name}</span>} {/* Display name only in desktop view */}
+        </Link>
+      </Tooltip>
     );
   };
 
@@ -74,24 +77,26 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
    * @returns {JSX.Element} The rendered logout button.
    */
   const renderLogoutButton = () => (
-    <button
-      onClick={onLogout}
-      className={`
+    <Tooltip content="Logout" position={isMobile ? "top" : "none"}>
+      <button
+        onClick={onLogout}
+        className={`
         group flex items-center px-3 py-2 text-sm font-medium rounded-md w-full
         text-gray-600 hover:bg-gray-50 hover:text-gray-900
         ${isMobile ? "justify-center" : ""}
       `}
-      aria-label="Logout"
-    >
-      <ArrowRightOnRectangleIcon
-        className={`
+        aria-label="Logout"
+      >
+        <ArrowRightOnRectangleIcon
+          className={`
           flex-shrink-0 w-6 h-6
           text-gray-400 group-hover:text-gray-500
           ${isMobile ? "" : "mr-3"}
         `}
-      />
-      {!isMobile && <span>Logout</span>} {/* Display name only in desktop view */}
-    </button>
+        />
+        {!isMobile && <span>Logout</span>} {/* Display name only in desktop view */}
+      </button>
+    </Tooltip>
   );
 
   // Render mobile view for the sidebar

@@ -2,6 +2,7 @@ import React from "react";
 import { useData } from "../../context/DataContext";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
+import Tooltip from "../shared/Tooltip";
 
 /**
  * ActiveFilters Component
@@ -71,7 +72,9 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
                   onClick={() => onFilterRemove(key)}
                   className="flex-shrink-0 ml-1 text-gray-400 hover:text-gray-500 focus:outline-none"
                 >
-                  <XCircleIcon className="w-5 h-5" aria-hidden="true" />
+                  <Tooltip content="Remove filter" position="bottom">
+                    <XCircleIcon className="w-5 h-5" aria-hidden="true" />
+                  </Tooltip>
                 </button>
               </span>
             )

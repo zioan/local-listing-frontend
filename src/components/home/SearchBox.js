@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSearch } from "../../context/SearchContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import Tooltip from "../shared/Tooltip";
 
 /**
  * Modal component for displaying search inputs.
@@ -145,7 +146,9 @@ const SearchBox = () => {
           aria-label="Search"
           className="absolute right-0 px-4 py-2 text-gray-600 transition-colors duration-200 rounded-r-full top-1 hover:text-gray-900 focus:outline-none"
         >
-          <MagnifyingGlassIcon className="w-5 h-5" />
+          <Tooltip content="Search" position="bottom">
+            <MagnifyingGlassIcon className="w-5 h-5" />
+          </Tooltip>
         </button>
       </div>
     </form>
@@ -155,7 +158,9 @@ const SearchBox = () => {
     return (
       <>
         <button onClick={() => setIsModalOpen(true)} aria-label="Search" className="absolute text-gray-300 right-1/2 hover:text-white">
-          <MagnifyingGlassIcon className="w-6 h-6" />
+          <Tooltip content="Search" position="bottom">
+            <MagnifyingGlassIcon className="w-6 h-6" />
+          </Tooltip>
         </button>
         <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           {searchInput}

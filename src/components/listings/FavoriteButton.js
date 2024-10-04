@@ -7,6 +7,7 @@ import { useError } from "../../context/ErrorContext";
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
+import Tooltip from "../shared/Tooltip";
 
 /**
  * FavoriteButton component for toggling favorite status of a listing
@@ -44,9 +45,15 @@ function FavoriteButton({ listing }) {
   };
 
   return (
-    <button onClick={handleFavoriteToggle} className="focus:outline-none" aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}>
-      {isFavorited ? <HeartSolid className="w-6 h-6 text-red-500" /> : <HeartOutline className="w-6 h-6 text-gray-500 hover:text-red-500" />}
-    </button>
+    <Tooltip content={isFavorited ? "Remove from favorites" : "Add to favorites"} position="left">
+      <button
+        onClick={handleFavoriteToggle}
+        className="mt-1 focus:outline-none"
+        aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+      >
+        {isFavorited ? <HeartSolid className="w-6 h-6 text-red-500" /> : <HeartOutline className="w-6 h-6 text-gray-500 hover:text-red-500" />}
+      </button>
+    </Tooltip>
   );
 }
 
