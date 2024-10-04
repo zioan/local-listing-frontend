@@ -173,7 +173,7 @@ function EditListing() {
   if (error.listingDetails || error.categories) return <div className="text-red-500">{error.listingDetails || error.categories}</div>;
 
   return (
-    <div className="max-w-2xl mx-auto my-10">
+    <div className="max-w-2xl px-4 mx-auto my-10 sm:px-0">
       <h1 className="mb-6 text-3xl font-bold">Edit Listing</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormSelect
