@@ -5,4 +5,4 @@ Disallow: /profile/
 Disallow: /messages/
 Disallow: /favorite/
 
-Sitemap: https://listings-frontend-901f68be9063.herokuapp.com/sitemap.xml
+Sitemap: https://listings-backend-507dd585ef10.herokuapp.com/sitemap.xml
