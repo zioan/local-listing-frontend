@@ -35,6 +35,7 @@ import CookieBanner from "./components/cookies/CookieBanner";
 import CookiePage from "./pages/CookiePage";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import SitemapRedirection from "./pages/SitemapRedirection";
 
 // error components
 import NotFoundError from "./components/errors/NotFoundError";
@@ -61,6 +62,7 @@ const routes = [
   { path: "/cookies", element: <CookiePage />, authRequired: null },
   { path: "/terms", element: <TermsAndConditions />, authRequired: null },
   { path: "/privacy", element: <PrivacyPolicy />, authRequired: null },
+  { path: "/sitemap.xml", element: <SitemapRedirection />, authRequired: null },
   { path: "*", element: <NotFoundError />, authRequired: null },
 ];
 
