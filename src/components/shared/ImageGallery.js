@@ -54,12 +54,13 @@ const ImageGallery = ({ images, onClose, startIndex = 0 }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={handleBackgroundClick}>
-      <button onClick={onClose} className="absolute text-white top-4 right-4 hover:text-gray-300">
+      <button onClick={onClose} aria-label="Close gallery" className="absolute text-white top-4 right-4 hover:text-gray-300">
         <XMarkIcon className="w-8 h-8" />
       </button>
       <button
         onClick={() => setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
         className="absolute text-white left-4 hover:text-gray-300"
+        aria-label="Previous image"
       >
         <ChevronLeftIcon className="w-12 h-12" />
       </button>
@@ -67,6 +68,7 @@ const ImageGallery = ({ images, onClose, startIndex = 0 }) => {
       <button
         onClick={() => setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
         className="absolute text-white right-4 hover:text-gray-300"
+        aria-label="Next image"
       >
         <ChevronRightIcon className="w-12 h-12" />
       </button>

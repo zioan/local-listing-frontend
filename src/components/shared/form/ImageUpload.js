@@ -29,6 +29,7 @@ const ImageUpload = ({ existingImages, newImages, onExistingImageRemove, onNewIm
                   type="button"
                   onClick={() => onExistingImageRemove(image.id)}
                   className="absolute top-0 right-0 p-1 text-white bg-red-500 rounded-full"
+                  aria-label="Remove image"
                 >
                   <XCircleIcon className="w-5 h-5" />
                 </button>
@@ -57,6 +58,7 @@ const ImageUpload = ({ existingImages, newImages, onExistingImageRemove, onNewIm
                   type="button"
                   onClick={() => onNewImageRemove(index)}
                   className="absolute top-0 right-0 p-1 text-white bg-red-500 rounded-full"
+                  aria-label="Remove image"
                 >
                   <XCircleIcon className="w-5 h-5" />
                 </button>

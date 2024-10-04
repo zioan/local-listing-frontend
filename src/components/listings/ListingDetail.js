@@ -228,12 +228,14 @@ function ListingDetail() {
                         <button
                           className="absolute p-2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full left-2 top-1/2"
                           onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))}
+                          aria-label="Previous Image"
                         >
                           <ChevronLeftIcon className="w-6 h-6 text-white" />
                         </button>
                         <button
                           className="absolute p-2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full right-2 top-1/2"
                           onClick={() => setCurrentImageIndex((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))}
+                          aria-label="Next Image"
                         >
                           <ChevronRightIcon className="w-6 h-6 text-white" />
                         </button>

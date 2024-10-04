@@ -43,7 +43,9 @@ function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <span className="text-xl font-bold text-white">LogoText</span>
+            <NavLink to="/" className="text-gray-300 hover:text-white">
+              Local Listing
+            </NavLink>
           </div>
 
           {/* Search Box */}
@@ -51,15 +53,15 @@ function Navbar() {
 
           {/* Right side icons */}
           <div className="flex items-center space-x-4">
-            <NavLink to="/" className="text-gray-300 hover:text-white">
+            <NavLink to="/" aria-label="Home" className="text-gray-300 hover:text-white">
               <HomeIcon className="w-6 h-6" />
             </NavLink>
             {user && (
               <>
-                <button onClick={handleFavoriteIconClick} className="text-gray-300 hover:text-white">
+                <button onClick={handleFavoriteIconClick} aria-label="Favorites" className="text-gray-300 hover:text-white">
                   <HeartIcon className="w-6 h-6" />
                 </button>
-                <button onClick={() => setIsMessageModalOpen(true)} className="relative text-gray-300 hover:text-white">
+                <button onClick={() => setIsMessageModalOpen(true)} aria-label="Messages" className="relative text-gray-300 hover:text-white">
                   <ChatBubbleLeftIcon className="w-6 h-6" />
                   {unreadCount > 0 && (
                     <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-500 rounded-full">
@@ -69,7 +71,7 @@ function Navbar() {
                 </button>
               </>
             )}
-            <button onClick={handleUserIconClick} className="text-gray-300 hover:text-white">
+            <button onClick={handleUserIconClick} aria-label="Profile" className="text-gray-300 hover:text-white">
               <UserIcon className="w-6 h-6" />
             </button>
           </div>

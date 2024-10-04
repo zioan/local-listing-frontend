@@ -49,6 +49,7 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
       <Link
         key={item.name}
         to={item.path}
+        aria-label={item.name}
         className={`
           group flex items-center px-3 py-2 text-sm font-medium rounded-md w-full
           ${isActive ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}
@@ -80,6 +81,7 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
         text-gray-600 hover:bg-gray-50 hover:text-gray-900
         ${isMobile ? "justify-center" : ""}
       `}
+      aria-label="Logout"
     >
       <ArrowRightOnRectangleIcon
         className={`

@@ -67,6 +67,7 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
                 {getFilterLabel(key, value)}
                 <button
                   type="button"
+                  aria-label="Remove filter"
                   onClick={() => onFilterRemove(key)}
                   className="flex-shrink-0 ml-1 text-gray-400 hover:text-gray-500 focus:outline-none"
                 >

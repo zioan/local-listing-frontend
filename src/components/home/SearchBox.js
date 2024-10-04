@@ -142,6 +142,7 @@ const SearchBox = () => {
         />
         <button
           type="submit"
+          aria-label="Search"
           className="absolute right-0 px-4 py-2 text-gray-600 transition-colors duration-200 rounded-r-full top-1 hover:text-gray-900 focus:outline-none"
         >
           <MagnifyingGlassIcon className="w-5 h-5" />
@@ -153,7 +154,7 @@ const SearchBox = () => {
   if (isMobile) {
     return (
       <>
-        <button onClick={() => setIsModalOpen(true)} className="absolute text-gray-300 right-1/2 hover:text-white">
+        <button onClick={() => setIsModalOpen(true)} aria-label="Search" className="absolute text-gray-300 right-1/2 hover:text-white">
           <MagnifyingGlassIcon className="w-6 h-6" />
         </button>
         <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
