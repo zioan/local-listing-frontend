@@ -77,8 +77,19 @@ const Footer = () => {
         </div>
 
         <div className="flex flex-col items-center justify-between pt-8 mt-8 border-t border-gray-700 md:flex-row">
-          <p className="text-base text-gray-400">&copy; 2024 Local Listings. All rights reserved.</p>
+          <div className="text-base text-gray-400">
+            <p>&copy; 2024 Local Listings. All rights reserved.</p>
+            <p className="text-center md:text-left">
+              Made By{" "}
+              <a href="http://ioanzaharia.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-500">
+                Ioan Zaharia
+              </a>
+            </p>
+          </div>
           <nav className="flex mt-4 space-x-4 md:mt-0">
+            <Link to="/cookies" className="text-sm text-gray-400 hover:text-white">
+              Cookies Policy
+            </Link>
             <Link to="/privacy" className="text-sm text-gray-400 hover:text-white">
               Privacy Policy
             </Link>
