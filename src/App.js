@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 
 // context providers
 import { AuthProvider } from "./context/AuthContext";
@@ -78,6 +78,7 @@ const AppRoutes = () => (
 
 const AppContent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <ErrorProvider navigate={navigate}>
@@ -93,7 +94,7 @@ const AppContent = () => {
                     <main className="flex-grow">
                       <AppRoutes />
                     </main>
-                    <Footer />
+                    {location.pathname !== "/messages" && <Footer />}
                   </div>
                   <CookieBanner />
                   <ToastContainer autoClose={appSettings.toastDuration} />
