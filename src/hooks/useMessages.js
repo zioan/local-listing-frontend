@@ -120,6 +120,27 @@ const useMessages = () => {
   );
 
   /**
+   * Creates a new conversation based on a given listing.
+   * If successful, it adds the new conversation to the current list of conversations.
+   * Handles API errors if the conversation creation fails.
+   * @param {string} listingId - The ID of the listing to create a conversation for.
+   * @returns {Object|null} The newly created conversation object, or null if there is no user.
+   */
+  const createConversationFromListing = useCallback(
+    async (listingId) => {
+      if (!user) return;
+      try {
+        const newConversation = await createConversation(listingId);
+        setConversations((prev) => [...prev, newConversation]);
+        return newConversation;
+      } catch (err) {
+        handleApiError(err, "Failed to create conversation");
+      }
+    },
+    [user, createConversation, handleApiError]
+  );
+
+  /**
    * Fetches incoming messages for a specific listing.
    *
    * @param {number|string} listingId - The ID of the listing to fetch messages for.
@@ -221,6 +242,7 @@ const useMessages = () => {
     fetchMessages,
     sendMessage,
     createConversation,
+    createConversationFromListing,
     fetchIncomingMessages,
     fetchUnreadCount,
     fetchConversationUnreadCounts,
