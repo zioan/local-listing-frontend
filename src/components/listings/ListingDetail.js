@@ -31,7 +31,6 @@ import {
 } from "@heroicons/react/24/outline";
 import { formatDate, listingTypeOptions, conditionOptions, deliveryOptions } from "../../util/listingHelpers";
 import placeholderImage from "../../assets/placeholder-image.jpg";
-import MessageModal from "../messaging/MessageModal";
 import { statusOptions } from "../../util/listingHelpers";
 import { toast } from "react-toastify";
 
@@ -51,7 +50,6 @@ function ListingDetail() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [statusUpdateError, setStatusUpdateError] = useState("");
@@ -301,7 +299,7 @@ function ListingDetail() {
 
                 {user && user.username !== listing.user && (
                   <button
-                    onClick={() => setIsMessageModalOpen(true)}
+                    onClick={() => navigate(`/messages?listing=${listing.id}`)}
                     className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     <EnvelopeIcon className="w-5 h-5 mr-2" />
@@ -428,9 +426,6 @@ function ListingDetail() {
           </button>
         </div>
       </Modal>
-
-      {/* Message modal */}
-      <MessageModal isOpen={isMessageModalOpen} onClose={() => setIsMessageModalOpen(false)} listingId={listing?.id} listingTitle={listing?.title} />
 
       {/* Image gallery */}
       {isGalleryOpen && (

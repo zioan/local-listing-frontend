@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { HeartIcon, UserIcon, ChatBubbleLeftIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
-import MessageModal from "../messaging/MessageModal";
 import SearchBox from "../home/SearchBox";
 import Tooltip from "../shared/Tooltip";
 
@@ -12,7 +11,6 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount, fetchUnreadCount } = useMessages();
-  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -66,7 +64,7 @@ function Navbar() {
                     <HeartIcon className="w-6 h-6" />
                   </Tooltip>
                 </button>
-                <button onClick={() => setIsMessageModalOpen(true)} aria-label="Messages" className="relative text-gray-300 hover:text-white">
+                <button onClick={() => navigate("/messages")} aria-label="Messages" className="relative text-gray-300 hover:text-white">
                   <Tooltip content="Messages" position="bottom">
                     <ChatBubbleLeftIcon className="w-6 h-6" />
                   </Tooltip>
@@ -86,9 +84,6 @@ function Navbar() {
           </div>
         </div>
       </div>
-
-      {/* Message Modal */}
-      <MessageModal isOpen={isMessageModalOpen} onClose={() => setIsMessageModalOpen(false)} />
     </nav>
   );
 }
