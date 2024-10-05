@@ -27,6 +27,7 @@ import Register from "./pages/user/Register";
 import ForgotPassword from "./pages/user/ForgotPassword";
 import ResetPassword from "./pages/user/ResetPassword";
 import Profile from "./pages/user/Profile";
+import Messages from "./components/messaging/Messages";
 import ListingDetail from "./components/listings/ListingDetail";
 import EditListing from "./components/listings/EditListing";
 import Favorites from "./components/user/Favorites";
@@ -55,6 +56,7 @@ const routes = [
   { path: "/listings/:id/edit", element: <EditListing />, authRequired: true },
   { path: "/favorite", element: <Favorites />, authRequired: true },
   { path: "/profiles/:username", element: <PublicProfile />, authRequired: null },
+  { path: "/messages", element: <Messages />, authRequired: true },
   { path: "/unauthorized", element: <UnauthorizedError />, authRequired: null },
   { path: "/forbidden", element: <ForbiddenError />, authRequired: null },
   { path: "/server-error", element: <ServerError />, authRequired: null },
