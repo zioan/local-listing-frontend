@@ -55,7 +55,9 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
   };
 
   // If there are no filters applied, don't render the component
-  if (Object.keys(filters).length === 0) return null;
+  if (Object.keys(filters).length === 0 || (filters.hasOwnProperty("search") && filters.search.trim() === "")) {
+    return null;
+  }
 
   return (
     <div className="mb-4">
