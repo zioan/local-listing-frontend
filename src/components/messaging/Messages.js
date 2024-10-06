@@ -199,7 +199,7 @@ const Messages = () => {
               </button>
             </div>
             <div ref={messageListRef} className="flex-grow p-4 overflow-y-auto">
-              {loading && <LoadingSpinner isLoading={loading} />}
+              {loading && !messages && <LoadingSpinner isLoading={loading} />}
               <MessageList messages={messages} currentUser={user} />
             </div>
             <div className="sticky bottom-0 left-0 right-0 bg-white">
