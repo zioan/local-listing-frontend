@@ -95,20 +95,13 @@ const useMessages = () => {
    */
   const createConversation = useCallback(
     async (listingId) => {
-      if (!user) return; // Exit if no user
+      if (!user) return;
       setLoading(true);
       setError(null);
       try {
         const response = await api.post("messaging/conversations/", { listing_id: listingId });
-        // Add the new conversation if it doesn't already exist
-        setConversations((prevConversations) => {
-          const exists = prevConversations.some((conv) => conv.id === response.data.id);
-          if (!exists) {
-            return [...prevConversations, response.data];
-          }
-          return prevConversations;
-        });
-        return response.data; // Return created conversation data
+        setConversations((prevConversations) => [...prevConversations, response.data]);
+        return response.data;
       } catch (err) {
         setError(err.response?.data?.message || "Failed to create conversation");
         handleApiError(err, "Failed to create conversation");
@@ -117,6 +110,79 @@ const useMessages = () => {
       }
     },
     [user, handleApiError]
+  );
+
+  /**
+   * Fetches incoming messages for a specific listing.
+   *
+   * @param {number|string} listingId - The ID of the listing to fetch messages for.
+   * @returns {Promise<Array>} The incoming messages.
+   */
+  const fetchIncomingMessages = useCallback(
+    async (listingId) => {
+      if (!user) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await api.get(`messaging/listing/${listingId}/messages/`);
+        return response.data;
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch incoming messages");
+        handleApiError(err, "Failed to fetch incoming messages");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user, handleApiError]
+  );
+
+  /**
+   * Fetches the count of unread messages for the authenticated user.
+   */
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user) {
+      setUnreadCount(0); // Set to zero if no user
+      return;
+    }
+    try {
+      const response = await api.get("messaging/unread-messages/");
+      setUnreadCount(response.data.unread_count);
+    } catch (err) {
+      handleApiError(err, "Failed to fetch unread count");
+    }
+  }, [user, handleApiError]);
+
+  /**
+   * Fetches unread counts for each conversation.
+   */
+  const fetchConversationUnreadCounts = useCallback(async () => {
+    if (!user) return;
+    try {
+      const response = await api.get("messaging/conversation-unread-counts/");
+      setConversationUnreadCounts(response.data);
+    } catch (err) {
+      handleApiError(err, "Failed to fetch conversation unread counts");
+    }
+  }, [user, handleApiError]);
+
+  /**
+   * Marks messages as read for a specific conversation.
+   *
+   * @param {number|string} conversationId - The ID of the conversation to mark messages for.
+   * @param {Array<number|string>} messageIds - The IDs of messages to mark as read.
+   */
+  const markMessagesAsRead = useCallback(
+    async (conversationId, messageIds) => {
+      if (!user) return;
+      try {
+        await api.post(`messaging/conversations/${conversationId}/mark-as-read/`, { message_ids: messageIds });
+        fetchUnreadCount();
+        fetchConversationUnreadCounts();
+      } catch (err) {
+        handleApiError(err, "Failed to mark messages as read");
+      }
+    },
+    [user, fetchUnreadCount, fetchConversationUnreadCounts, handleApiError]
   );
 
   /**
@@ -140,79 +206,27 @@ const useMessages = () => {
     [user, createConversation, handleApiError]
   );
 
-  /**
-   * Fetches incoming messages for a specific listing.
-   *
-   * @param {number|string} listingId - The ID of the listing to fetch messages for.
-   * @returns {Promise<Array>} The incoming messages.
-   */
-  const fetchIncomingMessages = useCallback(
-    async (listingId) => {
-      if (!user) return; // Exit if no user
+  const fetchMessagesAndUnreadCounts = useCallback(
+    async (conversationId) => {
+      if (!user || !conversationId) return;
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`messaging/listing/${listingId}/messages/`);
-        return response.data; // Return incoming messages
+        const [messagesResponse, unreadCountsResponse] = await Promise.all([
+          api.get(`messaging/conversations/${conversationId}/messages/`),
+          api.get("messaging/conversation-unread-counts/"),
+        ]);
+        setMessages(messagesResponse.data);
+        setConversationUnreadCounts(unreadCountsResponse.data);
+        setUnreadCount(Object.values(unreadCountsResponse.data).reduce((a, b) => a + b, 0));
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch incoming messages");
-        handleApiError(err, "Failed to fetch incoming messages");
+        setError(err.response?.data?.message || "Failed to fetch messages and unread counts");
+        handleApiError(err, "Failed to fetch messages and unread counts");
       } finally {
         setLoading(false);
       }
     },
     [user, handleApiError]
-  );
-
-  /**
-   * Fetches the count of unread messages for the authenticated user.
-   */
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user) {
-      setUnreadCount(0); // Set to zero if no user
-      return;
-    }
-    try {
-      const response = await api.get("messaging/unread-messages/");
-      setUnreadCount(response.data.unread_count); // Set unread count
-    } catch (err) {
-      handleApiError(err, "Failed to fetch unread count");
-    }
-  }, [user, handleApiError]);
-
-  /**
-   * Fetches unread counts for each conversation.
-   */
-  const fetchConversationUnreadCounts = useCallback(async () => {
-    if (!user) return; // Exit if no user
-    try {
-      const response = await api.get("messaging/conversation-unread-counts/");
-      setConversationUnreadCounts(response.data);
-    } catch (err) {
-      handleApiError(err, "Failed to fetch conversation unread counts");
-    }
-  }, [user, handleApiError]);
-
-  /**
-   * Marks messages as read for a specific conversation.
-   *
-   * @param {number|string} conversationId - The ID of the conversation to mark messages for.
-   * @param {Array<number|string>} messageIds - The IDs of messages to mark as read.
-   */
-  const markMessagesAsRead = useCallback(
-    async (conversationId, messageIds) => {
-      if (!user) return; // Exit if no user
-      try {
-        await api.post(`messaging/conversations/${conversationId}/mark-as-read/`, { message_ids: messageIds });
-        // Update message state to reflect read status
-        setMessages((prevMessages) => prevMessages.map((msg) => (messageIds.includes(msg.id) ? { ...msg, is_read: true } : msg)));
-        fetchUnreadCount(); // Refresh unread count
-        fetchConversationUnreadCounts(); // Refresh conversation unread counts
-      } catch (err) {
-        handleApiError(err, "Failed to mark messages as read");
-      }
-    },
-    [user, fetchUnreadCount, fetchConversationUnreadCounts, handleApiError]
   );
 
   // Fetch unread counts on user change or on initial mount
@@ -247,6 +261,7 @@ const useMessages = () => {
     fetchUnreadCount,
     fetchConversationUnreadCounts,
     markMessagesAsRead,
+    fetchMessagesAndUnreadCounts,
   };
 };
 

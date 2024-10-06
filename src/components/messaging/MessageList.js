@@ -1,42 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { format, isSameDay, isYesterday, parseISO } from "date-fns";
-import MessageGroup from "./MessageGroup";
-
-const MESSAGES_PER_LOAD = 10;
 
 /**
- * MessageList component to display a list of messages, grouped by date.
- * Handles loading more messages when the user requests.
- * @param {Array} messages - The full list of messages.
- * @param {Object} currentUser - The current logged-in user object.
- * @returns {JSX.Element} The rendered list of grouped messages.
+ * MessageList component renders a list of messages grouped by the date they were sent.
+ * It highlights messages sent by the current user and provides appropriate date labels for
+ * each message group (Today, Yesterday, or a formatted date).
+ *
+ * @param {Object[]} messages - Array of message objects containing message details.
+ * @param {Object} currentUser - The current user object.
+ *
+ * @returns {JSX.Element} The rendered MessageList component.
  */
 const MessageList = ({ messages, currentUser }) => {
-  const [visibleMessages, setVisibleMessages] = useState([]);
-  const [hasMoreMessages, setHasMoreMessages] = useState(false);
-
-  // Effect to initialize visible messages and set if there are more to load
-  useEffect(() => {
-    if (messages.length > 0) {
-      setVisibleMessages(messages.slice(-MESSAGES_PER_LOAD));
-      setHasMoreMessages(messages.length > MESSAGES_PER_LOAD);
-    }
-  }, [messages]);
-
-  /**
-   * Loads more messages by appending the next batch of messages.
-   */
-  const loadMoreMessages = () => {
-    const currentLength = visibleMessages.length;
-    const newMessages = messages.slice(-currentLength - MESSAGES_PER_LOAD);
-    setVisibleMessages(newMessages);
-    setHasMoreMessages(newMessages.length < messages.length);
-  };
-
   /**
    * Gets a formatted label for the message date.
+   * Returns "Today" for messages from today, "Yesterday" for messages from yesterday,
+   * and a formatted date for older messages.
+   *
    * @param {Date} date - The date of the message.
-   * @returns {string} The formatted date label (Today, Yesterday, or a formatted date).
+   * @returns {string} The formatted date label.
    */
   const getDateLabel = (date) => {
     const today = new Date();
@@ -49,39 +31,48 @@ const MessageList = ({ messages, currentUser }) => {
     }
   };
 
-  const sortedMessages = [...messages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
   /**
-   * Groups messages by their date label.
+   * Groups messages by the date they were sent. Each date serves as a key for a group
+   * of messages sent on that day.
+   *
+   * @param {Object[]} messages - Array of message objects to be grouped.
+   * @returns {Object} An object where each key is a date and the value is an array of messages from that date.
    */
-  const groupedMessages = sortedMessages.reduce((groups, message) => {
-    const messageDate = parseISO(message.timestamp);
-    const dateLabel = getDateLabel(messageDate);
-
-    if (!groups[dateLabel]) {
-      groups[dateLabel] = [];
-    }
-    groups[dateLabel].push(message);
+  const groupMessagesByDate = (messages) => {
+    const groups = {};
+    messages.forEach((message) => {
+      const date = format(parseISO(message.timestamp), "MMMM d, yyyy");
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(message);
+    });
     return groups;
-  }, {});
+  };
+
+  const groupedMessages = groupMessagesByDate(messages);
 
   return (
-    <div className="flex flex-col-reverse">
-      {/* Reverse the order for bottom-up rendering */}
-      {Object.entries(groupedMessages)
-        .reverse()
-        .map(([dateLabel, groupMessages]) => (
-          <MessageGroup key={dateLabel} date={dateLabel} messages={groupMessages} currentUser={currentUser} />
-        ))}
-
-      {/* Display the "Load More" button if there are more messages to load */}
-      {hasMoreMessages && (
-        <div className="my-4 text-center">
-          <button onClick={loadMoreMessages} className="px-4 py-2 text-white transition duration-200 bg-blue-500 rounded hover:bg-blue-600">
-            Load More Messages
-          </button>
+    <div className="space-y-4">
+      {Object.entries(groupedMessages).map(([date, dateMessages]) => (
+        <div key={date}>
+          <div className="my-2 text-center">
+            <span className="px-2 py-1 text-xs text-gray-600 bg-gray-200 rounded-full">{getDateLabel(date)}</span>
+          </div>
+          {dateMessages.map((message) => (
+            <div key={message.id} className={`flex ${message.sender.username === currentUser.username ? "justify-end" : "justify-start"}`}>
+              <div
+                className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-2 rounded-lg ${
+                  message.sender.username === currentUser.username ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
+                }`}
+              >
+                <p>{message.content}</p>
+                <p className="mt-1 text-xs text-right">{format(parseISO(message.timestamp), "HH:mm")}</p>
+              </div>
+            </div>
+          ))}
         </div>
-      )}
+      ))}
     </div>
   );
 };

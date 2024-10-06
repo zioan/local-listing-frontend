@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
-import { appSettings } from "../../config/settings";
-import { toast } from "react-toastify";
-import { PaperAirplaneIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import ConversationList from "./ConversationList";
 import MessageList from "./MessageList";
-import LoadingSpinner from "../shared/LoadingSpinner";
+import MessageInput from "./MessageInput";
+import { ArrowLeftIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import { appSettings } from "../../config/settings";
 
 /**
- * Messages component to handle conversations and messages for the logged-in user.
- * It manages fetching conversations, messages, sending messages, and marking messages as read.
+ * Messages component manages the messaging interface. It allows users to view conversations,
+ * select a conversation, view messages, send new messages, and mark messages as read.
+ * It also handles mobile responsiveness with a toggle for the conversation list.
+ *
+ * @returns {JSX.Element} The rendered Messages component.
  */
 const Messages = () => {
   const { user } = useAuth();
@@ -19,37 +22,32 @@ const Messages = () => {
     conversations,
     messages,
     fetchConversations,
-    fetchMessages,
+    fetchMessagesAndUnreadCounts,
     sendMessage,
     markMessagesAsRead,
     conversationUnreadCounts,
-    fetchConversationUnreadCounts,
     createConversationFromListing,
   } = useMessages();
 
   const [currentConversation, setCurrentConversation] = useState(null);
-  const [newMessage, setNewMessage] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [showMobileList, setShowMobileList] = useState(true);
   const messageListRef = useRef(null);
-  const [showConversations, setShowConversations] = useState(true);
 
-  // Fetch conversations and unread message counts when the component mounts
+  /**
+   * Fetches messages and unread counts for the currently selected conversation.
+   */
+  const fetchCurrentConversationData = useCallback(() => {
+    if (currentConversation) {
+      fetchMessagesAndUnreadCounts(currentConversation.id);
+    }
+  }, [currentConversation, fetchMessagesAndUnreadCounts]);
+
   useEffect(() => {
     if (user) {
-      setIsLoading(true);
-      Promise.all([fetchConversations(), fetchConversationUnreadCounts()])
-        .then(() => setIsLoading(false))
-        .catch((err) => {
-          console.error("Error fetching initial data:", err);
-          setError("Failed to load conversations. Please try again.");
-          setIsLoading(false);
-        });
+      fetchConversations();
     }
-  }, [user, fetchConversations, fetchConversationUnreadCounts]);
+  }, [user, fetchConversations]);
 
-  // Effect to handle opening a conversation from the listing query param
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const listingId = searchParams.get("listing");
@@ -57,47 +55,32 @@ const Messages = () => {
       const existingConversation = conversations.find((conv) => conv.listing.id === parseInt(listingId, 10));
       if (existingConversation) {
         setCurrentConversation(existingConversation);
+        setShowMobileList(false);
       } else {
         createConversationFromListing(listingId).then((newConv) => {
           if (newConv) {
             setCurrentConversation(newConv);
+            setShowMobileList(false);
           }
         });
       }
     }
   }, [location, conversations, createConversationFromListing]);
 
-  // Fetch messages when the current conversation changes
   useEffect(() => {
-    if (currentConversation && user) {
-      setIsLoading(true);
-      const fetchMessagesData = async () => {
-        try {
-          await fetchMessages(currentConversation.id);
-          setError(null);
-        } catch (err) {
-          console.error("Error fetching messages:", err);
-          setError("Failed to load messages. Please try again.");
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchMessagesData();
-      const pollInterval = setInterval(fetchMessagesData, appSettings.pollInterval);
-      return () => clearInterval(pollInterval); // Clear interval on unmount
-    }
-  }, [currentConversation, user, fetchMessages]);
+    fetchCurrentConversationData();
 
-  // Scroll to the bottom of the message list when new messages arrive
+    const intervalId = setInterval(fetchCurrentConversationData, appSettings.pollInterval);
+
+    return () => clearInterval(intervalId);
+  }, [currentConversation, fetchCurrentConversationData]);
+
   useEffect(() => {
-    if (messages.length > 0 && messageListRef.current) {
+    if (messageListRef.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
-  }, [messages]);
 
-  // Mark unread messages as read when new messages come in
-  useEffect(() => {
-    if (currentConversation && messages.length > 0 && user) {
+    if (currentConversation && messages.length > 0) {
       const unreadMessages = messages.filter((message) => !message.is_read && message.sender.username !== user.username);
       if (unreadMessages.length > 0) {
         markMessagesAsRead(
@@ -106,50 +89,37 @@ const Messages = () => {
         );
       }
     }
-  }, [messages, currentConversation, user, markMessagesAsRead]);
+  }, [messages, currentConversation, user.username, markMessagesAsRead]);
 
   /**
-   * Handle changing the current conversation.
-   * @param {Object} conv - The conversation object to switch to.
+   * Handles conversation selection. Updates the current conversation and hides the mobile conversation list.
+   *
+   * @param {Object} conversation - The selected conversation object.
    */
-  const handleChangeConversation = (conv) => {
-    setCurrentConversation(conv);
-    setError(null);
-    setIsLoading(true);
-    setShowConversations(false); // Hide conversations on mobile
+  const handleConversationSelect = (conversation) => {
+    setCurrentConversation(conversation);
+    setShowMobileList(false);
   };
 
   /**
-   * Handle sending a message in the current conversation.
-   * @param {Event} e - The form submission event.
+   * Sends a new message in the current conversation, then fetches the latest messages and unread counts.
+   *
+   * @param {string} content - The content of the message to be sent.
    */
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (newMessage.trim() === "" || !user || !currentConversation) return;
-    setIsSending(true);
-    try {
-      await sendMessage(currentConversation.id, newMessage);
-      setNewMessage("");
-      await fetchMessages(currentConversation.id);
-      fetchConversationUnreadCounts();
-      if (messageListRef.current) {
-        messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-      }
-    } catch (error) {
-      toast.error("Failed to send message. Please try again.");
-    } finally {
-      setIsSending(false);
+  const handleSendMessage = async (content) => {
+    if (content.trim() && currentConversation) {
+      await sendMessage(currentConversation.id, content);
+      fetchCurrentConversationData();
     }
   };
 
   /**
-   * Toggle showing the conversation list on mobile devices.
+   * Toggles the visibility of the conversation list on mobile devices.
    */
-  const toggleConversations = () => {
-    setShowConversations(!showConversations);
+  const toggleMobileList = () => {
+    setShowMobileList(!showMobileList);
   };
 
-  // Render a message asking the user to log in if they are not authenticated
   if (!user) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -159,76 +129,46 @@ const Messages = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] md:flex-row max-w-4xl px-4 mx-auto">
-      <div className={`md:w-1/3 border-r ${showConversations ? "flex flex-col" : "hidden md:flex md:flex-col"}`}>
-        <h3 className="sticky top-0 z-10 p-4 text-lg font-semibold bg-white border-b">Conversations</h3>
-        <div className="flex-grow overflow-y-auto">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <LoadingSpinner />
-            </div>
-          ) : (
-            conversations.map((conv) => (
-              <div
-                key={`conv-${conv.id}`}
-                className={`p-4 cursor-pointer hover:bg-gray-100 ${currentConversation?.id === conv.id ? "bg-gray-200" : ""}`}
-                onClick={() => handleChangeConversation(conv)}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{conv.listing.title}</span>
-                  {conversationUnreadCounts[conv.id] > 0 && (
-                    <span className="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full">{conversationUnreadCounts[conv.id]}</span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-500 truncate">{conv.last_message ? conv.last_message.content : "No messages yet"}</p>
-              </div>
-            ))
-          )}
-        </div>
+    <div className="flex overflow-y-hidden bg-gray-100" style={{ height: "calc(100vh - 64px)" }}>
+      {/* Conversation List */}
+      <div
+        className={`fixed inset-y-0 left-0 w-full md:w-1/3 bg-white z-20 transform transition-transform duration-300 ease-in-out ${
+          showMobileList ? "translate-x-0" : "-translate-x-full"
+        } md:relative md:translate-x-0`}
+        style={{ height: "100vh" }}
+      >
+        <ConversationList
+          conversations={conversations}
+          currentConversation={currentConversation}
+          onConversationSelect={handleConversationSelect}
+          unreadCounts={conversationUnreadCounts}
+        />
       </div>
+
+      {/* Message Area */}
       <div className="flex flex-col w-full md:w-2/3">
-        <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b">
-          <h3 className="text-lg font-semibold">{currentConversation?.listing.title || "Select a conversation"}</h3>
-          <button onClick={toggleConversations} className="p-2 rounded-full md:hidden hover:bg-gray-200" aria-label="Toggle conversations">
-            <ChatBubbleLeftRightIcon className="w-6 h-6" />
-          </button>
-        </div>
-        <div className="flex-grow overflow-hidden">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <LoadingSpinner />
-            </div>
-          ) : error ? (
-            <div className="flex items-center justify-center h-full p-4">
-              <p className="text-red-500">{error}</p>
-            </div>
-          ) : (
-            <div ref={messageListRef} className="h-full pb-16 overflow-y-auto">
-              <MessageList messages={messages} currentUser={user} />
-            </div>
-          )}
-        </div>
-        {currentConversation && (
-          <form onSubmit={handleSendMessage} className="sticky bottom-0 p-4 bg-white border-t">
-            <div className="flex">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Type a message..."
-                disabled={isSending}
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-300"
-                disabled={isSending}
-                aria-label="Send Message"
-              >
-                <PaperAirplaneIcon className="w-5 h-5" />
+        {currentConversation ? (
+          <>
+            <div className="sticky top-0 z-10 flex items-center p-4 bg-gray-200">
+              <button onClick={toggleMobileList} className="mr-2 text-gray-600 md:hidden">
+                <ArrowLeftIcon className="w-6 h-6" />
+              </button>
+              <h2 className="flex-grow text-lg font-semibold truncate">{currentConversation.listing.title}</h2>
+              <button onClick={toggleMobileList} className="text-gray-600 md:hidden">
+                <ChatBubbleLeftRightIcon className="w-6 h-6" />
               </button>
             </div>
-          </form>
+            <div ref={messageListRef} className="flex-grow p-4 overflow-y-auto">
+              <MessageList messages={messages} currentUser={user} />
+            </div>
+            <div className="sticky bottom-0 left-0 right-0 bg-white">
+              <MessageInput onSendMessage={handleSendMessage} />
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">Select a conversation to start messaging</p>
+          </div>
         )}
       </div>
     </div>
