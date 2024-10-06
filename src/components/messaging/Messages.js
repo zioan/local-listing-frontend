@@ -7,6 +7,7 @@ import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import { ArrowLeftIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { appSettings } from "../../config/settings";
+import LoadingSpinner from "../shared/LoadingSpinner";
 import _ from "lodash"; // Import lodash for deep equality check
 
 /**
@@ -20,6 +21,7 @@ const Messages = () => {
   const { user } = useAuth();
   const location = useLocation();
   const {
+    loading,
     conversations,
     messages: fetchedMessages,
     fetchConversations,
@@ -167,7 +169,7 @@ const Messages = () => {
   }
 
   return (
-    <div className="flex overflow-y-hidden bg-gray-100" style={{ height: "calc(100vh - 64px)" }}>
+    <div className="flex max-w-4xl mx-auto overflow-y-hidden bg-gray-100 border-r-2 border-r-white " style={{ height: "calc(100vh - 64px)" }}>
       {/* Conversation List */}
       <div
         className={`fixed inset-y-0 left-0 w-full md:w-1/3 bg-white z-20 transform transition-transform duration-300 ease-in-out ${
@@ -197,6 +199,7 @@ const Messages = () => {
               </button>
             </div>
             <div ref={messageListRef} className="flex-grow p-4 overflow-y-auto">
+              {loading && <LoadingSpinner isLoading={loading} />}
               <MessageList messages={messages} currentUser={user} />
             </div>
             <div className="sticky bottom-0 left-0 right-0 bg-white">

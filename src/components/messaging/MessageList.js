@@ -60,7 +60,7 @@ const MessageList = ({ messages, currentUser }) => {
             <span className="px-2 py-1 text-xs text-gray-600 bg-gray-200 rounded-full">{getDateLabel(date)}</span>
           </div>
           {dateMessages.map((message) => (
-            <div key={message.id} className={`flex ${message.sender.username === currentUser.username ? "justify-end" : "justify-start"}`}>
+            <div key={message.id} className={`flex ${message.sender.username === currentUser.username ? "justify-end" : "justify-start"} mb-2`}>
               <div
                 className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-2 rounded-lg ${
                   message.sender.username === currentUser.username ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
