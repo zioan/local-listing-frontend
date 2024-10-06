@@ -49,10 +49,12 @@ const MessageList = ({ messages, currentUser }) => {
     }
   };
 
+  const sortedMessages = [...messages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
   /**
    * Groups messages by their date label.
    */
-  const groupedMessages = visibleMessages.reduce((groups, message) => {
+  const groupedMessages = sortedMessages.reduce((groups, message) => {
     const messageDate = parseISO(message.timestamp);
     const dateLabel = getDateLabel(messageDate);
 
@@ -69,7 +71,7 @@ const MessageList = ({ messages, currentUser }) => {
       {Object.entries(groupedMessages)
         .reverse()
         .map(([dateLabel, groupMessages]) => (
-          <MessageGroup key={dateLabel} date={dateLabel} messages={groupMessages.reverse()} currentUser={currentUser} />
+          <MessageGroup key={dateLabel} date={dateLabel} messages={groupMessages} currentUser={currentUser} />
         ))}
 
       {/* Display the "Load More" button if there are more messages to load */}
