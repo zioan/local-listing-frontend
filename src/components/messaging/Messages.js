@@ -7,6 +7,7 @@ import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import { ArrowLeftIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { appSettings } from "../../config/settings";
+import _ from "lodash"; // Import lodash for deep equality check
 
 /**
  * Messages component manages the messaging interface. It allows users to view conversations,
@@ -20,7 +21,7 @@ const Messages = () => {
   const location = useLocation();
   const {
     conversations,
-    messages,
+    messages: fetchedMessages,
     fetchConversations,
     fetchMessagesAndUnreadCounts,
     sendMessage,
@@ -29,9 +30,11 @@ const Messages = () => {
     createConversationFromListing,
   } = useMessages();
 
+  const [messages, setMessages] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [showMobileList, setShowMobileList] = useState(true);
   const messageListRef = useRef(null);
+  const userScrolled = useRef(false);
 
   /**
    * Fetches messages and unread counts for the currently selected conversation.
@@ -75,9 +78,40 @@ const Messages = () => {
     return () => clearInterval(intervalId);
   }, [currentConversation, fetchCurrentConversationData]);
 
+  // Only update messages if they are genuinely different to prevent unnecessary re-renders
   useEffect(() => {
-    if (messageListRef.current) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    if (!_.isEqual(fetchedMessages, messages)) {
+      setMessages(fetchedMessages);
+    }
+  }, [fetchedMessages, messages]);
+
+  useEffect(() => {
+    const messageListElement = messageListRef.current;
+
+    if (messageListElement) {
+      const handleScroll = () => {
+        const atBottom = messageListElement.scrollTop + messageListElement.clientHeight >= messageListElement.scrollHeight - 10;
+
+        if (!atBottom) {
+          userScrolled.current = true; // User scrolled away from bottom
+        } else {
+          userScrolled.current = false; // User is at bottom
+        }
+      };
+
+      messageListElement.addEventListener("scroll", handleScroll);
+      return () => {
+        messageListElement.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
+
+  // Scroll to bottom if the user has not scrolled away from the bottom
+  useEffect(() => {
+    const messageListElement = messageListRef.current;
+
+    if (messageListElement && !userScrolled.current) {
+      messageListElement.scrollTop = messageListElement.scrollHeight;
     }
 
     if (currentConversation && messages.length > 0) {
@@ -99,6 +133,8 @@ const Messages = () => {
   const handleConversationSelect = (conversation) => {
     setCurrentConversation(conversation);
     setShowMobileList(false);
+    // Reset scrolling state when selecting a new conversation
+    userScrolled.current = false;
   };
 
   /**
@@ -110,6 +146,8 @@ const Messages = () => {
     if (content.trim() && currentConversation) {
       await sendMessage(currentConversation.id, content);
       fetchCurrentConversationData();
+      // Scroll to the bottom after sending a message
+      userScrolled.current = false;
     }
   };
 
