@@ -154,6 +154,8 @@ const SearchBox = () => {
     </form>
   );
 
+  if (location.pathname !== "/") return null;
+
   if (isMobile) {
     return (
       <>
