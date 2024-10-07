@@ -54,8 +54,11 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
     }
   };
 
-  // If there are no filters applied, don't render the component
-  if (Object.keys(filters).length === 0 || (filters.hasOwnProperty("search") && filters.search.trim() === "")) {
+  // Check if there are any non-empty filters
+  const hasActiveFilters = Object.values(filters).some((value) => value && value.trim() !== "");
+
+  // If there are no non-empty filters, don't render the component
+  if (!hasActiveFilters) {
     return null;
   }
 
