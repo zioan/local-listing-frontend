@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useSearch } from "../context/SearchContext";
@@ -29,7 +29,8 @@ function Home() {
   const { searchTerm, handleSearch } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState(initializeFilters());
   const [showFilterModal, setShowFilterModal] = useState(false);
 
@@ -51,19 +52,22 @@ function Home() {
 
   useEffect(() => {
     const loadListings = async () => {
-      setIsLoading(true);
+      if (isInitialLoad) {
+        setIsLoading(true);
+      }
 
       // Check if the current filters are different from the last fetched filters
       const filtersChanged = JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters);
 
-      if (filtersChanged) {
+      if (filtersChanged || isInitialLoad) {
         await fetchListings(filters);
       }
 
       setIsLoading(false);
+      setIsInitialLoad(false);
     };
     loadListings();
-  }, [fetchListings, filters, lastFetchedFilters]);
+  }, [fetchListings, filters, lastFetchedFilters, isInitialLoad]);
 
   // Effect for updating the URL with active filters
   useEffect(() => {
@@ -89,6 +93,7 @@ function Home() {
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
     setShowFilterModal(false);
+    setIsLoading(true);
   }, []);
 
   // Handle removing a filter
@@ -108,6 +113,7 @@ function Home() {
       if (filterKey === "search") {
         handleSearch("");
       }
+      setIsLoading(true);
     },
     [handleSearch]
   );
@@ -118,12 +124,20 @@ function Home() {
     sessionStorage.removeItem("defaultFilters");
     navigate("/", { replace: true });
     handleSearch("");
+    setIsLoading(true);
   }, [navigate, handleSearch]);
 
   // Toggle filter modal visibility
   const toggleFilterModal = () => {
     setShowFilterModal(!showFilterModal);
   };
+
+  // Memoize the listings to prevent unnecessary re-renders
+  const memoizedListings = useMemo(() => {
+    return listings && listings.length > 0
+      ? listings.filter((listing) => listing.status === "active").map((listing) => <ListingCard key={listing.id} listing={listing} />)
+      : null;
+  }, [listings]);
 
   // Display error message if there are issues with listings
   if (error.listings) return <div className="text-center text-red-500">{error.listings}</div>;
@@ -161,15 +175,11 @@ function Home() {
 
         <ActiveFilters filters={filters} onFilterRemove={handleFilterRemove} />
 
-        {isLoading ? (
+        {isLoading || isInitialLoad ? (
           <SkeletonLoader count={8} />
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {listings && listings.length > 0 ? (
-              listings.map((listing) => listing.status === "active" && <ListingCard key={listing.id} listing={listing} />)
-            ) : (
-              <div className="py-12 text-center text-gray-500 col-span-full">No listings found.</div>
-            )}
+            {memoizedListings || <div className="py-12 text-center text-gray-500 col-span-full">No listings found.</div>}
           </div>
         )}
       </div>
