@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import Tooltip from "./Tooltip";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 /**
@@ -68,11 +69,13 @@ const Modal = ({ isOpen, onClose, title, children, size = "md", showCloseButton 
               <h3 className="text-2xl font-semibold">{title}</h3>
               {showCloseButton && (
                 <button
-                  className="float-right p-1 ml-auto text-3xl font-semibold leading-none text-black bg-transparent border-0 outline-none opacity-5 focus:outline-none"
+                  className="float-right p-1 ml-auto text-3xl font-semibold leading-none text-black bg-transparent border-0 outline-none focus:outline-none"
                   onClick={onClose}
                   aria-label="Close Modal"
                 >
-                  <XMarkIcon className="w-6 h-6 text-black" />
+                  <Tooltip content="Close" position="bottom">
+                    <XMarkIcon className="w-6 h-6 text-black" />
+                  </Tooltip>
                 </button>
               )}
             </div>
