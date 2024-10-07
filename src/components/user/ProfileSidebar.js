@@ -47,9 +47,8 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
     const IconComponent = item.icon;
 
     return (
-      <Tooltip content={item.name} position={isMobile ? "top" : "none"}>
+      <Tooltip key={item.name} content={item.name} position={isMobile ? "top" : "none"}>
         <Link
-          key={item.name}
           to={item.path}
           aria-label={item.name}
           className={`
@@ -77,7 +76,7 @@ const ProfileSidebar = ({ isMobile = false, onLogout }) => {
    * @returns {JSX.Element} The rendered logout button.
    */
   const renderLogoutButton = () => (
-    <Tooltip content="Logout" position={isMobile ? "top" : "none"}>
+    <Tooltip key="logout" content="Logout" position={isMobile ? "top" : "none"}>
       <button
         onClick={onLogout}
         className={`
