@@ -48,6 +48,7 @@ export const DataProvider = ({ children }) => {
     updateListingStatus,
     deleteListing,
     setListings,
+    lastFetchedFilters,
   } = useListings();
   const { myListings, loading: myListingsLoading, error: myListingsError, fetchMyListings, setMyListings } = useMyListings(user);
   const { listingDetails, loading: listingDetailsLoading, error: listingDetailsError, fetchListing, setListingDetails } = useListingDetails();
@@ -189,6 +190,7 @@ export const DataProvider = ({ children }) => {
     fetchFavorites,
     updateFavoriteStatus: updateFavoriteStatusAndListings,
     fetchListings,
+    lastFetchedFilters,
     updateListing,
     updateListingStatus,
     deleteListing,

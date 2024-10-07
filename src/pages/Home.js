@@ -9,7 +9,6 @@ import ActiveFilters from "../components/home/ActiveFilters";
 import SkeletonLoader from "../components/shared/SkeletonLoader";
 import Modal from "../components/shared/Modal";
 import { FunnelIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { toast } from "react-toastify";
 
 // Utility function to get non-empty filters
 const getNonEmptyFilters = (filters) => {
@@ -26,7 +25,7 @@ const getNonEmptyFilters = (filters) => {
  * It handles fetching data, search functionality, and displaying listings.
  */
 function Home() {
-  const { listings, error, fetchListings } = useData();
+  const { listings, error, fetchListings, lastFetchedFilters } = useData();
   const { searchTerm, handleSearch } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,33 +37,45 @@ function Home() {
   function initializeFilters() {
     const searchParams = new URLSearchParams(location.search);
     const filtersFromUrl = Object.fromEntries(searchParams);
-    const storedFilters = JSON.parse(sessionStorage.getItem("defaultFilters") || "{}");
 
-    // Prioritize stored filters, but use URL params if stored filters are empty
-    return Object.keys(storedFilters).length > 0 ? storedFilters : getNonEmptyFilters(filtersFromUrl);
+    // Use the non-empty filters from URL or sessionStorage
+    const nonEmptyFilters = getNonEmptyFilters(filtersFromUrl);
+
+    if (Object.keys(nonEmptyFilters).length > 0) {
+      return nonEmptyFilters;
+    }
+
+    const storedFilters = sessionStorage.getItem("defaultFilters");
+    return storedFilters ? JSON.parse(storedFilters) : {};
   }
 
-  // Effect for fetching listings when filters change
   useEffect(() => {
     const loadListings = async () => {
       setIsLoading(true);
-      try {
+
+      // Check if the current filters are different from the last fetched filters
+      const filtersChanged = JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters);
+
+      if (filtersChanged) {
         await fetchListings(filters);
-      } catch (error) {
-        toast.error(error, {
-          toastId: `error-${error}`, // Prevent duplicate toasts
-        });
-      } finally {
-        setIsLoading(false);
       }
+
+      setIsLoading(false);
     };
     loadListings();
-  }, [fetchListings, filters]);
+  }, [fetchListings, filters, lastFetchedFilters]);
 
   // Effect for updating the URL with active filters
   useEffect(() => {
-    const searchParams = new URLSearchParams(getNonEmptyFilters(filters));
+    const nonEmptyFilters = getNonEmptyFilters(filters);
+    const searchParams = new URLSearchParams(nonEmptyFilters);
     navigate(`?${searchParams.toString()}`, { replace: true });
+
+    if (Object.keys(nonEmptyFilters).length > 0) {
+      sessionStorage.setItem("defaultFilters", JSON.stringify(nonEmptyFilters));
+    } else {
+      sessionStorage.removeItem("defaultFilters");
+    }
   }, [filters, navigate]);
 
   // Effect to sync search term with filters
@@ -72,14 +83,12 @@ function Home() {
     if (searchTerm !== filters.search) {
       setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
     }
-  }, [searchTerm]);
+  }, [searchTerm, filters.search]);
 
   // Handle changes to filters
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
     setShowFilterModal(false);
-    // Only update sessionStorage when filters are changed via UI
-    sessionStorage.setItem("defaultFilters", JSON.stringify(getNonEmptyFilters(newFilters)));
   }, []);
 
   // Handle removing a filter
@@ -94,8 +103,6 @@ function Home() {
           delete newFilters["subcategory"];
         }
 
-        // Update sessionStorage when a filter is removed
-        sessionStorage.setItem("defaultFilters", JSON.stringify(getNonEmptyFilters(newFilters)));
         return newFilters;
       });
       if (filterKey === "search") {

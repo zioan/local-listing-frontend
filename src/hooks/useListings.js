@@ -11,6 +11,7 @@ import { useError } from "../context/ErrorContext";
 const useListings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [lastFetchedFilters, setLastFetchedFilters] = useState(null);
   const [error, setError] = useState(null);
   const { handleApiError } = useError();
 
@@ -30,6 +31,7 @@ const useListings = () => {
         const response = await api.get("listings/listings/", { params });
         const newListings = response.data.results || [];
         setListings(newListings);
+        setLastFetchedFilters(filters);
       } catch (err) {
         handleApiError(err, "Failed to fetch listings");
       } finally {
@@ -123,6 +125,7 @@ const useListings = () => {
     updateListingStatus,
     deleteListing,
     setListings,
+    lastFetchedFilters,
   };
 };
 
