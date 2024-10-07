@@ -8,6 +8,7 @@ import MyListings from "../../components/user/MyListings";
 import CreateListing from "../../components/listings/CreateListing";
 import Favorites from "../../components/user/Favorites";
 import ChangePassword from "../../components/user/ChangePassword";
+import DeleteAccount from "../../components/user/DeleteAccount";
 
 /**
  * Profile component that displays user profile information and related features.
@@ -36,6 +37,7 @@ function Profile() {
                   <Route path="/listings/create" element={<CreateListing />} />
                   <Route path="/favorites" element={<Favorites />} />
                   <Route path="/change-password" element={<ChangePassword />} />
+                  <Route path="/delete-account" element={<DeleteAccount />} />
                 </Routes>
               </div>
             </main>

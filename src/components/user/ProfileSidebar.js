@@ -9,6 +9,7 @@ import {
   HomeIcon,
   ArrowRightOnRectangleIcon,
   LockClosedIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import Tooltip from "../shared/Tooltip";
 
@@ -21,6 +22,7 @@ const menuItems = [
   { name: "My Listings", path: "/profile/listings", icon: ClipboardDocumentListIcon },
   { name: "Create Listing", path: "/profile/listings/create", icon: PlusCircleIcon },
   { name: "Favorites", path: "/profile/favorites", icon: HeartIcon },
+  { name: "Delete Account", path: "/profile/delete-account", icon: TrashIcon },
 ];
 
 /**
