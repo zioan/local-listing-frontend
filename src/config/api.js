@@ -31,18 +31,21 @@ api.interceptors.response.use(
       throw new HttpError("Network error", 0);
     }
 
+    // If the error is 401 and we haven't retried the request yet
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
           const newTokens = await authService.refreshToken(refreshToken);
           localStorage.setItem("access_token", newTokens.access);
           localStorage.setItem("refresh_token", newTokens.refresh);
-          originalRequest.headers["Authorization"] = `Bearer ${newTokens.access}`;
+          api.defaults.headers.common["Authorization"] = `Bearer ${newTokens.access}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
+        // If refresh token is invalid, log out the user
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         window.location.href = "/login";
