@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useSearch } from "../context/SearchContext";
 import HeroSection from "../components/home/HeroSection";
@@ -29,6 +29,7 @@ function Home() {
   const { searchTerm, handleSearch } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState(initializeFilters());
@@ -46,10 +47,29 @@ function Home() {
       return nonEmptyFilters;
     }
 
+    // Fall back to session storage if URL params are empty
     const storedFilters = sessionStorage.getItem("defaultFilters");
     return storedFilters ? JSON.parse(storedFilters) : {};
   }
 
+  // Effect to update filters from URL params
+  useEffect(() => {
+    const newFilters = { ...filters };
+    let hasChanges = false;
+
+    for (const [key, value] of searchParams.entries()) {
+      if (newFilters[key] !== value) {
+        newFilters[key] = value;
+        hasChanges = true;
+      }
+    }
+
+    if (hasChanges) {
+      setFilters(newFilters);
+    }
+  }, [searchParams]);
+
+  // Effect to fetch listings when filters change
   useEffect(() => {
     const loadListings = async () => {
       if (isInitialLoad) {
@@ -66,6 +86,7 @@ function Home() {
       setIsLoading(false);
       setIsInitialLoad(false);
     };
+
     loadListings();
   }, [fetchListings, filters, lastFetchedFilters, isInitialLoad]);
 
@@ -85,9 +106,15 @@ function Home() {
   // Effect to sync search term with filters
   useEffect(() => {
     if (searchTerm !== filters.search) {
-      setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
+      setFilters((prevFilters) => {
+        // Only update if the search term has actually changed
+        if (prevFilters.search !== searchTerm) {
+          return { ...prevFilters, search: searchTerm };
+        }
+        return prevFilters;
+      });
     }
-  }, [searchTerm, filters.search]);
+  }, [searchTerm]);
 
   // Handle changes to filters
   const handleFilterChange = useCallback((newFilters) => {
