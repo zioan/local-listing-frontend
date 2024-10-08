@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { format, parseISO } from "date-fns";
 
 /**
@@ -13,12 +13,33 @@ import { format, parseISO } from "date-fns";
  *
  * @returns {JSX.Element} The rendered ConversationList component.
  */
-const ConversationList = ({ conversations, currentConversation, onConversationSelect, unreadCounts }) => {
+const ConversationList = ({ conversations, currentConversation, onConversationSelect, unreadCounts, onRemoveConversation }) => {
+  /**
+   * Filters out duplicate conversations
+   * Bug description: Due to unknown reasons, the conversation list may contain duplicate conversations
+   * when the user start a conversation from the listing detail page.
+   * While this is not a permanent or appropriate solution, the `uniqueConversations` function
+   * filters out duplicate conversations by checking the conversation ID.
+   * This bug does not affect the chat functionality, backend capability, or the database itself,
+   * is purely a frontend issue.
+   */
+  const uniqueConversations = useMemo(() => {
+    const seenIds = new Set();
+    return conversations.filter((conversation) => {
+      if (seenIds.has(conversation.id)) {
+        return false;
+      }
+      seenIds.add(conversation.id);
+      return true;
+    });
+  }, [conversations]);
+
   return (
     <div className="flex flex-col h-full">
       <h2 className="p-4 text-xl font-semibold border-b">Conversations</h2>
       <div className="flex-grow overflow-y-auto" style={{ height: "calc(100vh - 60px)" }}>
-        {conversations.map((conversation) => (
+        {!conversations.length && <div className="p-4 text-center text-gray-500">No conversations yet</div>}
+        {uniqueConversations.map((conversation) => (
           <div
             key={conversation.id}
             className={`p-4 border-b cursor-pointer hover:bg-gray-100 ${currentConversation?.id === conversation.id ? "bg-gray-200" : ""}`}
