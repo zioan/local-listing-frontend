@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { HeartIcon, UserIcon, ChatBubbleLeftIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";
@@ -42,7 +42,11 @@ function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <NavLink to="/" className="text-gray-300 hover:text-white">
+            <NavLink
+              to={location.pathname === "/" ? `${location.pathname}${location.search}` : "/"}
+              aria-label="Home"
+              className="text-gray-300 hover:text-white"
+            >
               Local Listing
             </NavLink>
           </div>
@@ -52,7 +56,11 @@ function Navbar() {
 
           {/* Right side icons */}
           <div className="flex items-center space-x-4">
-            <NavLink to="/" aria-label="Home" className="text-gray-300 hover:text-white">
+            <NavLink
+              to={location.pathname === "/" ? `${location.pathname}${location.search}` : "/"}
+              aria-label="Home"
+              className="text-gray-300 hover:text-white"
+            >
               <Tooltip content="Home" position="bottom">
                 <HomeIcon className="w-6 h-6" />
               </Tooltip>
