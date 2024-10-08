@@ -1,9 +1,36 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSearch } from "../../context/SearchContext";
 import { TagIcon, UserIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { SocialLinks } from "../shared/ShareButtons";
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const { handleSearch } = useSearch();
+
+  /**
+   * Handles the click event on a category in the footer.
+   * This function performs the following actions:
+   * 1. Clears the current search term.
+   * 2. Removes all existing filters from sessionStorage.
+   * 3. Navigates to the home page with only the selected category as a filter.
+   * 4. Sets a new defaultFilters in sessionStorage containing only the selected category.
+   * 5. Forces a page reload to ensure all components update with the new filter state.
+   *
+   * @param {number|string} categoryId - The ID of the selected category.
+   */
+  const handleCategoryClick = useCallback(
+    (categoryId) => {
+      handleSearch("");
+      sessionStorage.removeItem("defaultFilters");
+      navigate(`/?category=${categoryId}`);
+      const newFilters = { category: categoryId.toString() };
+      sessionStorage.setItem("defaultFilters", JSON.stringify(newFilters));
+      window.location.reload();
+    },
+    [navigate, handleSearch]
+  );
+
   return (
     <footer className="text-white bg-gray-800">
       <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -44,22 +71,22 @@ const Footer = () => {
             <h3 className="mb-4 text-lg font-semibold">Popular Categories</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/category/electronics" className="flex items-center text-sm text-gray-400 hover:text-white">
+                <button onClick={() => handleCategoryClick(3)} className="flex items-center text-sm text-gray-400 hover:text-white">
                   <TagIcon className="w-5 h-5 mr-2" />
                   Electronics
-                </Link>
+                </button>
               </li>
               <li>
-                <Link to="/category/home-garden" className="flex items-center text-sm text-gray-400 hover:text-white">
+                <button onClick={() => handleCategoryClick(4)} className="flex items-center text-sm text-gray-400 hover:text-white">
                   <TagIcon className="w-5 h-5 mr-2" />
                   Home & Garden
-                </Link>
+                </button>
               </li>
               <li>
-                <Link to="/category/services" className="flex items-center text-sm text-gray-400 hover:text-white">
+                <button onClick={() => handleCategoryClick(5)} className="flex items-center text-sm text-gray-400 hover:text-white">
                   <TagIcon className="w-5 h-5 mr-2" />
                   Services
-                </Link>
+                </button>
               </li>
             </ul>
           </div>
