@@ -20,6 +20,7 @@ const UpdateProfile = () => {
     street: "",
     zip: "",
     city: "",
+    bio: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,6 +35,7 @@ const UpdateProfile = () => {
             street: user.street || "",
             zip: user.zip || "",
             city: user.city || "",
+            bio: user.bio || "",
           });
         }
       } catch (error) {
@@ -78,6 +80,7 @@ const UpdateProfile = () => {
         <FormInput id="street" name="street" value={formData.street} onChange={handleChange} label="Street" />
         <FormInput id="zip" name="zip" value={formData.zip} onChange={handleChange} label="ZIP Code" />
         <FormInput id="city" name="city" value={formData.city} onChange={handleChange} label="City" />
+        <FormInput id="bio" name="bio" value={formData.bio} onChange={handleChange} label="Bio" />
         <div>
           <SubmitBtn isSubmitting={isSubmitting}>Update Profile</SubmitBtn>
         </div>

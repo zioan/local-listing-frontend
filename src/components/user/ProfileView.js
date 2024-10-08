@@ -40,6 +40,11 @@ const ProfileView = ({ user }) => {
             <dt className="text-sm font-medium text-gray-500">City</dt>
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user.city || "Not provided"}</dd>
           </div>
+          {/* User's Bio */}
+          <div className="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">Bio</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user.bio || "No bio information yet"}</dd>
+          </div>
         </dl>
       </div>
     </div>
