@@ -7,7 +7,7 @@ import Tooltip from "../shared/Tooltip";
 /**
  * ActiveFilters Component
  *
- * This component displays a list of active filters that the user has applied. Each filter can be removed individually.
+ * This component displays a list of active filters that the user has applied, and the search query. Each filter can be removed individually.
  *
  * @param {Object} filters - An object containing the active filters applied by the user.
  * @param {Function} onFilterRemove - A callback function to remove a specific filter when the user clicks the remove button.
@@ -18,8 +18,8 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
   /**
    * getFilterLabel
    *
-   * Retrieves the label for a filter based on the key and value.
-   * It handles various filter types like listing type, condition, category, etc.
+   * Retrieves the label for a filter or for the search query based on the key and value.
+
    *
    * @param {string} key - The filter key (e.g., "listing_type", "category").
    * @param {string|number} value - The filter value.
@@ -49,6 +49,8 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
         return `Start Date: ${value}`;
       case "end_date":
         return `End Date: ${value}`;
+      case "search":
+        return `Search: ${value}`;
       default:
         return `${key}: ${value}`;
     }
