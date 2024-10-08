@@ -62,7 +62,7 @@ const MessageList = ({ messages, currentUser }) => {
           {dateMessages.map((message) => (
             <div key={message.id} className={`flex ${message.sender.username === currentUser.username ? "justify-end" : "justify-start"} mb-2`}>
               <div
-                className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-2 rounded-lg ${
+                className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-2 rounded-lg mb-2 ${
                   message.sender.username === currentUser.username ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
                 }`}
               >
