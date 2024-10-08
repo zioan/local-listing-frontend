@@ -4,7 +4,7 @@ import { useData } from "../../context/DataContext";
 import { formatDate } from "../../util/listingHelpers";
 import ListingCard from "../listings/ListingCard";
 import LoadingSpinner from "../shared/LoadingSpinner";
-import { UserIcon, MapPinIcon, CalendarIcon, TagIcon, StarIcon } from "@heroicons/react/24/outline";
+import { UserIcon, CalendarIcon, TagIcon, StarIcon } from "@heroicons/react/24/outline";
 import ReviewForm from "../reviews/ReviewForm";
 import ReviewList from "../reviews/ReviewList";
 import { toast } from "react-toastify";
@@ -127,13 +127,6 @@ function PublicProfile() {
                 Username
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{profile.username}</dd>
-            </div>
-            <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="flex items-center text-sm font-medium text-gray-500">
-                <MapPinIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                Location
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{profile.location || "Not specified"}</dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="flex items-center text-sm font-medium text-gray-500">
