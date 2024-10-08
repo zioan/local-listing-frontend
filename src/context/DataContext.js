@@ -8,6 +8,7 @@ import useListings from "../hooks/useListings";
 import useMyListings from "../hooks/useMyListings";
 import useListingDetails from "../hooks/useListingDetails";
 import useProfile from "../hooks/useProfile";
+import useReviews from "../hooks/useReviews";
 import useCacheManagement from "../hooks/useCacheManagement";
 
 // Create a context for data management
@@ -53,6 +54,7 @@ export const DataProvider = ({ children }) => {
   const { myListings, loading: myListingsLoading, error: myListingsError, fetchMyListings, setMyListings } = useMyListings(user);
   const { listingDetails, loading: listingDetailsLoading, error: listingDetailsError, fetchListing, setListingDetails } = useListingDetails();
   const { loading: profileLoading, error: profileError, fetchPublicProfile, fetchUserListings } = useProfile();
+  const { fetchUserReviews } = useReviews();
 
   // Reset functions for data states
   const resetListings = useCallback(() => setListings([]), [setListings]);
@@ -198,6 +200,7 @@ export const DataProvider = ({ children }) => {
     fetchListing,
     fetchPublicProfile,
     fetchUserListings,
+    fetchUserReviews,
     invalidateCache,
     refetchUserData,
     initializeData,

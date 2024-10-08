@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import api from "../config/api";
 import { useError } from "../context/ErrorContext";
 
@@ -13,6 +13,24 @@ const useReviews = () => {
   const [error, setError] = useState(null);
   const { handleApiError } = useError();
 
+  /**
+   * Retrieves all reviews for a user.
+   *
+   * @param {string} userId - The ID of the user to fetch reviews for.
+   * @returns {Array} An array of review objects.
+   */
+  const fetchUserReviews = useCallback(
+    async (userId) => {
+      try {
+        const response = await api.get(`reviews/users/${userId}/reviews/`);
+        return response.data;
+      } catch (error) {
+        handleApiError(error, "Failed to fetch user reviews");
+        return [];
+      }
+    },
+    [handleApiError]
+  );
   /**
    * Retrieves an existing review between a reviewed user and a reviewer.
    *
@@ -97,6 +115,7 @@ const useReviews = () => {
   return {
     loading,
     error,
+    fetchUserReviews,
     getExistingReview,
     submitReview,
     updateReview,
