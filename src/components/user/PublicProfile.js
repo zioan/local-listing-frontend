@@ -17,46 +17,58 @@ import { toast } from "react-toastify";
  */
 function PublicProfile() {
   const { username } = useParams();
-  const { fetchPublicProfile, fetchUserListings, loading, error } = useData();
-  const [profile, setProfile] = useState(null);
-  const [listings, setListings] = useState([]);
+  const { fetchPublicProfile, fetchUserListings, fetchUserReviews } = useData();
+  const [profileData, setProfileData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Effect to load profile and listings data when the component mounts
+  // Effect to load profile, reviews, and listings data when the component mounts
   useEffect(() => {
-    const loadProfile = async () => {
+    const loadProfileData = async () => {
+      setIsLoading(true);
       try {
-        const profileData = await fetchPublicProfile(username);
-        setProfile(profileData);
-        const userListings = await fetchUserListings(username);
-        setListings(userListings);
+        const profile = await fetchPublicProfile(username);
+        if (profile && profile.id) {
+          const [listings, reviews] = await Promise.all([fetchUserListings(username), fetchUserReviews(profile.id)]);
+
+          setProfileData({
+            ...profile,
+            listings,
+            reviews,
+          });
+        } else {
+          throw new Error("Failed to fetch profile data");
+        }
       } catch (error) {
         toast.error("An error occurred while loading the profile");
+      } finally {
+        setIsLoading(false);
       }
     };
-    loadProfile();
-  }, [username, fetchPublicProfile, fetchUserListings]);
+
+    loadProfileData();
+  }, [username, fetchPublicProfile, fetchUserListings, fetchUserReviews]);
 
   // Handle new review submission
   const handleReviewSubmitted = (newReview) => {
-    setProfile((prevProfile) => {
-      const updatedReviews = prevProfile.reviews.some((review) => review.id === newReview.id)
-        ? prevProfile.reviews.map((review) => (review.id === newReview.id ? newReview : review))
-        : [...prevProfile.reviews, newReview];
+    setProfileData((prevData) => {
+      const updatedReviews = prevData.reviews.some((review) => review.id === newReview.id)
+        ? prevData.reviews.map((review) => (review.id === newReview.id ? newReview : review))
+        : [...prevData.reviews, newReview];
 
       return {
-        ...prevProfile,
+        ...prevData,
         reviews: updatedReviews,
-        average_rating: calculateNewAverageRating(prevProfile, newReview),
+        average_rating: calculateNewAverageRating(prevData, newReview),
       };
     });
   };
 
   // Handle review deletion
   const handleReviewDeleted = (deletedReviewId) => {
-    setProfile((prevProfile) => {
-      const updatedReviews = prevProfile.reviews.filter((review) => review.id !== deletedReviewId);
+    setProfileData((prevData) => {
+      const updatedReviews = prevData.reviews.filter((review) => review.id !== deletedReviewId);
       return {
-        ...prevProfile,
+        ...prevData,
         reviews: updatedReviews,
         average_rating: calculateAverageRating(updatedReviews),
       };
@@ -81,20 +93,21 @@ function PublicProfile() {
 
   // Get reviews count text
   const getReviewsCountText = (reviews) => {
+    if (!reviews) return "no reviews";
     const count = reviews.length;
-    if (count === 0) return "no reviews";
     if (count === 1) return "1 review";
     return `${count} reviews`;
   };
 
-  // Loading and error handling
-  if (loading.profile) return <LoadingSpinner isLoading={loading.profile} />;
-  if (loading.userListings) return <LoadingSpinner isLoading={loading.userListings} />;
-  if (error.profile) return <div className="text-red-500">{error.profile}</div>;
-  if (!profile) return null; // Return nothing if profile is not yet loaded
+  if (isLoading) return <LoadingSpinner isLoading={isLoading} />;
+
+  if (!profileData) return null;
+
+  const { listings = [], reviews = [], ...profile } = profileData || {};
 
   return (
     <div className="container px-4 py-8 mx-auto">
+      {/* Profile information */}
       <h4 className="mt-8 mb-4 text-2xl font-bold">{profile.username}'s profile</h4>
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
         <div className="px-4 py-5 border-t border-gray-200 sm:p-0">
@@ -147,8 +160,9 @@ function PublicProfile() {
 
       {/* Review form and list */}
       {profile && profile.id && <ReviewForm userId={profile.id} onReviewSubmitted={handleReviewSubmitted} onReviewDeleted={handleReviewDeleted} />}
-      <ReviewList reviews={profile.reviews} user={profile.username} />
+      <ReviewList reviews={reviews} user={profile.username} />
 
+      {/* User's listings */}
       <h4 className="mt-8 mb-4 text-2xl font-bold">{profile.username}'s active listings</h4>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {listings.map((listing) => (
