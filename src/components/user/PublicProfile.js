@@ -30,10 +30,13 @@ function PublicProfile() {
         if (profile && profile.id) {
           const [listings, reviews] = await Promise.all([fetchUserListings(username), fetchUserReviews(profile.id)]);
 
+          const initialAverageRating = calculateAverageRating(reviews);
+
           setProfileData({
             ...profile,
             listings,
             reviews,
+            average_rating: initialAverageRating,
           });
         } else {
           throw new Error("Failed to fetch profile data");
@@ -55,10 +58,12 @@ function PublicProfile() {
         ? prevData.reviews.map((review) => (review.id === newReview.id ? newReview : review))
         : [...prevData.reviews, newReview];
 
+      const newAverageRating = calculateNewAverageRating(prevData, newReview);
+
       return {
         ...prevData,
         reviews: updatedReviews,
-        average_rating: calculateNewAverageRating(prevData, newReview),
+        average_rating: newAverageRating,
       };
     });
   };
@@ -67,26 +72,28 @@ function PublicProfile() {
   const handleReviewDeleted = (deletedReviewId) => {
     setProfileData((prevData) => {
       const updatedReviews = prevData.reviews.filter((review) => review.id !== deletedReviewId);
+      const newAverageRating = calculateAverageRating(updatedReviews);
       return {
         ...prevData,
         reviews: updatedReviews,
-        average_rating: calculateAverageRating(updatedReviews),
+        average_rating: newAverageRating,
       };
     });
   };
 
   // Calculate new average rating after a review is submitted
   const calculateNewAverageRating = (profile, newReview) => {
-    const oldReview = profile.reviews.find((review) => review.id === newReview.id);
-    const totalRating = profile.average_rating * profile.reviews.length;
+    const currentReviews = profile.reviews || [];
+    const oldReview = currentReviews.find((review) => review.id === newReview.id);
+    const totalRating = (profile.average_rating || 0) * currentReviews.length;
     const newTotalRating = oldReview ? totalRating - oldReview.rating + newReview.rating : totalRating + newReview.rating;
-    const newCount = oldReview ? profile.reviews.length : profile.reviews.length + 1;
-    return newTotalRating / newCount;
+    const newCount = oldReview ? currentReviews.length : currentReviews.length + 1;
+    return newTotalRating / newCount || 0; // Avoid division by zero
   };
 
   // Calculate average rating from reviews
   const calculateAverageRating = (reviews) => {
-    if (reviews.length === 0) return 0;
+    if (!reviews || reviews.length === 0) return 0;
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     return totalRating / reviews.length;
   };
@@ -95,6 +102,7 @@ function PublicProfile() {
   const getReviewsCountText = (reviews) => {
     if (!reviews) return "no reviews";
     const count = reviews.length;
+    if (count === 0) return "no reviews";
     if (count === 1) return "1 review";
     return `${count} reviews`;
   };
@@ -147,7 +155,7 @@ function PublicProfile() {
                 Average Rating
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {profile.average_rating ? profile.average_rating.toFixed(1) : "N/A"} ({getReviewsCountText(profile.reviews)})
+                {profile.average_rating > 0 ? profile.average_rating.toFixed(1) : "N/A"} ({getReviewsCountText(reviews)})
               </dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
