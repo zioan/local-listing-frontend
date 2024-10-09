@@ -1,5 +1,4 @@
-- Node version: 20.17.0 (LTS)
-- NPM version: 10.8.2
+# Local Listing
 
 ## Project Overview
 
@@ -226,12 +225,6 @@ The primary goal of the **Local Listing App** is to provide an intuitive, secure
 - **Mobile-First, Responsive Design**: The app is designed with a mobile-first approach, making it fully responsive and ensuring that users have a smooth experience on all device types, whether they are on desktops, tablets, or smartphones.
 - **Secure Transactions and Privacy**: By implementing robust authentication, encrypted communications, and privacy controls, the app creates a safe environment where users can interact with confidence. This is particularly important for a marketplace platform, where trust is critical to success.
 
-### User Stories
-
-The **Local Listing App** was developed with user experience at the forefront, guided by several user stories that reflect the real needs and goals of the target audience. These stories have shaped the features and functionality of the app:
-
-TODO
-
 ### Design Choices
 
 #### Color Scheme
@@ -242,6 +235,7 @@ The color scheme for the **Local Listing App** was chosen to emphasize clarity a
 - **Accent Colors**: Blue for primary call-to-actions (e.g., buttons) and green for notifications or positive feedback (e.g., successful listing creation or message sent).
 
 This palette helps establish a professional yet friendly aesthetic, making the app inviting to all types of users.
+![Color Palette](./docs/assets/color-scheme.png)
 
 #### Typography
 
@@ -253,9 +247,8 @@ A modern and highly readable font, **Inter**, is used throughout the app to ensu
 
 #### Imagery
 
-Imagery plays a crucial role in the app...TODO
-
-- **Placeholder Image**: Where necessary, a placeholder image is used to maintain visual consistency and prevent broken image links.
+- **Placeholder Image**: A neutral placeholder image is used for listings that do not have uploaded images. This maintains a consistent layout and ensures that all listings are visually represented, even if no images are available.
+- **Icons**: Simple, clean icons are used throughout the app to indicate actions and navigation. These icons are easily recognizable and help users quickly understand the purpose of each element.
 
 #### Layout
 
@@ -264,6 +257,17 @@ The app layout is designed with a **mobile-first** approach, ensuring that it pr
 - **Intuitive Navigation**: The app features a straightforward navigation bar at the top of the screen, providing easy access to key sections such as listings, messages, and profile. On mobile devices, the navigation is simplified into a hamburger menu for easy access.
 - **Card-Based Listings**: Product listings are displayed in a card-based layout, ensuring each item is presented clearly with a thumbnail image, title, price, and brief description. This layout is scalable, working equally well on mobile, tablet, and desktop screens.
 - **Consistent User Journey**: Key features like search, listing creation, and messaging are always easily accessible, providing a consistent user journey across the app. Each step in the process—from browsing listings to messaging a seller—is designed to be intuitive, reducing friction and enhancing the overall user experience.
+
+#### Wireframes
+
+To ensure a responsive and user-friendly design across various devices, wireframes were created for mobile and desktop views.
+
+![Home page wireframe](./docs//assets/wireframes/home.png)
+![Home page mobile wireframe](./docs//assets/wireframes/home-mobile.png)
+![Listing details page wireframe](./docs//assets/wireframes/details.png)
+![Home page mobile wireframe](./docs//assets/wireframes/details-mobile.png)
+![User profile wireframe](./docs//assets/wireframes/profile.png)
+![User profile mobile wireframe](./docs//assets/wireframes/profile-mobile.png)
 
 ## Technologies Used
 
@@ -280,10 +284,11 @@ The **Local Listing App** was built using modern web technologies to ensure scal
 
 ### Frameworks & Libraries
 
-- **React**:
+- **React version 18.3.1**:
 
   - React is the core framework used to build the app's user interface. By utilizing React’s component-based architecture, the application is modular and easy to maintain. Components are reusable, making development faster and more efficient while ensuring a consistent look and feel across the app.
   - React’s virtual DOM optimizes performance, ensuring that only the necessary components re-render when data changes.
+  - A very important aspect in the development process and further local installation regarding React ecosystem is the Node and npm versions. The app was developed using Node version 20.17.0 (LTS) and npm version 10.8.2. A complete list of dependencies and their versions can be found in the package.json file.
 
 - **React Router**:
 
@@ -304,7 +309,7 @@ The **Local Listing App** was built using modern web technologies to ensure scal
 - **date-fns**:
   - The **date-fns** library handles all date and time formatting within the app, particularly in the messaging system. This library ensures that message timestamps are displayed in a readable and localized format, enhancing the clarity of user conversations.
 
-### Databases
+### Backend and Database
 
 - While the frontend interacts with a **REST API** to retrieve and submit data, the database is managed by the backend (**Django REST framework**). The database stores critical information such as user accounts, listings, messages, and profile details. The frontend communicates with the database through API endpoints to ensure that data is displayed in real-time and remains consistent.
 
@@ -321,8 +326,6 @@ The **Local Listing App** was built using modern web technologies to ensure scal
 - **Heroku**:
 
   - The app is deployed on **Heroku**, a cloud platform that provides hosting services for web applications. Heroku ensures that the app is accessible to users online and can scale as needed to accommodate increased traffic.
-
-TODO: Add more tools and services used in the project.
 
 ## Agile Methodology
 
@@ -346,11 +349,13 @@ The development of the **Local Listing App** followed Agile principles to ensure
     - **Could have**: Nice-to-have features that would enhance the user experience but could be deferred.
     - **Won't have**: Features that were deemed unnecessary for the initial release or could be considered for future iterations (especially due to time constraints).
 
+A complete list of user stories including tests can be found in the [Testing](./TESTING.md) documentation.
+
 ### Tools Used
 
 - **Obsidian**:
 
-  - **Obsidian** was used to create and manage project documentation, including user stories, feature descriptions, and development notes.
+  - Obsidian was used to create and manage project documentation, including user stories, feature descriptions, and development notes.
 
 - **GitHub Projects**:
   - GitHub Projects was integrated to keep track of development tasks alongside the codebase.
@@ -359,7 +364,29 @@ The development of the **Local Listing App** followed Agile principles to ensure
 
 Version control for the **Local Listing App** was managed using **Git** and hosted on **GitHub** to ensure efficient collaboration and tracking of changes throughout the development process.
 
-TODO
+### Tools and Workflow
+
+1. **Development Environment**:
+
+   - **VS Code**: Utilized as the primary IDE for development.
+
+2. **Source Control Panel**:
+
+   - VS Code's **Source Control** panel was used extensively to manage code changes, particularly when working on multiple components. This panel allowed easy visualization of changes and helped in logically grouping updates into meaningful commits.
+
+3. **Commit Strategy**:
+
+   - Given the interconnected nature of the React, changes often spanned across multiple files. The **diff viewer** in VS Code was used to carefully review changes before creating commits.
+   - The commit messages were kept descriptive to ensure clarity of the project's evolution, making it easier for future maintainability.
+
+4. **Key Git Commands**:
+
+   - **`git add <file>`** or **`git add .`**: To stage changes.
+   - **`git commit -m "descriptive message"`**: To commit changes with a meaningful message.
+   - **`git push`**: To push the local commits to the GitHub repository.
+
+5. **Remote Synchronization**:
+   - Regularly used **`git pull`** to sync the local repository with the latest changes on the remote GitHub repository. This practice helped avoid conflicts after modifying the project board or issues.
 
 ## Deployment
 
@@ -428,6 +455,8 @@ After the app was deployed to **Heroku**, further testing was conducted in the l
 - **API Integration**: Verifying that the frontend correctly interacted with the backend’s API, ensuring data consistency and correct error handling.
 - **Performance Testing**: Ensuring that the app performed well under typical usage scenarios, with acceptable loading times and smooth navigation.
 
+A detailed testing report can be found in the [Testing](./TESTING.md) documentation.
+
 Through comprehensive testing, the app was refined to ensure a robust and user-friendly experience across all platforms.
 
 ## Future Features
@@ -458,9 +487,20 @@ These features and many more (mentioned in this document in their respective sec
 
 ## Credits
 
-### Code
+The development of the Local Listing frontend was made possible thanks to various tools, and resources. Below is a list of credits for code, media, and tools that were instrumental in building this project.
 
-TODO
+A special thank to my mentor Spencer Barriball, who provided valuable guidance and feedback throughout the development process.
+
+### Code and Inspiration
+
+- **React Documentation**: The official React documentation was a valuable resource for understanding React concepts, hooks, and best practices. It provided clear examples and explanations that helped in building the app’s frontend.
+- **Tailwind CSS Documentation**: The Tailwind CSS documentation was instrumental in learning how to use the utility-first framework effectively. The documentation provided detailed information on classes, configurations, and responsive design, enabling the creation of a visually appealing and responsive UI. The initial idea was to use **Tailwind UI** library, but I ended up using the utility-first framework.
+- **React Router Documentation**: The React Router documentation was essential for implementing client-side routing in the app. It provided guidance on setting up routes, nested routes, and dynamic routing, ensuring that the app’s navigation was smooth and intuitive.
+- **Axios Documentation**: The Axios documentation was helpful in understanding how to make HTTP requests in React. It provided examples of how to fetch data from APIs, handle responses, and manage asynchronous requests, which were crucial for interacting with the backend API.
+- **React Toastify Documentation**: The React Toastify documentation was used to implement toast notifications in the app. It provided clear instructions on how to display notifications, customize styles, and handle different types of alerts, enhancing the user experience with real-time feedback.
+- **Heroicons**: The Heroicons library provided a wide range of open-source icons that were used throughout the app. These icons added visual appeal to buttons, navigation elements, and notifications, contributing to a modern and cohesive design.
+- **date-fns Documentation**: The date-fns library documentation was instrumental in understanding how to format dates and times in React. It provided examples of how to localize dates, format timestamps, and handle time zones, ensuring that message timestamps were displayed accurately and clearly.
+- **Previous Coding Experiences**: Professional coding experiences in React and frontend development were instrumental in building the app. The knowledge gained from previous projects, coding challenges, and learning resources helped in applying best practices, optimizing performance, and creating a user-friendly interface.
 
 ### Content
 
@@ -469,23 +509,11 @@ TODO
 
 ### Media
 
-- Product images displayed in the listings were sourced from free stock image websites, ensuring that they were free for use and appropriately licensed.
+- Product images displayed in the listings were sourced from ![pexels.com](https://www.pexels.com/), a free stock photo library that offers high-quality images for commercial use. The images were selected to represent a variety of products and showcase the app’s diverse listings.
 - Icons and placeholders used in the application were sourced from [Heroicons](https://heroicons.com/), which offers a wide variety of open-source, scalable icons that match the app’s modern aesthetic.
 
-### Tools
+Note on Code Used from Third-party Sources: The app was built from scratch, and no third-party code was directly copied or used in the project. All code was written by me, with inspiration and guidance from official documentation and previous coding experiences.
 
-- **React**: The primary framework used for building the user interface, enabling efficient state management and component-based development.
-- **React Router**: Implemented to handle client-side routing and facilitate smooth navigation between pages.
-- **GitHub**: Employed for version control and collaboration, allowing for the tracking of changes, issue management, and code reviews throughout the development process.
-- **Heroku**: Used to deploy the live version of the app, ensuring that it is accessible to users in a scalable and reliable environment.
-- **Visual Studio Code**: The code editor utilized throughout the development process, equipped with extensions that improved coding efficiency and linting.
+## Developer thoughts
 
-### Other Resources for Learning and Reference
-
-- [React Documentation](https://reactjs.org/docs/getting-started.html): Served as the primary reference for understanding React fundamentals, hooks, and component architecture.
-- [Stack Overflow](https://stackoverflow.com/): Used for troubleshooting issues and learning from the developer community’s experiences when addressing specific coding challenges.
-- [MDN Web Docs](https://developer.mozilla.org/): A valuable resource for web development standards and best practices in **JavaScript**, **HTML5**, and **CSS3**.
-
-### Honourable Mentions
-
-### Note on Code Used from Third-party Sources
+Due to time constraints, some features and optimizations were not implemented in the current version of the app. However, the app was developed with scalability and future enhancements in mind. Further refactoring and performance optimizations including API calls, state management, and component reusability are planned for future iterations.
