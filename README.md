@@ -5,6 +5,8 @@
 
 **Local Listing App** is a modern web application designed to allow users to create, manage, and browse local listings in a community-focused marketplace. The application provides a seamless experience for users to list items for sale, communicate via messages, and engage with local sellers and buyers.
 
+![Local Listings](/docs/assets/local-listings.png)
+
 The project utilizes a responsive design, ensuring compatibility with devices ranging from mobile phones to desktops. Built using **React** on the frontend, the app interacts with a Django backend REST API to provide real-time updates and dynamic data management.
 
 ### Key Features:
@@ -65,8 +67,11 @@ The project utilizes a responsive design, ensuring compatibility with devices ra
   Many of those features are planned for future versions, including payment integration, location-based search, and real-time messaging. The app is designed to evolve and adapt to user needs over time, ensuring that it remains relevant and valuable to its users.
 
 - **Future-Proofed Design**:
+
   - The app’s architecture is designed to easily accommodate new features and updates, ensuring it remains maintainable and adaptable as user needs evolve.
   - Due to time constraints, some further optimizations and refactoring were not implemented in the current version but are planned for future iterations. These include code splitting, lazy loading, and further performance enhancements to ensure the app remains fast, responsive, and scalable.
+
+  Further features description and screenshots can be found in the [Features](./FEATURES.md) documentation.
 
 ## Target Audience
 
