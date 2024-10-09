@@ -27,7 +27,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "heroku-postbuild": "npm ci && npm run build"
+    "heroku-postbuild": "npm ci && npm run build",
+    "lint": "eslint . --ext .js,.jsx"
   },
   "eslintConfig": {
     "extends": [
@@ -49,6 +50,9 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "postcss": "^8.4.44",
     "tailwindcss": "^3.4.10"
   }
