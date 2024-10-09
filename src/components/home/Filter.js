@@ -15,7 +15,7 @@ import LoadingSpinner from "../shared/LoadingSpinner";
  * @param {Object} props.initialFilters - The initial filter values.
  * @returns {JSX.Element} The rendered filter form.
  */
-function Filter({ onFilterChange, onToggleFilter, initialFilters }) {
+function Filter({ onFilterChange, initialFilters }) {
   const { categories, subcategories, loading, error, fetchSubcategories } = useData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filters, setFilters] = useState({

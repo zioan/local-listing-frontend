@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { NavLink, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { HeartIcon, UserIcon, ChatBubbleLeftIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../context/AuthContext";
 import useMessages from "../../hooks/useMessages";

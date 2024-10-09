@@ -13,7 +13,7 @@ import { format, parseISO } from "date-fns";
  *
  * @returns {JSX.Element} The rendered ConversationList component.
  */
-const ConversationList = ({ conversations, currentConversation, onConversationSelect, unreadCounts, onRemoveConversation }) => {
+const ConversationList = ({ conversations, currentConversation, onConversationSelect, unreadCounts }) => {
   /**
    * Filters out duplicate conversations
    * Bug description: Due to unknown reasons, the conversation list may contain duplicate conversations

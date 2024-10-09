@@ -47,7 +47,7 @@ function Register() {
     } catch (err) {
       if (err && typeof err === "object") {
         setErrors(err); // Set the error state with the received error object
-        Object.entries(err).forEach(([key, value]) => {
+        Object.entries(err).forEach(([, value]) => {
           // Check if the error value is an array (multiple messages)
           if (Array.isArray(value)) {
             value.forEach((message) => toast.error(message));
