@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import ReactDOM from "react-dom";
 
 /**
@@ -38,7 +38,7 @@ const Tooltip = ({ children, content, position = "top" }) => {
    * Calculates and sets the position of the tooltip based on the target element's position.
    * This function is called when the tooltip becomes visible and on scroll/resize events.
    */
-  const positionTooltip = () => {
+  const positionTooltip = useCallback(() => {
     if (!targetRef.current) return;
 
     const targetRect = targetRef.current.getBoundingClientRect();
@@ -74,7 +74,7 @@ const Tooltip = ({ children, content, position = "top" }) => {
     }
 
     setTooltipStyle(tooltipStyles);
-  };
+  }, [position]);
 
   // Effect to handle tooltip positioning and event listeners
   useEffect(() => {
@@ -87,7 +87,7 @@ const Tooltip = ({ children, content, position = "top" }) => {
       window.removeEventListener("scroll", positionTooltip);
       window.removeEventListener("resize", positionTooltip);
     };
-  }, [isVisible]);
+  }, [isVisible, positionTooltip]);
 
   return (
     <>

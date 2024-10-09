@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import api from "../config/api";
 import { useError } from "../context/ErrorContext";
 
@@ -14,6 +14,14 @@ const useSubcategories = () => {
   const [error, setError] = useState(null);
   const { handleApiError } = useError();
 
+  // Use refs to store mutable values without causing re-renders
+  const subcategoriesRef = useRef(subcategories);
+  const handleApiErrorRef = useRef(handleApiError);
+
+  // Update refs when values change
+  subcategoriesRef.current = subcategories;
+  handleApiErrorRef.current = handleApiError;
+
   /**
    * Fetches subcategories for a given category ID.
    *
@@ -21,7 +29,7 @@ const useSubcategories = () => {
    */
   const fetchSubcategories = useCallback(async (categoryId) => {
     if (!categoryId) return;
-    if (subcategories[categoryId]) return;
+    if (subcategoriesRef.current[categoryId]) return;
     setLoading(true);
     setError(null);
     try {
@@ -33,7 +41,7 @@ const useSubcategories = () => {
       }));
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch subcategories");
-      handleApiError(err, "Failed to fetch subcategories");
+      handleApiErrorRef.current(err, "Failed to fetch subcategories");
       setSubcategories((prev) => ({
         ...prev,
         [categoryId]: [],
