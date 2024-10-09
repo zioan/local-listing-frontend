@@ -40,9 +40,9 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
         const subcategory = subcategories[filters.category]?.find((subcat) => subcat.id.toString() === value);
         return `Subcategory: ${subcategory ? subcategory.name : value}`;
       case "min_price":
-        return `Min Price: $${value}`;
+        return `Min Price: €${value}`;
       case "max_price":
-        return `Max Price: $${value}`;
+        return `Max Price: €${value}`;
       case "location":
         return `Location: ${value}`;
       case "start_date":
