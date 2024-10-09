@@ -79,8 +79,6 @@ const authService = {
         throw new Error("No refresh token found");
       }
       await axiosInstance.post("logout/", { refresh_token: refreshToken });
-    } catch (error) {
-      throw error;
     } finally {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");

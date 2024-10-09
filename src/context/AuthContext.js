@@ -107,14 +107,10 @@ export const AuthProvider = ({ children }) => {
    * @throws {Error} Throws an error if the logout fails
    */
   const logout = async () => {
-    try {
-      await authService.logout();
-      setUser(null);
-      sessionStorage.clear();
-      triggerUpdate("auth");
-    } catch (error) {
-      throw error;
-    }
+    await authService.logout();
+    setUser(null);
+    sessionStorage.clear();
+    triggerUpdate("auth");
   };
 
   /**
@@ -125,14 +121,10 @@ export const AuthProvider = ({ children }) => {
    * @throws {Error} Throws an error if the registration fails
    */
   const register = async (userData) => {
-    try {
-      const data = await authService.register(userData);
-      setUser(data.user);
-      triggerUpdate("auth");
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await authService.register(userData);
+    setUser(data.user);
+    triggerUpdate("auth");
+    return data;
   };
 
   /**
