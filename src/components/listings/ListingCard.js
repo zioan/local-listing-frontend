@@ -79,7 +79,7 @@ function ListingCard({ listing }) {
         <h3 className="font-medium text-gray-900 text-ms line-clamp-2">{listing.title}</h3>
 
         {/* Price */}
-        <div className="flex items-center mt-auto text-lg font-semibold text-green-600">
+        <div className="flex items-center mt-auto text-lg font-semibold text-blue-600">
           <span className="truncate">€ {renderPrice()}</span>
           {listing.price_type === "negotiable" && <span className="ml-1 text-xs text-gray-500">(Negotiable)</span>}
         </div>

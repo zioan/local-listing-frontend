@@ -253,7 +253,7 @@ function ListingDetail() {
               <div className="space-y-6">
                 <div className="p-4 bg-gray-100 rounded-lg">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-xl font-bold text-green-600">€ {renderPrice()}</span>
+                    <span className="text-xl font-bold text-blue-600">€ {renderPrice()}</span>
                   </div>
                   <h3 className="mb-2 text-lg font-semibold">Listing Details</h3>
                   <dl className="grid grid-cols-2 text-sm gap-x-4 gap-y-2">
