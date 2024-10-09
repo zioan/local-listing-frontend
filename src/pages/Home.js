@@ -25,7 +25,7 @@ const getNonEmptyFilters = (filters) => {
  * It handles fetching data, search functionality, and displaying listings.
  */
 function Home() {
-  const { listings, error, fetchListings, lastFetchedFilters } = useData();
+  const { listings, error, fetchListings } = useData();
   const { searchTerm, handleSearch } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -74,21 +74,13 @@ function Home() {
     const loadListings = async () => {
       if (isInitialLoad) {
         setIsLoading(true);
+        await fetchListings();
+        setIsLoading(false);
+        setIsInitialLoad(false);
       }
-
-      // Check if the current filters are different from the last fetched filters
-      const filtersChanged = JSON.stringify(filters) !== JSON.stringify(lastFetchedFilters);
-
-      if (filtersChanged || isInitialLoad) {
-        await fetchListings(filters);
-      }
-
-      setIsLoading(false);
-      setIsInitialLoad(false);
     };
-
     loadListings();
-  }, [fetchListings, filters, lastFetchedFilters, isInitialLoad]);
+  }, [fetchListings, isInitialLoad]);
 
   // Effect for updating the URL with active filters
   useEffect(() => {
@@ -106,21 +98,21 @@ function Home() {
   // Effect to sync search term with filters
   useEffect(() => {
     if (searchTerm !== filters.search) {
-      setFilters((prevFilters) => {
-        // Only update if the search term has actually changed
-        if (prevFilters.search !== searchTerm) {
-          return { ...prevFilters, search: searchTerm };
-        }
-        return prevFilters;
-      });
+      setFilters((prevFilters) => ({ ...prevFilters, search: searchTerm }));
     }
   }, [searchTerm]);
 
   // Handle changes to filters
   const handleFilterChange = useCallback((newFilters) => {
-    setFilters(newFilters);
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters, ...newFilters };
+      // If category changes, remove subcategory
+      if (newFilters.category && newFilters.category !== prevFilters.category) {
+        delete updatedFilters.subcategory;
+      }
+      return updatedFilters;
+    });
     setShowFilterModal(false);
-    setIsLoading(true);
   }, []);
 
   // Handle removing a filter
@@ -129,18 +121,15 @@ function Home() {
       setFilters((prevFilters) => {
         const newFilters = { ...prevFilters };
         delete newFilters[filterKey];
-
-        // If the removed filter is 'category', also remove 'subcategory'
+        // If removing category, also remove subcategory
         if (filterKey === "category") {
-          delete newFilters["subcategory"];
+          delete newFilters.subcategory;
         }
-
         return newFilters;
       });
       if (filterKey === "search") {
         handleSearch("");
       }
-      setIsLoading(true);
     },
     [handleSearch]
   );
@@ -151,7 +140,6 @@ function Home() {
     sessionStorage.removeItem("defaultFilters");
     navigate("/", { replace: true });
     handleSearch("");
-    setIsLoading(true);
   }, [navigate, handleSearch]);
 
   // Toggle filter modal visibility
@@ -159,14 +147,56 @@ function Home() {
     setShowFilterModal(!showFilterModal);
   };
 
-  // Memoize the listings to prevent unnecessary re-renders
-  const memoizedListings = useMemo(() => {
-    return listings && listings.length > 0
-      ? listings.filter((listing) => listing.status === "active").map((listing) => <ListingCard key={listing.id} listing={listing} />)
-      : null;
-  }, [listings]);
+  // Memoized filtered listings based on active filters
+  const filteredListings = useMemo(() => {
+    return listings.filter((listing) => {
+      if (listing.status !== "active") return false;
 
-  // Display error message if there are issues with listings
+      for (const [key, value] of Object.entries(filters)) {
+        if (value && value.trim() !== "") {
+          switch (key) {
+            case "search":
+              if (!listing.title.toLowerCase().includes(value.toLowerCase()) && !listing.description.toLowerCase().includes(value.toLowerCase())) {
+                return false;
+              }
+              break;
+            case "category":
+              if (listing.category.toString() !== value.toString()) return false;
+              break;
+            case "subcategory":
+              if (listing.subcategory.toString() !== value.toString()) return false;
+              break;
+            case "min_price":
+              if (parseFloat(listing.price) < parseFloat(value)) return false;
+              break;
+            case "max_price":
+              if (parseFloat(listing.price) > parseFloat(value)) return false;
+              break;
+            case "listing_type":
+              if (listing.listing_type !== value) return false;
+              break;
+            case "condition":
+              if (listing.condition !== value) return false;
+              break;
+            case "delivery_option":
+              if (listing.delivery_option !== value) return false;
+              break;
+            case "location":
+              if (!listing.location.toLowerCase().includes(value.toLowerCase())) return false;
+              break;
+            default:
+              if (listing[key] !== value) return false;
+          }
+        }
+      }
+      return true;
+    });
+  }, [listings, filters]);
+
+  const memoizedListings = useMemo(() => {
+    return filteredListings.map((listing) => <ListingCard key={listing.id} listing={listing} />);
+  }, [filteredListings]);
+
   if (error.listings) return <div className="text-center text-red-500">{error.listings}</div>;
 
   // Check if there are active filters
@@ -202,11 +232,11 @@ function Home() {
 
         <ActiveFilters filters={filters} onFilterRemove={handleFilterRemove} />
 
-        {isLoading || isInitialLoad ? (
+        {isLoading ? (
           <SkeletonLoader count={8} />
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {memoizedListings || <div className="py-12 text-center text-gray-500 col-span-full">No listings found.</div>}
+            {memoizedListings.length > 0 ? memoizedListings : <div className="py-12 text-center text-gray-500 col-span-full">No listings found.</div>}
           </div>
         )}
       </div>
