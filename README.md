@@ -1,5 +1,54 @@
 # Local Listing
 
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+
+   - [Key Features](#key-features)
+
+2. [Target Audience](#target-audience)
+
+3. [Business Model](#business-model)
+
+4. [Features](#features)
+
+   - [Key Features Summary](#key-features-summary)
+   - [Additional Features Summary](#additional-features-summary)
+
+5. [User Experience (UX)](#user-experience-ux)
+
+   - [Project Goals](#project-goals)
+   - [Design Choices](#design-choices)
+     - [Color Scheme](#color-scheme)
+     - [Typography](#typography)
+     - [Imagery](#imagery)
+     - [Layout](#layout)
+     - [Wireframes](#wireframes)
+
+6. [Technologies Used](#technologies-used)
+
+   - [Languages](#languages)
+   - [Frameworks & Libraries](#frameworks--libraries)
+   - [Backend and Database](#backend-and-database)
+   - [Other Tools & Services](#other-tools--services)
+
+7. [Agile Methodology](#agile-methodology)
+
+   - [Key Agile Elements](#key-agile-elements)
+   - [Tools Used](#tools-used)
+
+8. [Version Control](#version-control)
+
+9. [Deployment](#deployment)
+
+10. [Testing](#testing)
+
+11. [Future Features](#future-features)
+
+12. [Credits](#credits)
+
+13. [Developer Thoughts](#developer-thoughts)
+
 ## Project Overview
 
 **Local Listing App** is a modern web application designed to allow users to create, manage, and browse local listings in a community-focused marketplace. The application provides a seamless experience for users to list items for sale, communicate via messages, and engage with local sellers and buyers.
@@ -72,6 +121,8 @@ The project utilizes a responsive design, ensuring compatibility with devices ra
 
   Further features description and screenshots can be found in the [Features](./FEATURES.md) documentation.
 
+[Back to top](#local-listing)
+
 ## Target Audience
 
 The **Local Listing App** is designed to cater to a diverse group of users who participate in buying, selling, and engaging with their local community. The platform’s flexibility and ease of use make it a valuable tool for different types of users, including:
@@ -103,6 +154,8 @@ The **Local Listing App** is designed to cater to a diverse group of users who p
 This broad target audience highlights the app’s versatility, making it an attractive solution for both buyers and sellers who want a localized and community-focused experience.
 
 This app caters to users of all technical backgrounds, from tech-savvy individuals to those who are less experienced with technology, providing a simple and intuitive interface.
+
+[Back to top](#local-listing)
 
 ## Business Model
 
@@ -150,6 +203,8 @@ The **Local Listing App** operates as a community-driven marketplace, connecting
 By balancing free services with premium offerings, the app can grow sustainably, providing value to both buyers and sellers while generating revenue to support ongoing development and maintenance.
 
 ## Features
+
+[Back to top](#local-listing)
 
 ### Key Features Summary
 
@@ -214,6 +269,8 @@ By balancing free services with premium offerings, the app can grow sustainably,
 
   - The app will introduce location-based filtering, allowing users to find listings near their current location or a specified area. This will enhance the local commerce aspect, making it easier for buyers to connect with sellers in their neighborhood.
 
+[Back to top](#local-listing)
+
 ## User Experience (UX)
 
 ### Project Goals
@@ -268,6 +325,8 @@ To ensure a responsive and user-friendly design across various devices, wirefram
 ![Home page mobile wireframe](./docs//assets/wireframes/details-mobile.png)
 ![User profile wireframe](./docs//assets/wireframes/profile.png)
 ![User profile mobile wireframe](./docs//assets/wireframes/profile-mobile.png)
+
+[Back to top](#local-listing)
 
 ## Technologies Used
 
@@ -360,6 +419,8 @@ A complete list of user stories including tests can be found in the [Testing](./
 - **GitHub Projects**:
   - GitHub Projects was integrated to keep track of development tasks alongside the codebase.
 
+[Back to top](#local-listing)
+
 ## Version Control
 
 Version control for the **Local Listing App** was managed using **Git** and hosted on **GitHub** to ensure efficient collaboration and tracking of changes throughout the development process.
@@ -387,6 +448,8 @@ Version control for the **Local Listing App** was managed using **Git** and host
 
 5. **Remote Synchronization**:
    - Regularly used **`git pull`** to sync the local repository with the latest changes on the remote GitHub repository. This practice helped avoid conflicts after modifying the project board or issues.
+
+[Back to top](#local-listing)
 
 ## Deployment
 
@@ -419,6 +482,8 @@ The **Local Listing App** was deployed using **Heroku**, a platform that provide
 6. **Post-Deployment Testing**:
 
    - After each deployment, the app was tested to ensure that it functioned correctly in the live environment. This included testing all core features, such as user registration, listing creation, and messaging, to confirm that the app performed as expected on Heroku.
+
+[Back to top](#local-listing)
 
 ## Testing
 
@@ -459,6 +524,8 @@ A detailed testing report can be found in the [Testing](./TESTING.md) documentat
 
 Through comprehensive testing, the app was refined to ensure a robust and user-friendly experience across all platforms.
 
+[Back to top](#local-listing)
+
 ## Future Features
 
 The **Local Listing App** has been designed with scalability and future enhancements in mind. Several features are planned for future releases to continually improve the user experience and expand the app’s functionality. These additions will help meet the evolving needs of the user base and keep the platform competitive in the market.
@@ -484,6 +551,8 @@ The **Local Listing App** has been designed with scalability and future enhancem
 - Developing a dedicated mobile application for **iOS** and **Android** platforms will provide users with an even more optimized experience. The mobile app will include all core features of the web version while enhancing performance and usability for mobile users, ensuring that the platform remains accessible and engaging on all devices.
 
 These features and many more (mentioned in this document in their respective sections) are planned for future development and will be rolled out in phases to continuously improve the app’s functionality and overall user experience. The focus remains on delivering features that add value to both buyers and sellers, enhancing the app’s utility and engagement over time.
+
+[Back to top](#local-listing)
 
 ## Credits
 
@@ -517,3 +586,5 @@ Note on Code Used from Third-party Sources: The app was built from scratch, and 
 ## Developer thoughts
 
 Due to time constraints, some features and optimizations were not implemented in the current version of the app. However, the app was developed with scalability and future enhancements in mind. Further refactoring and performance optimizations including API calls, state management, and component reusability are planned for future iterations.
+
+[Back to top](#local-listing)
