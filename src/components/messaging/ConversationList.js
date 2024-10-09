@@ -25,6 +25,8 @@ const ConversationList = ({ conversations, currentConversation, onConversationSe
    */
   const uniqueConversations = useMemo(() => {
     const seenIds = new Set();
+    if (!conversations) return [];
+
     return conversations.filter((conversation) => {
       if (seenIds.has(conversation.id)) {
         return false;
