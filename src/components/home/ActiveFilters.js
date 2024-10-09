@@ -33,12 +33,14 @@ const ActiveFilters = ({ filters, onFilterRemove }) => {
         return conditionOptions.find((option) => option.value === value)?.label;
       case "delivery_option":
         return deliveryOptions.find((option) => option.value === value)?.label;
-      case "category":
+      case "category": {
         const category = categories.find((cat) => cat.id.toString() === value);
         return `Category: ${category ? category.name : value}`;
-      case "subcategory":
+      }
+      case "subcategory": {
         const subcategory = subcategories[filters.category]?.find((subcat) => subcat.id.toString() === value);
         return `Subcategory: ${subcategory ? subcategory.name : value}`;
+      }
       case "min_price":
         return `Min Price: €${value}`;
       case "max_price":
