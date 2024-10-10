@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useData } from "../../context/DataContext";
 import FormSelect from "../shared/form/FormSelect";
 import FormInput from "../shared/form/FormInput";
@@ -15,7 +15,7 @@ import LoadingSpinner from "../shared/LoadingSpinner";
  * @param {Object} props.initialFilters - The initial filter values.
  * @returns {JSX.Element} The rendered filter form.
  */
-function Filter({ onFilterChange, initialFilters }) {
+function Filter({ onFilterChange, initialFilters, onToggleFilter }) {
   const { categories, subcategories, loading, error, fetchSubcategories } = useData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filters, setFilters] = useState({
@@ -44,19 +44,16 @@ function Filter({ onFilterChange, initialFilters }) {
    *
    * @param {React.ChangeEvent<HTMLInputElement | HTMLSelectElement>} e - The event triggered by input change.
    */
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => {
+      const newFilters = { ...prevFilters, [name]: value };
       if (name === "category") {
-        return {
-          ...prevFilters,
-          [name]: value,
-          subcategory: "", // Reset subcategory when category changes
-        };
+        newFilters.subcategory = ""; // Reset subcategory when category changes
       }
-      return { ...prevFilters, [name]: value };
+      return newFilters;
     });
-  };
+  }, []);
 
   /**
    * Handles form submission to apply filters.
@@ -67,13 +64,14 @@ function Filter({ onFilterChange, initialFilters }) {
     e.preventDefault();
     setIsSubmitting(true);
     const formattedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
-      if (value) {
+      if (value && value.trim() !== "") {
         acc[key] = value;
       }
       return acc;
     }, {});
     onFilterChange(formattedFilters);
     setIsSubmitting(false);
+    onToggleFilter(); // Close the modal after applying filters
   };
 
   /**
@@ -93,7 +91,8 @@ function Filter({ onFilterChange, initialFilters }) {
       end_date: "",
     };
     setFilters(resetFilters);
-    onFilterChange({});
+    onFilterChange({}); // Apply empty filters
+    onToggleFilter(); // Close the modal after resetting
   };
 
   if (loading.categories) return <LoadingSpinner isLoading={loading.categories} />;
@@ -130,7 +129,7 @@ function Filter({ onFilterChange, initialFilters }) {
             { value: "", label: "All Subcategories" },
             ...subcategoriesForCategory.map((subcategory) => ({ value: subcategory.id, label: subcategory.name })),
           ]}
-          disabled={!filters.category}
+          disabled={!filters.category || subcategoriesForCategory.length === 0}
         />
         <FormSelect
           id="condition"

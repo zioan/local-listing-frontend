@@ -106,10 +106,12 @@ function Home() {
   const handleFilterChange = useCallback((newFilters) => {
     setFilters((prevFilters) => {
       const updatedFilters = { ...prevFilters, ...newFilters };
-      // If category changes, remove subcategory
-      if (newFilters.category && newFilters.category !== prevFilters.category) {
+      // If category changes, remove subcategory only if it's not provided in newFilters
+      if (newFilters.category && newFilters.category !== prevFilters.category && !newFilters.subcategory) {
         delete updatedFilters.subcategory;
       }
+      // Remove empty filters
+      Object.keys(updatedFilters).forEach((key) => (updatedFilters[key] === "" || updatedFilters[key] === undefined) && delete updatedFilters[key]);
       return updatedFilters;
     });
     setShowFilterModal(false);
@@ -164,7 +166,7 @@ function Home() {
               if (listing.category.toString() !== value.toString()) return false;
               break;
             case "subcategory":
-              if (listing.subcategory.toString() !== value.toString()) return false;
+              if (listing.subcategory && listing.subcategory.toString() !== value.toString()) return false;
               break;
             case "min_price":
               if (parseFloat(listing.price) < parseFloat(value)) return false;
