@@ -43,11 +43,13 @@
 
 10. [Testing](#testing)
 
-11. [Future Features](#future-features)
+11. [Issues and Bugs](#issues-and-bugs)
 
-12. [Credits](#credits)
+12. [Future Features](#future-features)
 
-13. [Developer Thoughts](#developer-thoughts)
+13. [Credits](#credits)
+
+14. [Developer Thoughts](#developer-thoughts)
 
 ## Project Overview
 
@@ -526,6 +528,63 @@ Through comprehensive testing, the app was refined to ensure a robust and user-f
 
 [Back to top](#local-listing)
 
+## Issues and Bugs
+
+During the development and testing phases of the Local Listing frontent, several issues were found and solved. Below is a summary of the known issues and some improvements that could be made in future iterations, as well as a list of some of the bugs that were encountered and fixed.
+
+### Database Connection Consistency
+
+Database connection (provided by Code Institute) seems to be inconsistent from time to time, leading to occasional connection errors. Fortunately, the frontend client handles these errors gracefully, triggering a 500 error message. Usually, refreshing the page resolves the problem and the issue is not persistent, but this can lead to a poor user experience and the feeling of an unstable platform.
+
+This is a screen capture of the error message:
+![Database Connection Error](./docs/assets/database-connection-error.png)
+
+### Subcategory Filter Not Updating Properly
+
+**Issue:** The subcategory filter was not updating correctly when a new category was selected. This resulted in outdated or irrelevant subcategories being displayed to the user.
+
+**Cause:** The `useEffect` hook responsible for updating subcategories was not properly triggered when the category changed. This was due to missing dependencies in the hook's dependency array.
+
+**Solution:** The `useEffect` hook was updated to include `formData.category` in its dependency array. This ensures that the hook runs whenever the selected category changes, fetching the correct subcategories for the new category. Additionally, the subcategory state is reset when a new category is selected to prevent displaying outdated options.
+
+Key changes made:
+
+1. Added `formData.category` to the `useEffect` dependency array.
+2. Reset the subcategory value when updating form data for a new category.
+3. Improved error handling in the subcategory fetching process.
+
+### Incorrect Profile Rating Calculation and Reviews Count
+
+**Issue:** The profile rating calculation and reviews count were inaccurate. The average rating was not updating correctly when new reviews were added or existing reviews were modified. Additionally, the reviews count was not properly reflecting the actual number of reviews.
+
+**Cause:** The logic for calculating the average rating and updating the reviews count was flawed. It didn't account for updates to existing reviews and wasn't correctly handling the addition of new reviews.
+
+**Solution:** The code was refactored to improve the calculation of average ratings and the tracking of review counts. Key changes include:
+
+1. Added a `calculateAverageRating` function to compute the average rating from all reviews.
+2. Implemented `initialAverageRating` to set the correct initial rating when loading profile data.
+3. Updated the `handleReviewSubmitted` function to properly handle both new reviews and updates to existing reviews.
+4. Introduced a `handleReviewDeleted` function to correctly update the average rating and review count when a review is deleted.
+5. Modified the `getReviewsCountText` function to accurately reflect the number of reviews, including proper pluralization.
+
+These changes ensure that the profile rating and review count are calculated accurately and updated in real-time as reviews are added, modified, or deleted.
+
+### Inconsistent Listing Status Update
+
+**Issue:** The listing status was not being consistently updated across the application when changed. This led to discrepancies between the actual status of a listing and what was displayed to users.
+
+**Cause:** The update logic in the `updateListingStatus` function was not properly handling the `is_active` property of listings. Additionally, the cache invalidation was not comprehensive enough to ensure all relevant data was refreshed after a status update.
+
+**Solution:** The code was refactored to address these issues:
+
+1. Updated the `updateListingStatus` function in `useListings.js` to correctly handle both the `status` and `is_active` properties of a listing.
+2. Modified the listing update logic to use a more precise condition for updating listing objects:
+   ```javascript
+   listing.id === id ? { ...listing, status: response.data.status, is_active: response.data.status === "active" } : listing;
+   ```
+
+[Back to top](#local-listing)
+
 ## Future Features
 
 The **Local Listing App** has been designed with scalability and future enhancements in mind. Several features are planned for future releases to continually improve the user experience and expand the app’s functionality. These additions will help meet the evolving needs of the user base and keep the platform competitive in the market.
@@ -585,6 +644,10 @@ Note on Code Used from Third-party Sources: The app was built from scratch, and 
 
 ## Developer thoughts
 
-Due to time constraints, some features and optimizations were not implemented in the current version of the app. However, the app was developed with scalability and future enhancements in mind. Further refactoring and performance optimizations including API calls, state management, and component reusability are planned for future iterations.
+Due to time constraints, some features and optimizations were not implemented in the current version of the app. However, the app was developed with scalability and future enhancements in mind.
+
+Further refactoring and performance optimizations including API calls, state management, and component reusability are planned for future iterations.
+
+The database connection errors that happens from time to time are a concern, and can lead to a poor user experience and the feeling of an unstable platform. This issue will be addressed in future versions to ensure a consistent and reliable database connection.
 
 [Back to top](#local-listing)
