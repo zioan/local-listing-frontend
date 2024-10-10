@@ -402,6 +402,8 @@ The development of the **Local Listing App** followed Agile principles to ensure
 
   - A **Kanban board** was used to visualize and track the progress of tasks during the project. Tasks were organized into columns, providing a clear overview of what needed to be done and how work was progressing. This setup ensured that no task was overlooked, and it made it easy to identify potential bottlenecks in the development process.
 
+  Kanban board can be accessed [here](https://github.com/users/zioan/projects/6).
+
 - **User Stories**:
   - All features in the app were guided by **user stories**, which were crafted to represent the needs and expectations of the end-users. User stories were broken down into manageable tasks that could be completed within a single sprint.
   - The user stories were prioritized using the **MoSCoW method**:
