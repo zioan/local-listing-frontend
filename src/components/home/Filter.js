@@ -117,18 +117,16 @@ function Filter({ onFilterChange, initialFilters, onToggleFilter }) {
           value={filters.category}
           onChange={handleInputChange}
           label="Category"
-          options={[{ value: "", label: "All Categories" }, ...(categories?.map((category) => ({ value: category.id, label: category.name })) || [])]}
+          options={categories?.map((category) => ({ value: category.id, label: category.name })) || []}
         />
+
         <FormSelect
           id="subcategory"
           name="subcategory"
           value={filters.subcategory}
           onChange={handleInputChange}
           label="Subcategory"
-          options={[
-            { value: "", label: "All Subcategories" },
-            ...subcategoriesForCategory.map((subcategory) => ({ value: subcategory.id, label: subcategory.name })),
-          ]}
+          options={subcategoriesForCategory.map((subcategory) => ({ value: subcategory.id, label: subcategory.name }))}
           disabled={!filters.category || subcategoriesForCategory.length === 0}
         />
         <FormSelect
